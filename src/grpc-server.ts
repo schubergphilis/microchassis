@@ -23,7 +23,12 @@ export class GrpcServer{
 
     this.logger.debug(`Registering GRPC service: ${serviceName}`);
     this.services[serviceName] = (call, callback) => {
-      service.handler.call(service, call, callback);
+      this.logger.info(`GRPC request started ${serviceName}`);
+
+      service.handler.apply(service, [{}, call, (error, result) => {
+        this.logger.info(`GRPC request ended ${serviceName}`);
+        callback(error, result);
+      }]);
     }
   }
 

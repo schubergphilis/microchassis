@@ -16,9 +16,16 @@ import { GrpcServer } from './grpc-server';
 export class RService {
   private container = new Container();
 
-  constructor(config: ServiceConfig) {
+  constructor(serviceConfig: ServiceConfig, grpcPort?: number, httpPort?: number) {
+
     // Make available for injection
     this.container.bind<Config>(Config).toSelf().inSingletonScope();
+
+    // Temporary override
+    const config = this.container.get(Config);
+    config.grpcPort = grpcPort;
+    config.httpPort = httpPort;
+
     this.container.bind<HealthManager>(HealthManager).toSelf().inSingletonScope();
     this.container.bind<Logger>(Logger).toSelf();
     this.container.bind<HttpServer>(HttpServer).toSelf();
@@ -26,25 +33,25 @@ export class RService {
 
 
     // Make managers available for injection
-    if (config.managers) {
-      for (const managerName in config.managers) {
-        const managerClass = config.managers[managerName];
+    if (serviceConfig.managers) {
+      for (const managerName in serviceConfig.managers) {
+        const managerClass = serviceConfig.managers[managerName];
         this.container.bind<any>(managerClass).toSelf().inSingletonScope();
       }
     }
 
     // Create services and register them with the grpc and http server
-    if (config.services) {
+    if (serviceConfig.services) {
 
       // Get server instances
       const httpServer = this.container.get(HttpServer);
       const grpcServer = this.container.get(GrpcServer);
 
-      grpcServer.loadProto(config.proto);
+      grpcServer.loadProto(serviceConfig.proto);
 
       // Now start registering the services
-      for (const serviceName in config.services) {
-        const serviceClass = config.services[serviceName];
+      for (const serviceName in serviceConfig.services) {
+        const serviceClass = serviceConfig.services[serviceName];
 
         // injectable()(serviceClass);
 
