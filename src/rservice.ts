@@ -1,11 +1,5 @@
 import { Container, injectable } from 'inversify';
 
-export interface ServiceConfig {
-  managers?: any;
-  services?: any;
-  proto: any;
-}
-
 import { Config } from './config';
 import { Logger } from './logger';
 import { HealthManager } from './health';
@@ -13,24 +7,32 @@ import { Service } from './service';
 import { HttpServer } from './http-server';
 import { GrpcServer } from './grpc-server';
 
+export interface ServiceConfig {
+  managers?: Array<any>;
+  services?: Array<any>;
+  providers?: Array<any>;
+  proto: any;
+}
+
 export class RService {
   private container = new Container();
 
-  constructor(serviceConfig: ServiceConfig, grpcPort?: number, httpPort?: number) {
+  constructor(serviceConfig: ServiceConfig) {
 
     // Make available for injection
     this.container.bind<Config>(Config).toSelf().inSingletonScope();
-
-    // Temporary override
-    const config = this.container.get(Config);
-    config.grpcPort = grpcPort;
-    config.httpPort = httpPort;
-
     this.container.bind<HealthManager>(HealthManager).toSelf().inSingletonScope();
     this.container.bind<Logger>(Logger).toSelf();
     this.container.bind<HttpServer>(HttpServer).toSelf();
     this.container.bind<GrpcServer>(GrpcServer).toSelf();
 
+    // Make the providers available for injection
+    if (serviceConfig.providers) {
+      for (const providerName in serviceConfig.providers) {
+        const providerClass = serviceConfig.providers[providerName];
+        this.container.bind<any>(providerClass).toSelf().inSingletonScope();
+      }
+    }
 
     // Make managers available for injection
     if (serviceConfig.managers) {

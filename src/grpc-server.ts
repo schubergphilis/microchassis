@@ -1,17 +1,22 @@
 import { injectable } from 'inversify';
 import * as grpc from 'grpc';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 import { Config } from './config';
 import { Logger } from './logger';
 import { Service } from './service';
+import { HealthManager } from './health';
 
 @injectable()
 export class GrpcServer{
   private server = new grpc.Server();
   private services = {};
   private proto;
+  private health = new BehaviorSubject(false);
 
-  constructor(private config: Config, private logger: Logger) {}
+  constructor(private config: Config, private logger: Logger, healthManager: HealthManager) {
+    healthManager.registerCheck('GRPC server', this.health);
+  }
 
   public loadProto(proto) {
     this.logger.info(`Loading proto at: ${proto}`);
@@ -33,14 +38,17 @@ export class GrpcServer{
   }
 
   public start(): void {
-    // @TODO TODO make this waaaaaaaaaay smarter.....
+    // Find the service key
     const serviceKey = Object.keys(this.proto).find((key) => {
-      return key.indexOf('Service') > -1;
+      return this.proto[key].hasOwnProperty('service');
     });
 
     this.server.addService(this.proto[serviceKey].service, this.services);
     this.server.bind(`0.0.0.0:${this.config.grpcPort}`, grpc.ServerCredentials.createInsecure());
     this.server.start();
     this.logger.info(`Grpc server started listening on: ${this.config.grpcPort}`);
+
+    // Notify the server is healhty
+    this.health.next(true);
   }
 }

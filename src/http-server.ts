@@ -2,7 +2,9 @@ import { injectable } from 'inversify';
 import * as express from 'express';
 import { Request, Response } from 'express';
 import * as httpStatus from 'http-status';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
+import { HealthManager } from './health';
 import { Config } from './config';
 import { Service } from './service';
 import { Logger} from './logger';
@@ -12,9 +14,20 @@ import { deepSet} from './utils';
 @injectable()
 export class HttpServer {
   private server;
+  private health = new BehaviorSubject(false);
 
-  constructor(private config: Config, private logger: Logger) {
+  constructor(private config: Config, private logger: Logger, healthManager: HealthManager) {
     this.server = express();
+    healthManager.registerCheck('HTTP server', this.health);
+
+    // Register health check endpoint
+    this.server.get('/health', (request: Request, response: Response) => {
+      if (healthManager.healthy) {
+        response.status(200).send('Healthy');
+      } else {
+        response.status(503).send('Unhealthy');
+      }
+    });
   }
 
   // Register an endpoint with the server
@@ -46,6 +59,7 @@ export class HttpServer {
   public start() {
     this.server.listen(this.config.httpPort, () => {
       this.logger.info(`Http server starting listening on: ${this.config.httpPort}`);
+      this.health.next(true);
     });
   }
 
@@ -101,6 +115,8 @@ export class HttpServer {
         }
       }
     }
+
+    
 
     // Call the httpHandler
     service.handler(context, body, (error, data) => {
