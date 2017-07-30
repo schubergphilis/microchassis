@@ -18,11 +18,7 @@ import { HealthManager } from './../src/health' ;
 import { Context } from './../src/context';
 import { HttpServer } from './../src/http-server';
 
-const config = {
-  httpPort: 8000,
-  grpcPort: 9000,
-  logLevel: 'info'
-};
+const config = new Config();
 
 const mockLogger = {
   info: (message: string) => {},
@@ -115,7 +111,7 @@ describe('Http server', () => {
 
       healthManager.healthy = true;
       handler({}, response);
-      
+
       expect(responseCode).to.equal(200);
       expect(responseText).to.equal('Healthy');
     });
@@ -154,7 +150,7 @@ describe('Http server', () => {
       httpServer.start();
       expect(listenSpy).to.have.been.calledOnce;
       expect(listenSpy.getCall(0).args[0]).to.equal(config.httpPort);
-    }); 
+    });
 
     it('It should send out an health update when the server is started', () => {
       httpServer.start();
@@ -163,7 +159,7 @@ describe('Http server', () => {
 
       // Given callback
       listenSpy.getCall(0).args[1]();
-  
+
       expect(httpServer.health.getValue()).to.equal(true);
     });
   });
@@ -189,13 +185,13 @@ describe('Http server', () => {
           'Authorization': `Token ${expectedToken}`,
           'X-Request-ID': expectedRequestId
         }
-      }); 
+      });
 
       handler(request, {});
 
       const args = handlerSpy.getCall(0).args;
       const context: Context = args[0];
-      
+
       expect(context.token).to.equal(expectedToken);
       expect(context.requestId).to.equal(expectedRequestId);
     });
@@ -257,7 +253,7 @@ describe('Http server', () => {
           'bar': 'world'
         },
         body: {}
-      }); 
+      });
 
       handler(request, {});
 
@@ -280,7 +276,7 @@ describe('Http server', () => {
       };
 
       httpServer.registerService(service);
-      
+
       const handler = getSpy.getCall(1).args[1];
       const request = new MockRequest({
         method: 'GET',
@@ -289,7 +285,7 @@ describe('Http server', () => {
           id1: '1',
           id2: '2'
         }
-      }); 
+      });
 
       handler(request, {});
 
@@ -308,12 +304,12 @@ describe('Http server', () => {
       };
 
       httpServer.registerService(service);
-      
+
       const handler = getSpy.getCall(1).args[1];
       const request = new MockRequest({
         method: 'GET',
         url: '/foobar'
-      }); 
+      });
 
       let responseText;
       let statusCode;
@@ -350,12 +346,12 @@ describe('Http server', () => {
       };
 
       httpServer.registerService(service);
-      
+
       const handler = getSpy.getCall(1).args[1];
       const request = new MockRequest({
         method: 'GET',
         url: '/foobar'
-      }); 
+      });
 
       let handlerResponse;
       let statusCode;

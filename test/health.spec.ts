@@ -33,7 +33,7 @@ describe('HealthManager', () => {
 
     it('Should throw an error when registering the same name', () => {
       const check = new BehaviorSubject(true);
-      
+
       function register() {
         healthManager.registerCheck('foo', check);
         healthManager.registerCheck('foo', check);

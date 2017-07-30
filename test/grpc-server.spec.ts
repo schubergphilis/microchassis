@@ -15,11 +15,7 @@ const protoConfig = {
   service: ''
 };
 
-const config = {
-  httpPort: 8000,
-  grpcPort: 9000,
-  logLevel: 'info'
-};
+const config = new Config();
 
 const mockLogger = {
   info: (message: string) => {},
@@ -30,5 +26,5 @@ const mockLogger = {
 };
 
 describe('Grpc server', () => {
-  new GrpcServer(grpc, protoConfig, <Config>config, <Logger>mockLogger, new HealthManager(<Logger>mockLogger));
+  const server = new GrpcServer(grpc, protoConfig, config, <Logger>mockLogger, new HealthManager(<Logger>mockLogger));
 });
