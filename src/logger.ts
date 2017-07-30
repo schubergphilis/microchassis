@@ -6,7 +6,7 @@ export class Logger {
   private logLevel: string;
 
   constructor(private config: Config) {
-    this.logLevel = config.logLevel;
+    this.logLevel = config['logLevel'];
   }
 
   info(message: string) {
