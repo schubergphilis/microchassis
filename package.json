@@ -12,7 +12,7 @@
     "test:watch": "mocha --watch --watch-extensions ts",
     "test:coverage": "nyc -e '.ts' -r lcov -r text npm run test",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "prepublish": "npm run test && npm run build"
+    "prepublish": "npm run lint && npm run test && npm run build"
   },
   "author": "",
   "license": "ISC",
