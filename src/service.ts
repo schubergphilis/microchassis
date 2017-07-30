@@ -17,7 +17,7 @@ export const HttpMethod = {
  * value is the path to which to map it.
  * @type QueryMapping
  */
-export type QueryMapping = {
+export interface QueryMapping {
   [s: string]: string;
 }
 
@@ -26,13 +26,13 @@ export type QueryMapping = {
  * value is the path to which to map it.
  * @type QueryMapping
  */
-export type UrlMapping = {
+export interface UrlMapping {
   [s: string]: string;
 }
 
 /**
  * Service callback function interface
- * @type ServiceCallback 
+ * @type ServiceCallback
  */
 export type ServiceCallback = (error: any, response: any) => void;
 
@@ -42,7 +42,7 @@ export type ServiceCallback = (error: any, response: any) => void;
  */
 export interface Service {
   /**
-   * REST method under which the service is available. 
+   * REST method under which the service is available.
    * @default get
    * @property method {string}
    */
@@ -58,7 +58,7 @@ export interface Service {
    * Flag to disable checking of authorization header for an token
    */
   unauthenticated?: boolean;
-  
+
   /**
    *  Maps query string parameters to request object
    *  @property queryMapping {QueryMapping}

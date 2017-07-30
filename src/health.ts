@@ -5,7 +5,7 @@ import 'rxjs/add/operator/skip';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 
-type HealthChecks = {
+interface HealthChecks {
   [s: string]: BehaviorSubject<boolean>;
 }
 
@@ -49,7 +49,7 @@ export class HealthManager {
   set healthy(status: boolean) {
     if (status !== this._health) {
       this._health = status;
-    
+
       if (status === false) {
         this.logger.warn('Service became unhealthy');
       } else {

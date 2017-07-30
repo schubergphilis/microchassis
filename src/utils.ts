@@ -2,8 +2,8 @@ function parse (path) {
   if (typeof path !== 'string') {
     path = '';
   }
-  var tokens = path.split('.');
-  for (var i = 0, len = tokens.length; i < len; i++) {
+  const tokens = path.split('.');
+  for (let i = 0, len = tokens.length; i < len; i++) {
     if (tokens[i] === '') {
       return [ ];
     }
@@ -12,12 +12,12 @@ function parse (path) {
 }
 
 export function deepSet(obj, path, value) {
-  var tokens = parse(path);
-  for (var i = 0, len = tokens.length; i < len; i++) {
+  const tokens = parse(path);
+  for (let i = 0, len = tokens.length; i < len; i++) {
     if (! obj || ! obj.hasOwnProperty(tokens[i])) {
       obj[tokens[i]] = { };
     }
-    if (i == (len - 1)) {
+    if (i === (len - 1)) {
       obj[tokens[i]] = value;
     } else {
       obj = obj[tokens[i]];

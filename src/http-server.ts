@@ -46,7 +46,7 @@ export class HttpServer {
     }
 
     this.logger.debug(`Registering HTTP handler: ${service.method || method} ${url}`);
-    
+
     this.server[method](url, (request: Request, response: Response) => {
       this.handleRequest(service, request, response);
     });
@@ -54,8 +54,8 @@ export class HttpServer {
 
   // Starts the http server
   public start() {
-    this.server.listen(this.config.httpPort, () => {
-      this.logger.info(`Http server starting listening on: ${this.config.httpPort}`);
+    this.server.listen(this.config['httpPort'], () => {
+      this.logger.info(`Http server starting listening on: ${this.config['httpPort']}`);
       this.health.next(true);
     });
   }
@@ -72,13 +72,13 @@ export class HttpServer {
       response.status(403).send('Unauthenticated');
       return;
     }
- 
+
     let body = request.body || {};
 
     // See if we need to map query string or url parameters
     body = this.getQueryParams(service, request, body);
     body = this.getUrlParams(service, request, body);
-    
+
     // Call the httpHandler
     service.handler(context, body, (error, data) => {
       if (error) {
@@ -95,12 +95,14 @@ export class HttpServer {
 
   private getQueryParams(service: Service, request: Request, body: any): any {
     if (service.queryMapping) {
-      for (let param in service.queryMapping) {
-        const value = request.query[param];
-        const path = service.queryMapping[param];
-        
-        if (value) {
-          deepSet(body, path, value);
+      for (const param in service.queryMapping) {
+        if (service.queryMapping.hasOwnProperty(param)) {
+          const value = request.query[param];
+          const path = service.queryMapping[param];
+
+          if (value) {
+            deepSet(body, path, value);
+          }
         }
       }
     }
@@ -110,12 +112,14 @@ export class HttpServer {
 
   private getUrlParams(service: Service, request: Request, body: any): any {
     if (service.urlMapping) {
-      for (let param in service.urlMapping) {
-        const value = request.params[param];
-        const path = service.urlMapping[param];
+      for (const param in service.urlMapping) {
+        if (service.urlMapping.hasOwnProperty(param)) {
+          const value = request.params[param];
+          const path = service.urlMapping[param];
 
-        if (value) {
-          deepSet(body, path, value);
+          if (value) {
+            deepSet(body, path, value);
+          }
         }
       }
     }

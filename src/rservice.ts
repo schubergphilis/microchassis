@@ -2,7 +2,7 @@ import { Container, injectable } from 'inversify';
 import * as grpc from 'grpc';
 import * as express from 'express';
 
-import { Config } from './config';
+import { Config, ConfigOption } from './config';
 import { Logger } from './logger';
 import { HealthManager } from './health';
 import { Service } from './service';
@@ -17,9 +17,10 @@ export interface ProtoConfig {
 
 export interface ServiceOptions {
   managers?: Array<any>;
-  services?: Array<any>;
+  services: Array<any>;
   providers?: Array<any>;
   proto: ProtoConfig;
+  config?: Array<ConfigOption>;
 }
 
 export class RService {
@@ -28,6 +29,7 @@ export class RService {
   private grpcServer: GrpcServer;
 
   constructor(private serviceConfig: ServiceOptions) {
+    this.container.bind('configoptions').toConstantValue(serviceConfig.config);
     this.container.bind<Config>(Config).toSelf().inSingletonScope();
     this.container.bind<HealthManager>(HealthManager).toSelf().inSingletonScope();
     this.container.bind<Logger>(Logger).toSelf();
@@ -48,7 +50,7 @@ export class RService {
     // Register services
     this.registerServices();
 
-    // Done initializing 
+    // Done initializing
     this.httpServer.start();
     this.grpcServer.start();
   }
@@ -57,8 +59,10 @@ export class RService {
   private prepareProviders() {
     if (this.serviceConfig.providers) {
       for (const providerName in this.serviceConfig.providers) {
-        const providerClass = this.serviceConfig.providers[providerName];
-        this.container.bind<any>(providerClass).toSelf().inSingletonScope();
+        if (this.serviceConfig.providers.hasOwnProperty(providerName)) {
+          const providerClass = this.serviceConfig.providers[providerName];
+          this.container.bind<any>(providerClass).toSelf().inSingletonScope();
+        }
       }
     }
   }
@@ -67,8 +71,10 @@ export class RService {
   private prepareManagers() {
     if (this.serviceConfig.managers) {
       for (const managerName in this.serviceConfig.managers) {
-        const managerClass = this.serviceConfig.managers[managerName];
-        this.container.bind<any>(managerClass).toSelf().inSingletonScope();
+        if (this.serviceConfig.managers.hasOwnProperty(managerName)) {
+          const managerClass = this.serviceConfig.managers[managerName];
+          this.container.bind<any>(managerClass).toSelf().inSingletonScope();
+        }
       }
     }
   }
@@ -77,14 +83,16 @@ export class RService {
   private registerServices() {
     if (this.serviceConfig.services) {
       for (const serviceName in this.serviceConfig.services) {
-        const serviceClass = this.serviceConfig.services[serviceName];
+        if (this.serviceConfig.services.hasOwnProperty(serviceName)) {
+          const serviceClass = this.serviceConfig.services[serviceName];
 
-        this.container.bind<any>(<any>serviceClass).toSelf().inSingletonScope;
-        const serviceInstance = <Service>this.container.get(<any>serviceClass);
+          this.container.bind<any>(<any>serviceClass).toSelf().inSingletonScope();
+          const serviceInstance = <Service>this.container.get(<any>serviceClass);
 
-        this.httpServer.registerService(serviceInstance);
-        this.grpcServer.registerService(serviceInstance);
-      } 
+          this.httpServer.registerService(serviceInstance);
+          this.grpcServer.registerService(serviceInstance);
+        }
+      }
     }
   }
 }

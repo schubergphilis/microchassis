@@ -9,20 +9,20 @@ import { HealthManager } from './health';
 import { ProtoConfig } from './rservice';
 
 @injectable()
-export class GrpcServer{
+export class GrpcServer {
   private server;
   private services = {};
   private proto;
   private health = new BehaviorSubject(false);
 
-  constructor(@inject('grpc') private grpc, 
-              @inject('protoconfig') private protoConfig: ProtoConfig, 
+  constructor(@inject('grpc') private grpc,
+              @inject('protoconfig') private protoConfig: ProtoConfig,
               private config: Config,
-              private logger: Logger, 
+              private logger: Logger,
               private healthManager: HealthManager) {
-    
-    healthManager.registerCheck('GRPC server', this.health);                
-    
+
+    healthManager.registerCheck('GRPC server', this.health);
+
     this.server = new grpc.Server();
     this.proto = this.grpc.load(this.protoConfig.path);
   }
@@ -35,9 +35,9 @@ export class GrpcServer{
     // Setup handler
     this.services[serviceName] = (call, callback) => {
       this.logger.info(`GRPC request started ${serviceName}`);
-      
+
       const context = this.createContext(call.metadata);
-      
+
       service.handler.apply(service, [context, call, (error, result) => {
         this.logger.info(`GRPC request ended ${serviceName}`);
         callback(error, result);
@@ -49,9 +49,9 @@ export class GrpcServer{
     const service = this.getGrpcService();
 
     this.server.addService(service, this.services);
-    this.server.bind(`0.0.0.0:${this.config.grpcPort}`, this.grpc.ServerCredentials.createInsecure());
+    this.server.bind(`0.0.0.0:${this.config['grpcPort']}`, this.grpc.ServerCredentials.createInsecure());
     this.server.start();
-    this.logger.info(`Grpc server started listening on: ${this.config.grpcPort}`);
+    this.logger.info(`Grpc server started listening on: ${this.config['grpcPort']}`);
 
     // Notify the server is healhty
     this.health.next(true);
@@ -65,10 +65,10 @@ export class GrpcServer{
     } else {
       service = this.proto[this.protoConfig.service].service;
     }
-    
+
     return service;
   }
-n
+
   private createContext(metadata): Context {
     return {
       token: metadata.get('authorization')[0].split('Token ')[1],

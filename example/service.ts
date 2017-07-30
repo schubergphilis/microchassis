@@ -12,7 +12,6 @@ const service = new RService({
     package: 'hellopb',
     service: 'HelloService'
   },
-  name: 'HelloService',
   services: [
     HelloService
   ],
