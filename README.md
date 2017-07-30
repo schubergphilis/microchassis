@@ -1,4 +1,16 @@
 # RMicroservice
+[![travis][travis-image]][travis-url]
+[![Coverage Status](https://coveralls.io/repos/rthewhite/rmicroservice/badge.svg?branch=master&service=github)](https://coveralls.io/github/rthewhite/rmicroservice?branch=master)
+[![npm][npm-image]][npm-url]
+[![downloads][downloads-image]][downloads-url]
+
+[travis-image]: https://img.shields.io/travis/rthewhite/rmicroservice.svg?style=flat
+[travis-url]: https://travis-ci.org/rthewhite/rmicroservice
+[npm-image]: https://img.shields.io/npm/v/rmicroservice.svg?style=flat
+[npm-url]: https://npmjs.org/package/rmicroservice
+[downloads-image]: https://img.shields.io/npm/dm/rmicroservice.svg?style=flat
+[downloads-url]: https://npmjs.org/package/rmicroservice
+
 This package aims to help you build "simple" microservices in Typescript.
 
 The Connect team at Schuberg Philis is building microservices which use [Protobuf](https://github.com/google/protobuf) and [GRPC](https://grpc.io) as a basis and bolt REST on top of that for web usage. This package aims to use the proto as the basis for the service and make it simple to bolt REST on top of that.
