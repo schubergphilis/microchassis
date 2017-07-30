@@ -12,5 +12,5 @@ install:
 
 script:
   - npm run build
-  - npm run test:unit:coverage
+  - npm run test:coverage
   - npm run coveralls
