@@ -4,7 +4,7 @@ import * as path from 'path';
 import { RService } from './../src';
 
 import { HelloService } from './services';
-// import { HelloManager } from './managers';
+import { HelloManager } from './managers';
 
 const service = new RService({
   proto: {
@@ -17,6 +17,6 @@ const service = new RService({
     HelloService
   ],
   managers: [
-    // HelloManager
+    HelloManager
   ]
 });
