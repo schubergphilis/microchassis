@@ -20,7 +20,6 @@ export interface ServiceOptions {
   services?: Array<any>;
   providers?: Array<any>;
   proto: ProtoConfig;
-  name: string;
 }
 
 export class RService {
@@ -37,10 +36,6 @@ export class RService {
     this.container.bind('grpc').toConstantValue(grpc);
     this.container.bind('express').toConstantValue(express);
     this.container.bind('protoconfig').toConstantValue(serviceConfig.proto);
-
-    // Prepare config
-    const config = this.container.get(Config);
-    config.name = serviceConfig.name;
 
     // Prepare the providers and managers for DI
     this.prepareProviders();
