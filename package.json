@@ -8,7 +8,7 @@
     "build": "tsc --declaration",
     "dev": "tsc -w",
     "test:unit": "mocha -r ts-node/register src/**/*.spec.ts",
-    "test:unit:watch": "mocha --watch -r ts-node/register src/**/*.spec.ts --watch-extensions ts",
+    "test:unit:watch": "mocha --watch -r ./node_modules/ts-node/register src/**/*.spec.ts --watch-extensions ts",
     "test:unit:coverage": "nyc -e '.ts' -x 'src/**/*.spec.ts' --r html -r lcov -r text npm run test:unit",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "prepublish": "npm run build"
@@ -29,7 +29,7 @@
     "mocha": "^3.4.2",
     "mock-express-request": "^0.2.0",
     "nodemon": "^1.11.0",
-    "nyc": "^11.0.3",
+    "nyc": "^11.1.0",
     "sinon": "^2.4.1",
     "sinon-chai": "^2.12.0",
     "ts-node": "^3.3.0",
