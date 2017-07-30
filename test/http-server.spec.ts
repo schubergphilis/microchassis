@@ -149,7 +149,7 @@ describe('Http server', () => {
     it('It should call listen on express when starting server with the correct port', () => {
       httpServer.start();
       expect(listenSpy).to.have.been.calledOnce;
-      expect(listenSpy.getCall(0).args[0]).to.equal(config.httpPort);
+      expect(listenSpy.getCall(0).args[0]).to.equal(config['httpPort']);
     });
 
     it('It should send out an health update when the server is started', () => {
