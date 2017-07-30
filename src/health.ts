@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import { Logger } from './logger';
-import 'rxjs/add/operator/skip';
 import 'rxjs/add/operator/distinct';
+import 'rxjs/add/operator/skip';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 
@@ -13,6 +13,7 @@ type HealthChecks = {
 export class HealthManager {
   private checks: HealthChecks = {};
   private _health = false;
+  private _previousHealth = false;
 
   constructor(private logger: Logger) {}
 
@@ -22,10 +23,12 @@ export class HealthManager {
     }
 
     this.logger.debug(`Registering new healthcheck: ${name}`);
-
     this.checks[name] = check;
 
-    // On any change determine health
+    // Check the health
+    this.determineHealth();
+
+    // Skip the initial status no need to log that
     check
       .skip(1)
       .subscribe((status) => {
@@ -44,13 +47,19 @@ export class HealthManager {
   }
 
   set healthy(status: boolean) {
-    this._health = status;
-
-    if (status === false) {
-      this.logger.warn('Service became unhealthy');
-    } else {
-      this.logger.info('Service became healthy');
+    if (status !== this._health) {
+      this._health = status;
+    
+      if (status === false) {
+        this.logger.warn('Service became unhealthy');
+      } else {
+        this.logger.info('Service became healthy');
+      }
     }
+  }
+
+  get numberOfChecks() {
+    return Object.keys(this.checks).length;
   }
 
   private determineHealth() {

@@ -1,5 +1,4 @@
-import { injectable } from 'inversify';
-import * as express from 'express';
+import { injectable, inject } from 'inversify';
 import { Request, Response } from 'express';
 import * as httpStatus from 'http-status';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -14,9 +13,9 @@ import { deepSet} from './utils';
 @injectable()
 export class HttpServer {
   private server;
-  private health = new BehaviorSubject(false);
+  public health = new BehaviorSubject(false);
 
-  constructor(private config: Config, private logger: Logger, healthManager: HealthManager) {
+  constructor(@inject('express') private express, private config: Config, private logger: Logger, healthManager: HealthManager) {
     this.server = express();
     healthManager.registerCheck('HTTP server', this.health);
 
@@ -32,8 +31,6 @@ export class HttpServer {
 
   // Register an endpoint with the server
   public registerService(service: Service) {
-    const serviceName = service.constructor.name.split('Service')[0];    
-
     // Normalize methodType to express method function
     let method = 'get';
 
@@ -50,7 +47,7 @@ export class HttpServer {
 
     this.logger.debug(`Registering HTTP handler: ${service.method || method} ${url}`);
     
-    this.server[method](service.url, (request: Request, response: Response) => {
+    this.server[method](url, (request: Request, response: Response) => {
       this.handleRequest(service, request, response);
     });
   }
@@ -68,32 +65,36 @@ export class HttpServer {
     this.logger.info(`Http request started`);
 
     // Build up context object
-    const context: Context = {
-      token: undefined,
-      requestId: request.headers['x-request-id']
-    }
+    const context = this.createContext(request);
 
-    // Services are always authenticated unless explicitly set to unauthenticated
-    if (service.unauthenticated === undefined || service.unauthenticated !== true) {
-      let token = 'unauthorized';
-      const tokenHeader = request.headers['authorization'];
-
-      if (!service.unauthenticated && tokenHeader && tokenHeader.indexOf('Token') > -1) {
-        context.token = request.headers['authorization'].split('Token')[1].trim()
-      } else {
-        response.status(httpStatus.BAD_REQUEST).send({
-          message: 'Invalid token'
-        });
-        return;
-      }
+    if (!service.unauthenticated && !context.token) {
+      this.logger.audit(`Unauthenticated request on: ${service.url}`);
+      response.status(403).send('Unauthenticated');
+      return;
     }
-    
+ 
     let body = request.body || {};
 
-    // See if we need to map query string parameters
-    if (service.queryMapping) {
+    // See if we need to map query string or url parameters
+    body = this.getQueryParams(service, request, body);
+    body = this.getUrlParams(service, request, body);
+    
+    // Call the httpHandler
+    service.handler(context, body, (error, data) => {
+      if (error) {
+        // TODO: map this to proper errors
+        response.status(httpStatus.INTERNAL_SERVER_ERROR).send('Internal server error');
+      } else {
+        // TODO: probably want the service to be able to set this somehow
+        response.status(httpStatus.OK).send(data);
+      }
 
-      // Handle each query string parameter
+      this.logger.info(`Http request ended, duration: ${new Date().getTime() - startTime.getTime()}ms`);
+    });
+  }
+
+  private getQueryParams(service: Service, request: Request, body: any): any {
+    if (service.queryMapping) {
       for (let param in service.queryMapping) {
         const value = request.query[param];
         const path = service.queryMapping[param];
@@ -104,7 +105,10 @@ export class HttpServer {
       }
     }
 
-    // See if we need to map url parameters
+    return body;
+  }
+
+  private getUrlParams(service: Service, request: Request, body: any): any {
     if (service.urlMapping) {
       for (let param in service.urlMapping) {
         const value = request.params[param];
@@ -116,19 +120,24 @@ export class HttpServer {
       }
     }
 
-    
+    return body;
+  }
 
-    // Call the httpHandler
-    service.handler(context, body, (error, data) => {
-      if (error) {
-        // TODO: map this to proper errors
-        response.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
-        response.send();
-      } else {
-        response.status(httpStatus.OK).send(data);
-      }
+  private createContext(request: Request): Context {
+    let token;
+    let requestId;
 
-      this.logger.info(`Http request ended, duration: ${new Date().getTime() - startTime.getTime()}ms`);
-    });
+    if (request.headers['authorization']) {
+      token = request.headers['authorization'].toString().split('Token ')[1];
+    }
+
+    if (request.headers['x-request-id']) {
+      requestId = request.headers['x-request-id'].toString();
+    }
+
+    return {
+      token,
+      requestId
+    }
   }
 }

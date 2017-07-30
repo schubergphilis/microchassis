@@ -12,9 +12,6 @@ function parse (path) {
 }
 
 export function deepSet(obj, path, value) {
-  if (typeof obj === 'undefined' || typeof path === 'undefined') {
-    return;
-  }
   var tokens = parse(path);
   for (var i = 0, len = tokens.length; i < len; i++) {
     if (! obj || ! obj.hasOwnProperty(tokens[i])) {

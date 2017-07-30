@@ -13,5 +13,5 @@ export class Config implements Config {
   public httpPort = 8000;
   public grpcPort = 9000;
   public logLevel: LogLevel = 'info';
+  public name: string;
 }
-
