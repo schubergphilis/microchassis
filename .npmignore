@@ -3,3 +3,9 @@ src
 .gitignore
 tsconfig.json
 example
+docs
+.nyc_output
+test
+coverage
+.travis.yml
+tslint.json
