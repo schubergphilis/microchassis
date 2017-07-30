@@ -1,6 +1,6 @@
 {
   "name": "rmicroservice",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -11,7 +11,7 @@
     "test:watch": "mocha --watch --watch-extensions ts",
     "test:coverage": "nyc -e '.ts' -r lcov -r text npm run test",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "prepublish": "npm run build"
+    "prepublish": "npm run test && npm run build"
   },
   "author": "",
   "license": "ISC",
