@@ -11,12 +11,12 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Request } from 'express';
 import * as MockRequest from 'mock-express-request';
 
-import { HttpMethod } from './service';
-import { Config } from './config';
-import { Logger } from './logger';
-import { HealthManager } from './health' ;
-import { Context } from './context';
-import { HttpServer } from './http-server';
+import { HttpMethod } from './../src/service';
+import { Config } from './../src/config';
+import { Logger } from './../src/logger';
+import { HealthManager } from './../src/health' ;
+import { Context } from './../src/context';
+import { HttpServer } from './../src/http-server';
 
 const config = {
   httpPort: 8000,

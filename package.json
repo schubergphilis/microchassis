@@ -7,9 +7,9 @@
   "scripts": {
     "build": "tsc --declaration",
     "dev": "tsc -w",
-    "test:unit": "mocha -r ts-node/register src/**/*.spec.ts",
-    "test:unit:watch": "mocha --watch -r ./node_modules/ts-node/register src/**/*.spec.ts --watch-extensions ts",
-    "test:unit:coverage": "nyc -e '.ts' -x 'src/**/*.spec.ts' --r html -r lcov -r text npm run test:unit",
+    "test": "mocha",
+    "test:watch": "mocha --watch --watch-extensions ts",
+    "test:coverage": "nyc -r lcov -r text npm run test",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "prepublish": "npm run build"
   },
@@ -32,6 +32,7 @@
     "nyc": "^11.1.0",
     "sinon": "^2.4.1",
     "sinon-chai": "^2.12.0",
+    "source-map-support": "^0.4.15",
     "ts-node": "^3.3.0",
     "typescript": "^2.4.2"
   },
@@ -42,5 +43,18 @@
     "inversify": "^4.3.0",
     "reflect-metadata": "^0.1.10",
     "rxjs": "^5.4.2"
+  },
+  "nyc": {
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
+    "exclude": [
+      "**/*.d.ts"
+    ],
+    "reporter": [
+      "html"
+    ],
+    "all": true
   }
 }

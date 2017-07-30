@@ -2,7 +2,7 @@ import 'reflect-metadata';
 
 import { expect } from 'chai';
 
-import { Config } from './config';
+import { Config } from './../src/config';
 
 describe('Config', () => {
   let config: Config;

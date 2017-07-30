@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { deepSet } from './utils';
+import { deepSet } from './../src/utils';
 
 describe('Utils', () => {
   it('Deepset - should set the property correctly', () => {

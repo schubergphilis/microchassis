@@ -2,8 +2,8 @@ import 'reflect-metadata';
 import { expect } from 'chai';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
-import { Logger } from './logger';
-import { HealthManager } from './health';
+import { Logger } from './../src/logger';
+import { HealthManager } from './../src/health';
 
 const mockLogger = {
   info: (message: string) => {},
