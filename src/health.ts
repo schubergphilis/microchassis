@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { Logger } from './logger';
-import 'rxjs/add/operator/distinct';
+import 'rxjs/add/operator/distinctuntilchanged';
 import 'rxjs/add/operator/skip';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
@@ -31,6 +31,7 @@ export class HealthManager {
     // Skip the initial status no need to log that
     check
       .skip(1)
+      .distinctUntilChanged()
       .subscribe((status) => {
         if (status === false) {
           this.logger.warn(`Health check: ${name} became unhealthy`);
