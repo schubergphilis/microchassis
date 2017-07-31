@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { Logger } from './logger';
-import 'rxjs/add/operator/distinctuntilchanged';
+import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/skip';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
