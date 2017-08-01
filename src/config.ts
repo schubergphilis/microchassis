@@ -48,7 +48,7 @@ export class Config {
     env: 'DB_PASSWORD',
     args: ['db_password'],
     dest: 'dbPassword',
-    value: undefined
+    value: ''
   }];
 
   constructor(@inject('configoptions') configOptions?: Array<ConfigOption>) {

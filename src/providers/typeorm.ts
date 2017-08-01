@@ -36,14 +36,14 @@ export class TypeORMProvider {
 
     const options = deepmerge(this.defaultConnectionOptions, this.connectionOptions);
     options.driver.username = this.config['dbUser'];
-    options.driver.password = this.config['dbPassword'];
+    options.driver.password = this.config['dbPassword'] || '';
     options.driver.database = this.config['dbName'];
 
     this.connect(options);
   }
 
   private connect(options: ConnectionOptions) {
-    createConnection(this.connectionOptions)
+    createConnection(options)
       .then((connection: Connection) => {
         this.connection = connection;
         this.entityManager = connection.entityManager;
