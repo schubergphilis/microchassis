@@ -23,6 +23,7 @@ export class TypeORMProvider {
   private connectionOptions: ConnectionOptions;
   private entities = [];
   private checkInterval = 5000;
+  private reconnectTime = 3000;
 
   // Static method to pass options, will be deep merged with the default options
   static setConnectionOptions(options: any) {
@@ -38,6 +39,10 @@ export class TypeORMProvider {
     options.driver.password = this.config['dbPassword'];
     options.driver.database = this.config['dbName'];
 
+    this.connect(options);
+  }
+
+  private connect(options: ConnectionOptions) {
     createConnection(this.connectionOptions)
       .then((connection: Connection) => {
         this.connection = connection;
@@ -46,9 +51,16 @@ export class TypeORMProvider {
         // We are healthy start monitoring health
         this.health.next(true);
         this.monitorHealth();
+
+        return connection;
       })
       .catch(error => {
-        this.logger.error('Failed to connect to database');
+        this.logger.error(`Failed to connect to database, retrying in: ${this.reconnectTime}ms`);
+        this.logger.error(JSON.stringify(error));
+
+        setTimeout(() => {
+          this.connect(options);
+        }, this.reconnectTime);
       });
   }
 
