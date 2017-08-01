@@ -88,6 +88,7 @@ export class HttpServer {
       })
       .catch((error) => {
         // TODO: do propery error mapping
+        this.logger.error(JSON.stringify(error));
         response.status(httpStatus.INTERNAL_SERVER_ERROR).send('Internal server error');
       });
   }

@@ -43,6 +43,7 @@ export class GrpcServer {
           callback(null, result);
         })
         .catch((error) => {
+          this.logger.error(JSON.stringify(error));
           // TODO: do some proper error mapping here
           callback(error, null);
         });
