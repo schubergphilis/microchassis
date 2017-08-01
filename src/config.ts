@@ -49,6 +49,18 @@ export class Config {
     args: ['db_password'],
     dest: 'dbPassword',
     value: ''
+  }, {
+    description: 'Database host',
+    env: 'DB_HOST',
+    args: ['db_host'],
+    dest: 'dbHost',
+    value: 'localhost'
+  }, {
+    description: 'Database port',
+    env: 'DB_PORT',
+    args: ['db_port'],
+    dest: 'dbPort',
+    value: 3306
   }];
 
   constructor(@inject('configoptions') configOptions?: Array<ConfigOption>) {

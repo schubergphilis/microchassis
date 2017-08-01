@@ -13,9 +13,7 @@ export class TypeORMProvider {
 
   public defaultConnectionOptions = {
     driver: {
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306
+      type: 'mysql'
     },
     autoSchemaSync: false
   };
@@ -38,6 +36,8 @@ export class TypeORMProvider {
     options.driver.username = this.config['dbUser'];
     options.driver.password = this.config['dbPassword'] || '';
     options.driver.database = this.config['dbName'];
+    options.driver.host     = this.config['dbHost'];
+    options.driver.port     = this.config['dbPort'];
 
     this.connect(options);
   }
