@@ -45,6 +45,7 @@
     "http-status": "^1.0.1",
     "inversify": "^4.3.0",
     "minimist": "^1.2.0",
+    "mysql": "^2.14.0",
     "reflect-metadata": "^0.1.10",
     "rxjs": "^5.4.2",
     "typeorm": "0.0.11"
