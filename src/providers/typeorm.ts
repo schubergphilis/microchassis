@@ -71,8 +71,9 @@ export class TypeORMProvider {
         .then(() => {
           this.health.next(true);
         })
-        .catch(() => {
+        .catch((error) => {
           this.health.next(false);
+          this.logger.error(JSON.stringify(error));
         });
     }, this.checkInterval);
   }
