@@ -97,8 +97,8 @@ describe('Http server', () => {
           responseCode = statusCode;
 
           return {
-            send: (response) => {
-              responseText = response;
+            send: (sendResponse) => {
+              responseText = sendResponse;
             }
           }
         }
@@ -121,7 +121,9 @@ describe('Http server', () => {
     it('Default method should be get', () => {
       const service = {
         url: '/foobar',
-        handler: () => {}
+        handler: () => {
+          return new Promise((resolve, reject) => {});
+        }
       };
 
       httpServer.registerService(service);
@@ -133,7 +135,9 @@ describe('Http server', () => {
     it('Should normalize the url to start with /', () => {
       const service = {
         url: 'foobar',
-        handler: () => {}
+        handler: () => {
+          return new Promise((resolve, reject) => {});
+        }
       };
 
       httpServer.registerService(service);
@@ -166,7 +170,7 @@ describe('Http server', () => {
 
   describe('Handleing requests', () => {
     it('Should build up the context correctly', () => {
-      const handlerSpy = sinon.spy();
+      const handlerSpy = sinon.stub().returns(new Promise(() => {}));
       const service = {
         url: '/foobar',
         handler: handlerSpy
@@ -178,7 +182,7 @@ describe('Http server', () => {
       const expectedToken = 'foobar';
       const expectedRequestId = 'requestid';
 
-      const request = new MockRequest({
+      const request = new (MockRequest as any)({
         method: 'GET',
         url: '/foobar',
         headers: {
@@ -197,7 +201,7 @@ describe('Http server', () => {
     });
 
     it('Should reject unauthenticated requests with 403', () => {
-      const handlerSpy = sinon.spy();
+      const handlerSpy = sinon.stub().returns(new Promise(() => {}));
       const service = {
         url: '/foobar',
         handler: handlerSpy
@@ -206,7 +210,7 @@ describe('Http server', () => {
       httpServer.registerService(service);
 
       const handler = getSpy.getCall(1).args[1];
-      const request = new MockRequest({
+      const request = new (MockRequest as any)({
         headers: {}
       });
 
@@ -217,8 +221,8 @@ describe('Http server', () => {
         status: (status: number) => {
           statusCode = status;
           return {
-            send: (response: string) => {
-              responseText = response;
+            send: (sendResponse: string) => {
+              responseText = sendResponse;
             }
           }
         }
@@ -231,7 +235,7 @@ describe('Http server', () => {
     });
 
     it('Should map query params correctly', () => {
-      const handlerSpy = sinon.spy();
+      const handlerSpy = sinon.stub().returns(new Promise(() => {}));
 
       const service = {
         url: '/foobar',
@@ -245,7 +249,7 @@ describe('Http server', () => {
 
       httpServer.registerService(service);
       const handler = getSpy.getCall(1).args[1];
-      const request = new MockRequest({
+      const request = new (MockRequest as any)({
         method: 'GET',
         url: '/foobar',
         query: {
@@ -263,7 +267,7 @@ describe('Http server', () => {
     });
 
     it('Should map url params correctly', () => {
-      const handlerSpy = sinon.spy();
+      const handlerSpy = sinon.stub().returns(new Promise(() => {}));
 
       const service = {
         url: '/:id/:id2/foobar',
@@ -278,7 +282,7 @@ describe('Http server', () => {
       httpServer.registerService(service);
 
       const handler = getSpy.getCall(1).args[1];
-      const request = new MockRequest({
+      const request = new (MockRequest as any)({
         method: 'GET',
         url: '/1/2/foobar',
         params: {
@@ -294,8 +298,10 @@ describe('Http server', () => {
       expect(body.hello).to.equal('2')
     });
 
-    it('It should return an error code when callback returns an error', () => {
-      const handlerSpy = sinon.spy();
+    it('It should return an error code when callback returns an error', (done) => {
+      const handlerSpy = sinon.stub().returns(new Promise((resolve, reject) => {
+        reject('error');
+      }));
 
       const service = {
         url: '/foobar',
@@ -306,38 +312,32 @@ describe('Http server', () => {
       httpServer.registerService(service);
 
       const handler = getSpy.getCall(1).args[1];
-      const request = new MockRequest({
+      const request = new (MockRequest as any)({
         method: 'GET',
         url: '/foobar'
       });
 
-      let responseText;
-      let statusCode;
-
       const response = {
         status: (status: number) => {
-          statusCode = status;
+          expect(status).to.equal(500);
+
           return {
-            send: (response: string) => {
-              responseText = response;
+            send: (sendResponse: string) => {
+              expect(sendResponse).to.equal('Internal server error');
+              done();
             }
           }
         }
       }
 
       handler(request, response);
-
-      const args = handlerSpy.getCall(0).args;
-      const callback = args[2];
-
-      callback('error', {});
-
-      expect(statusCode).to.equal(500);
-      expect(responseText).to.equal('Internal server error');
     });
 
-    it('It should return success and content is callback called without error', () => {
-      const handlerSpy = sinon.spy();
+    it('It should return success and content is callback called without error', (done) => {
+      const responseBody = { foo: 'bar' };
+      const handlerSpy = sinon.stub().returns(new Promise((resolve, reject) => {
+        resolve(responseBody);
+      }));
 
       const service = {
         url: '/foobar',
@@ -348,35 +348,25 @@ describe('Http server', () => {
       httpServer.registerService(service);
 
       const handler = getSpy.getCall(1).args[1];
-      const request = new MockRequest({
+      const request = new (MockRequest as any)({
         method: 'GET',
         url: '/foobar'
       });
 
-      let handlerResponse;
-      let statusCode;
-
       const response = {
         status: (status: number) => {
-          statusCode = status;
+          expect(status).to.equal(200);
+
           return {
-            send: (response: string) => {
-              handlerResponse = response;
+            send: (sendResponse: string) => {
+              expect(sendResponse).to.equal(responseBody);
+              done();
             }
           }
         }
       }
 
       handler(request, response);
-
-      const args = handlerSpy.getCall(0).args;
-      const callback = args[2];
-      const responseBody = { foo: 'bar' };
-
-      callback(undefined, responseBody);
-
-      expect(statusCode).to.equal(200);
-      expect(handlerResponse).to.equal(responseBody);
     });
   });
 });

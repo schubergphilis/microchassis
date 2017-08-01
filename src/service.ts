@@ -31,12 +31,6 @@ export interface UrlMapping {
 }
 
 /**
- * Service callback function interface
- * @type ServiceCallback
- */
-export type ServiceCallback = (error: any, response: any) => void;
-
-/**
  * Service definition
  * @interface Service
  */
@@ -73,7 +67,7 @@ export interface Service {
   /**
    * Handles the actual request
    */
-  handler: (context: Context, request: any, callback: ServiceCallback) => void;
+  handler: (context: Context, request: any) => Promise<any>;
 }
 
 

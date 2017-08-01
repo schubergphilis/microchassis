@@ -38,10 +38,14 @@ export class GrpcServer {
 
       const context = this.createContext(call.metadata);
 
-      service.handler.apply(service, [context, call, (error, result) => {
-        this.logger.info(`GRPC request ended ${serviceName}`);
-        callback(error, result);
-      }]);
+      service.handler.apply(service, [context, call])
+        .then((result) => {
+          callback(null, result);
+        })
+        .catch((error) => {
+          // TODO: do some proper error mapping here
+          callback(error, null);
+        });
     }
   }
 

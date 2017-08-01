@@ -80,17 +80,16 @@ export class HttpServer {
     body = this.getUrlParams(service, request, body);
 
     // Call the httpHandler
-    service.handler(context, body, (error, data) => {
-      if (error) {
-        // TODO: map this to proper errors
-        response.status(httpStatus.INTERNAL_SERVER_ERROR).send('Internal server error');
-      } else {
-        // TODO: probably want the service to be able to set this somehow
+    service.handler(context, body)
+      .then((data) => {
+        // TODO: Probably want the service to determine the status code somehow
         response.status(httpStatus.OK).send(data);
-      }
-
-      this.logger.info(`Http request ended, duration: ${new Date().getTime() - startTime.getTime()}ms`);
-    });
+        this.logger.info(`Http request ended, duration: ${new Date().getTime() - startTime.getTime()}ms`);
+      })
+      .catch((error) => {
+        // TODO: do propery error mapping
+        response.status(httpStatus.INTERNAL_SERVER_ERROR).send('Internal server error');
+      });
   }
 
   private getQueryParams(service: Service, request: Request, body: any): any {

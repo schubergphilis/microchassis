@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 
-import { HttpMethod, Context, Service, ServiceCallback } from './../../src';
+import { HttpMethod, Context, Service } from './../../src';
 import { HelloRequest } from './../proto/hello';
 import { HelloManager } from './../managers';
 
@@ -10,9 +10,11 @@ export class HelloService implements Service {
 
   constructor(private manager: HelloManager) {}
 
-  handler(context: Context, request: HelloRequest, callback: ServiceCallback) {
-    callback(null, {
-      message: this.manager.hello(request.name)
+  handler(context: Context, request: HelloRequest): Promise<any> {
+    return new Promise((resolve, reject) => {
+      resolve({
+        message: this.manager.hello(request.name)
+      });
     });
   }
 }
