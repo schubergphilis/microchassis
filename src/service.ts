@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { injectable } from 'inversify';
-import * as HttpStatus from 'http-status-codes';
 import { Context } from './context';
 
 /**
