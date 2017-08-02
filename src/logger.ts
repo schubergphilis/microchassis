@@ -35,9 +35,9 @@ export class Logger {
 
     if (args && args[0]) {
       args[0].forEach((arg: any) => {
-        if (args instanceof Error) {
-          console.error(args);
-          messages.push(JSON.stringify(args, ['message', 'stack', 'name']));
+        if (arg instanceof Error) {
+          console.error(arg);
+          messages.push(JSON.stringify(arg, ['message', 'stack', 'name']));
         } else {
           messages.push(JSON.stringify(arg));
         }
