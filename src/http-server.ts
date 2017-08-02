@@ -6,7 +6,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 import { HealthManager } from './health';
 import { Config } from './config';
-import { Service } from './service';
+import { Service, ServiceResponse } from './service';
 import { Logger} from './logger';
 import { Context } from './context';
 import { deepSet} from './utils';
@@ -66,7 +66,7 @@ export class HttpServer {
 
   private handleRequest(service: Service, request: Request, response: Response) {
     const startTime = new Date();
-    this.logger.info(`Http request started`);
+    this.logger.info(`Http request: '${request.url}' started`);
 
     // Build up context object
     const context = this.createContext(request);
@@ -85,15 +85,21 @@ export class HttpServer {
 
     // Call the httpHandler
     service.handler(context, body)
-      .then((data) => {
-        // TODO: Probably want the service to determine the status code somehow
-        response.status(httpStatus.OK).send(data);
-        this.logger.info(`Http request ended, duration: ${new Date().getTime() - startTime.getTime()}ms`);
+      .then((serviceResponse: ServiceResponse) => {
+        this.logger.info(`Http request '${request.url}' ended, duration: ${new Date().getTime() - startTime.getTime()}ms`);
+
+        const status = serviceResponse.status || httpStatus.OK;
+        const content = serviceResponse.content;
+
+        response.status(serviceResponse.status || httpStatus.OK).send(serviceResponse.content);
       })
-      .catch((error) => {
-        // TODO: do propery error mapping
+      .catch((error: ServiceResponse = {}) => {
         this.logger.error(JSON.stringify(error));
-        response.status(httpStatus.INTERNAL_SERVER_ERROR).send('Internal server error');
+
+        const status = error.status || httpStatus.INTERNAL_SERVER_ERROR;
+        const content = error.content || 'Internal server error';
+
+        response.status(status).send(content);
       });
   }
 

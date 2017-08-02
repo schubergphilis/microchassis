@@ -10,6 +10,7 @@ import { expect } from 'chai';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Request } from 'express';
 import * as MockRequest from 'mock-express-request';
+import * as httpStatus from 'http-status';
 
 import { HttpMethod } from './../src/service';
 import { Config } from './../src/config';
@@ -299,9 +300,9 @@ describe('Http server', () => {
       expect(body.hello).to.equal('2')
     });
 
-    it('It should return an error code when callback returns an error', (done) => {
+    it('It should return 500 internal server when handler promise is rejected without status code or content', (done) => {
       const handlerSpy = sinon.stub().returns(new Promise((resolve, reject) => {
-        reject('error');
+        reject();
       }));
 
       const service = {
@@ -334,10 +335,50 @@ describe('Http server', () => {
       handler(request, response);
     });
 
-    it('It should return success and content is callback called without error', (done) => {
+      it('It should return the status code and content passed when handler promise is rejected', (done) => {
+      const handlerSpy = sinon.stub().returns(new Promise((resolve, reject) => {
+        reject({
+          status: httpStatus.BAD_REQUEST,
+          content: 'Foo is not correct'
+        });
+      }));
+
+      const service = {
+        url: '/foobar',
+        handler: handlerSpy,
+        unauthenticated: true
+      };
+
+      httpServer.registerService(service);
+
+      const handler = getSpy.getCall(1).args[1];
+      const request = new (MockRequest as any)({
+        method: 'GET',
+        url: '/foobar'
+      });
+
+      const response = {
+        status: (status: number) => {
+          expect(status).to.equal(httpStatus.BAD_REQUEST);
+
+          return {
+            send: (sendResponse: string) => {
+              expect(sendResponse).to.equal('Foo is not correct');
+              done();
+            }
+          }
+        }
+      }
+
+      handler(request, response);
+    });
+
+    it('Default response status code for success should be 200', (done) => {
       const responseBody = { foo: 'bar' };
       const handlerSpy = sinon.stub().returns(new Promise((resolve, reject) => {
-        resolve(responseBody);
+        resolve({
+          content: responseBody
+        });
       }));
 
       const service = {
@@ -357,6 +398,45 @@ describe('Http server', () => {
       const response = {
         status: (status: number) => {
           expect(status).to.equal(200);
+
+          return {
+            send: (sendResponse: string) => {
+              expect(sendResponse).to.equal(responseBody);
+              done();
+            }
+          }
+        }
+      }
+
+      handler(request, response);
+    });
+
+    it('It should return success and content is callback called without error', (done) => {
+      const responseBody = { foo: 'bar' };
+      const handlerSpy = sinon.stub().returns(new Promise((resolve, reject) => {
+        resolve({
+          status: httpStatus.CREATED,
+          content: responseBody
+        });
+      }));
+
+      const service = {
+        url: '/foobar',
+        handler: handlerSpy,
+        unauthenticated: true
+      };
+
+      httpServer.registerService(service);
+
+      const handler = getSpy.getCall(1).args[1];
+      const request = new (MockRequest as any)({
+        method: 'GET',
+        url: '/foobar'
+      });
+
+      const response = {
+        status: (status: number) => {
+          expect(status).to.equal(201);
 
           return {
             send: (sendResponse: string) => {

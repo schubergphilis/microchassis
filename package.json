@@ -1,6 +1,6 @@
 {
   "name": "rmicroservice",
-  "version": "0.2.7",
+  "version": "0.3.0",
   "description": "",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -44,6 +44,7 @@
     "express": "^4.15.3",
     "grpc": "^1.4.1",
     "http-status": "^1.0.1",
+    "http-status-codes": "^1.2.0",
     "inversify": "^4.3.0",
     "minimist": "^1.2.0",
     "mysql": "^2.14.0",

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { injectable } from 'inversify';
+import * as HttpStatus from 'http-status-codes';
 import { Context } from './context';
 
 /**
@@ -11,6 +12,17 @@ export const HttpMethod = {
   PUT: 'put' as 'PUT',
   PATCH: 'patch' as 'PATCH',
   DELETE: 'delete' as 'DELETE',
+}
+
+/**
+ * Response of the handler of a service
+ * @type ServiceResponse
+ * @property status {number}
+ * @property content {any}
+ */
+export interface ServiceResponse {
+  status?: number;
+  content?: any;
 }
 
 /**
@@ -68,7 +80,7 @@ export interface Service {
   /**
    * Handles the actual request
    */
-  handler: (context: Context, request: any) => Promise<any>;
+  handler: (context: Context, request: any) => Promise<ServiceResponse | void>;
 }
 
 
