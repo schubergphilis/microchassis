@@ -1,4 +1,4 @@
-import { createConnection, Connection, ConnectionOptions, EntityManager } from 'typeorm';
+import { createConnection, getConnectionManager, Connection, ConnectionOptions, EntityManager } from 'typeorm';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { injectable } from 'inversify';
 import * as deepmerge from 'deepmerge';
@@ -59,7 +59,7 @@ export class TypeORMProvider {
         this.logger.error(error);
 
         setTimeout(() => {
-          this.connect(options);
+          this.connection.connect();
         }, this.reconnectTime);
       });
   }
