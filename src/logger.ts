@@ -31,9 +31,23 @@ export class Logger {
   }
 
   private log(level: string, ...args: any[]) {
+    const messages = [];
+
+    if (args && args[0]) {
+      args[0].forEach((arg: any) => {
+        if (args instanceof Error) {
+          console.error(args);
+          messages.push(JSON.stringify(args, ['message', 'stack', 'name']));
+        } else {
+          messages.push(JSON.stringify(arg));
+        }
+      });
+    }
+
+
     const message = {
       level,
-      message: args[0]
+      message: messages
     };
 
     console.log(JSON.stringify(message));

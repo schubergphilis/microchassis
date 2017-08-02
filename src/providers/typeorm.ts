@@ -56,7 +56,7 @@ export class TypeORMProvider {
       })
       .catch(error => {
         this.logger.error(`Failed to connect to database, retrying in: ${this.reconnectTime}ms`);
-        this.logger.error(JSON.stringify(error));
+        this.logger.error(error);
 
         setTimeout(() => {
           this.connect(options);
@@ -73,7 +73,7 @@ export class TypeORMProvider {
         })
         .catch((error) => {
           this.health.next(false);
-          this.logger.error(JSON.stringify(error));
+          this.logger.error(error);
         });
     }, this.checkInterval);
   }

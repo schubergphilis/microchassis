@@ -95,7 +95,7 @@ export class HttpServer {
         response.status(status).send(content);
       })
       .catch((error: ServiceResponse = {}) => {
-        this.logger.error(JSON.stringify(error));
+        this.logger.error(error.content);
 
         const status = error.status || httpStatus.INTERNAL_SERVER_ERROR;
         const content = error.content || 'Internal server error';
