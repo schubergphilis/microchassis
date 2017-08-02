@@ -65,11 +65,12 @@ export class HttpServer {
   }
 
   private handleRequest(service: Service, request: Request, response: Response) {
-    const startTime = new Date();
-    this.logger.info(`Http request: '${request.url}' started`);
-
     // Build up context object
     const context = this.createContext(request);
+
+    const startTime = new Date();
+    this.logger.info(`Http request: '${request.url}' started`, context);
+
 
     if (!service.unauthenticated && !context.token) {
       this.logger.audit(`Unauthenticated request on: ${service.url}`);
@@ -140,6 +141,7 @@ export class HttpServer {
   private createContext(request: Request): Context {
     let token;
     let requestId;
+    let user;
 
     if (request.headers['authorization']) {
       token = request.headers['authorization'].toString().split('Token ')[1];
@@ -149,9 +151,14 @@ export class HttpServer {
       requestId = request.headers['x-request-id'].toString();
     }
 
+    if (request.headers['remoteuser']) {
+      user = request.header['remoteuser'].toString();
+    }
+
     return {
       token,
-      requestId
+      requestId,
+      user
     }
   }
 }

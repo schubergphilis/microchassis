@@ -1,5 +1,6 @@
 import { injectable } from 'inversify';
-import { Config } from './config';
+import { Context } from './context';
+import { Config, LogLevel } from './config';
 
 @injectable()
 export class Logger {
@@ -9,23 +10,30 @@ export class Logger {
     this.logLevel = config['logLevel'];
   }
 
-  info(message: string) {
-    console.log(`[info] ${message}`);
+  info(...args: any[]) {
+    this.log('info', args);
   }
 
-  warn(message: string) {
-    console.log(`[warn] ${message}`);
+  warn(...args: any[]) {
+    this.log('warn', args);
   }
 
-  error(message: string) {
-    console.log(`[error] ${message}`);
+  error(...args: any[]) {
+    this.log('error', args);
   }
 
-  audit(message: string) {
-    console.log(`[audit] ${message}`);
+  audit(...args: any[]) {
+    this.log('audit', args);
   }
 
-  debug(message: string) {
-    console.log(`[debug] ${message}`);
+  debug(...args: any[]) {
+    this.log('debug', args);
+  }
+
+  private log(level: string, ...args: any[]) {
+    const message = {
+      level,
+      message: JSON.stringify(args[0])
+    };
   }
 }

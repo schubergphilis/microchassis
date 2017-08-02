@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Context } from './context';
 import { Config } from './config';
 import { Logger } from './logger';
-import { Service } from './service';
+import { Service, ServiceResponse } from './service';
 import { HealthManager } from './health';
 import { ProtoConfig } from './rservice';
 
@@ -39,13 +39,14 @@ export class GrpcServer {
       const context = this.createContext(call.metadata);
 
       service.handler.apply(service, [context, call])
-        .then((result) => {
-          callback(null, result);
+        .then((response: ServiceResponse ) => {
+          callback(null, response.content);
         })
-        .catch((error) => {
-          this.logger.error(JSON.stringify(error));
+        .catch((response: ServiceResponse) => {
+          this.logger.error(JSON.stringify(response.content));
+
           // TODO: do some proper error mapping here
-          callback(error, null);
+          callback(response.content, null);
         });
     }
   }
@@ -77,7 +78,8 @@ export class GrpcServer {
   private createContext(metadata): Context {
     return {
       token: metadata.get('authorization')[0].split('Token ')[1],
-      requestId: metadata.get('request-id')[0]
+      requestId: metadata.get('request-id')[0],
+      user: metadata.get('remoteuser')[0]
     }
   }
 }
