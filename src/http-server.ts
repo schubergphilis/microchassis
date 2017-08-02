@@ -77,8 +77,6 @@ export class HttpServer {
       return;
     }
 
-    console.log
-
     let body = request.body || {};
 
     // See if we need to map query string or url parameters

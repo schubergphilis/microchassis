@@ -8,8 +8,9 @@ import { Context } from './context';
 export const HttpMethod = {
   POST: 'post' as 'POST',
   GET: 'get' as 'GET',
+  PUT: 'put' as 'PUT',
   PATCH: 'patch' as 'PATCH',
-  DELETE: 'delete' as 'DELETE'
+  DELETE: 'delete' as 'DELETE',
 }
 
 /**
