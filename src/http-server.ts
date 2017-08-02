@@ -92,7 +92,7 @@ export class HttpServer {
         const status = serviceResponse.status || httpStatus.OK;
         const content = serviceResponse.content;
 
-        response.status(serviceResponse.status || httpStatus.OK).send(serviceResponse.content);
+        response.status(status).send(content);
       })
       .catch((error: ServiceResponse = {}) => {
         this.logger.error(JSON.stringify(error));

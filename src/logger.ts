@@ -33,7 +33,9 @@ export class Logger {
   private log(level: string, ...args: any[]) {
     const message = {
       level,
-      message: JSON.stringify(args[0])
+      message: args[0]
     };
+
+    console.log(JSON.stringify(message));
   }
 }
