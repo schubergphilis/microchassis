@@ -62,7 +62,8 @@ describe('Http server', () => {
         post: postSpy,
         delete: deleteSpy,
         patch: patchSpy,
-        listen: listenSpy
+        listen: listenSpy,
+        use: () => {}
       }
     };
 

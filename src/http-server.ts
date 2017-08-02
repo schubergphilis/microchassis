@@ -1,5 +1,6 @@
 import { injectable, inject } from 'inversify';
 import { Request, Response } from 'express';
+import * as bodyParser from 'body-parser';
 import * as httpStatus from 'http-status';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
@@ -16,8 +17,11 @@ export class HttpServer {
   public health = new BehaviorSubject(false);
 
   constructor(@inject('express') private express, private config: Config, private logger: Logger, healthManager: HealthManager) {
-    this.server = express();
     healthManager.registerCheck('HTTP server', this.health);
+
+    // Setup express and a json body parser
+    this.server = express();
+    this.server.use(bodyParser.json());
 
     // Register health check endpoint
     this.server.get('/health', (request: Request, response: Response) => {
@@ -72,6 +76,8 @@ export class HttpServer {
       response.status(403).send('Unauthenticated');
       return;
     }
+
+    console.log
 
     let body = request.body || {};
 
