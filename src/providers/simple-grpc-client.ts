@@ -58,6 +58,11 @@ export class SimpleGrpcClient {
     const meta = context ? this.transformContext(context) : this.grpc.Metadata();
 
     return new Promise((resolve, reject) => {
+      if (!this.client[serviceName]) {
+        reject(new Error(`Unknown service: ${serviceName} on GRPC client: ${this.protoConfig.service}`));
+        return;
+      }
+
       this.client[serviceName](message, meta, (error, response) => {
         if (error) {
           reject(error);
