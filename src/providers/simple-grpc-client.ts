@@ -8,15 +8,15 @@ export class SimpleGrpcClient {
   public health =  new BehaviorSubject(false);
   public client;
 
-  private serviceAddress: string;
-  private logger: Logger;
-  private protoConfig: ProtoConfig;
-  private healthManager: HealthManager;
-  private grpc;
   private channelState = new BehaviorSubject(-1);
 
-  constructor() {
-    // Setup health check
+  constructor(private grpc: any,
+              private protoConfig: ProtoConfig,
+              private serviceAddress: string,
+              private healthManager: HealthManager,
+              private logger: Logger) {
+
+                // Setup health check
     this.healthManager.registerCheck(this.protoConfig.service, this.health);
 
     this.channelState.subscribe((state) => {
