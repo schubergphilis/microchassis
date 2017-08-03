@@ -8,12 +8,8 @@ import { HealthManager } from './health';
 import { Service } from './service';
 import { HttpServer } from './http-server';
 import { GrpcServer } from './grpc-server';
+import { ProtoConfig } from './proto-config';
 
-export interface ProtoConfig {
-  path: string;
-  package?: string;
-  service: string;
-}
 
 export interface ServiceOptions {
   managers?: Array<any>;

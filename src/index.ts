@@ -7,3 +7,4 @@ export * from './logger';
 export * from './rservice';
 export * from './service';
 export * from './providers';
+export * from './proto-config';
