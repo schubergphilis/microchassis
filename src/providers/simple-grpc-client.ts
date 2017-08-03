@@ -11,14 +11,13 @@ export class SimpleGrpcClient {
   public protoConfig: ProtoConfig;
   public serviceAddress: string;
   public client;
+  public grpc;
+  public healthManager: HealthManager;
+  public logger: Logger;
 
   private channelState = new BehaviorSubject(-1);
 
-  constructor(@inject('grpc') private grpc: any,
-              private healthManager: HealthManager,
-              private logger: Logger) {
-
-                // Setup health check
+  public connect() {
     this.healthManager.registerCheck(this.protoConfig.service, this.health);
 
     this.channelState.subscribe((state) => {
