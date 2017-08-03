@@ -6,7 +6,7 @@ import { Config } from './config';
 import { Logger } from './logger';
 import { Service, ServiceResponse } from './service';
 import { HealthManager } from './health';
-import { ProtoConfig } from './rservice';
+import { ProtoConfig } from './proto-config';
 
 @injectable()
 export class GrpcServer {
