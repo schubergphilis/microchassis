@@ -39,27 +39,29 @@ export class TypeORMProvider {
     options.driver.host     = this.config['dbHost'];
     options.driver.port     = this.config['dbPort'];
 
-    this.connect(options);
+    // We dont support autoschema sync, because we want to have auto retrying connection
+    // we need to use connectionManager.create which doesn't support auto schema sync
+    if (options['autoSchemaSync'] === true) {
+      throw new Error('TypeORMProvider: autoSchemaSync not supported');
+    }
+
+    const connectionManager = getConnectionManager();
+    this.connection = connectionManager.create(options);
+    this.connect();
   }
 
-  private connect(options: ConnectionOptions) {
-    createConnection(options)
-      .then((connection: Connection) => {
-        this.connection = connection;
-        this.entityManager = connection.entityManager;
-
-        // We are healthy start monitoring health
+  private connect() {
+    this.connection.connect()
+      .then(() => {
         this.health.next(true);
         this.monitorHealth();
-
-        return connection;
       })
-      .catch(error => {
+      .catch((error) => {
         this.logger.error(`Failed to connect to database, retrying in: ${this.reconnectTime}ms`);
         this.logger.error(error);
 
         setTimeout(() => {
-          this.connection.connect();
+          this.connect();
         }, this.reconnectTime);
       });
   }
