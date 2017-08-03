@@ -63,7 +63,11 @@ export class SimpleGrpcClient {
         return;
       }
 
-      this.client[method](message, meta, (error, response) => {
+      // method names in the proto are with capitals, make sure that if you pass them
+      // with an capital it works to
+      const normalizedMethod = method.charAt(0).toLowerCase() + method.slice(1);
+
+      this.client[normalizedMethod](message, meta, (error, response) => {
         if (error) {
           reject(error);
         } else {
