@@ -53,17 +53,17 @@ export class SimpleGrpcClient {
     });
   }
 
-  // Use this to call actual services on the client
-  public call(serviceName: string, message: any, context?: Context): Promise<any> {
+  // Use this to call actual methods on the client
+  public call(method: string, message: any, context?: Context): Promise<any> {
     const meta = context ? this.transformContext(context) : this.grpc.Metadata();
 
     return new Promise((resolve, reject) => {
-      if (!this.client[serviceName]) {
-        reject(new Error(`Unknown service: ${serviceName} on GRPC client: ${this.protoConfig.service}`));
+      if (!this.client[method]) {
+        reject(new Error(`RPC method: ${method} doesn't exist on GRPC client: ${this.protoConfig.service}`));
         return;
       }
 
-      this.client[serviceName](message, meta, (error, response) => {
+      this.client[method](message, meta, (error, response) => {
         if (error) {
           reject(error);
         } else {
