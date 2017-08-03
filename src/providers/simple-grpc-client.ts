@@ -1,4 +1,4 @@
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import * as grpcExt from 'grpc/src/node/src/grpc_extension';
 const connectivityState = grpcExt.connectivityState;
@@ -8,13 +8,13 @@ import { Context, Logger, ProtoConfig, HealthManager } from './..'
 @injectable()
 export class SimpleGrpcClient {
   public health =  new BehaviorSubject(false);
+  public protoConfig: ProtoConfig;
+  public serviceAddress: string;
   public client;
 
   private channelState = new BehaviorSubject(-1);
 
-  constructor(private grpc: any,
-              private protoConfig: ProtoConfig,
-              private serviceAddress: string,
+  constructor(@inject('grpc') private grpc: any,
               private healthManager: HealthManager,
               private logger: Logger) {
 
