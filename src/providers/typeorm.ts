@@ -47,6 +47,7 @@ export class TypeORMProvider {
 
     const connectionManager = getConnectionManager();
     this.connection = connectionManager.create(options);
+    this.entityManager = this.connection.entityManager;
     this.connect();
   }
 
