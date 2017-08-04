@@ -58,14 +58,14 @@ export class SimpleGrpcClient {
     const meta = context ? this.transformContext(context) : this.grpc.Metadata();
 
     return new Promise((resolve, reject) => {
-      if (!this.client[method]) {
-        reject(new Error(`RPC method: ${method} doesn't exist on GRPC client: ${this.protoConfig.service}`));
-        return;
-      }
-
       // method names in the proto are with capitals, make sure that if you pass them
       // with an capital it works to
       const normalizedMethod = method.charAt(0).toLowerCase() + method.slice(1);
+
+      if (!this.client[normalizedMethod]) {
+        reject(new Error(`RPC method: ${method} doesn't exist on GRPC client: ${this.protoConfig.service}`));
+        return;
+      }
 
       this.client[normalizedMethod](message, meta, (error, response) => {
         if (error) {
