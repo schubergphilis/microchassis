@@ -51,7 +51,7 @@ export class HttpServer {
 
     // Check for root in config and prepend to the url
     if (this.config['httpRoot']) {
-      url = `${this.config['httpRoot']}/${url}`;
+      url = `${this.config['httpRoot']}${url}`;
     }
 
     this.logger.debug(`Registering HTTP handler: ${service.method || method} ${url}`);

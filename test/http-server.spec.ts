@@ -149,6 +149,24 @@ describe('Http server', () => {
       const url = getSpy.getCall(1).args[0];
       expect(url).to.equal('/foobar');
     });
+
+    it('Should prefix the url with the http root if one is given', () => {
+      config['httpRoot'] = 'testing';
+
+      const service = {
+        url: 'foobar',
+        handler: () => {
+          return new Promise((resolve, reject) => {});
+        }
+      };
+
+      httpServer.registerService(service);
+
+      // Twice, health and this new service
+      expect(getSpy).to.have.been.calledTwice;
+      const url = getSpy.getCall(1).args[0];
+      expect(url).to.equal('testing/foobar');
+    });
   });
 
   describe('start', () => {
