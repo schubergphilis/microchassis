@@ -51,7 +51,19 @@ export class HttpServer {
 
     // Check for root in config and prepend to the url
     if (this.config['httpRoot']) {
-      url = `${this.config['httpRoot']}${url}`;
+      let httpRoot = this.config['httpRoot'];
+
+      // Should start with an slash
+      if (httpRoot.charAt(0) !== '/') {
+        httpRoot = `/${httpRoot}`;
+      }
+
+      // Should not end with an slash
+      if (httpRoot.charAt(httpRoot.length - 1) === '/') {
+        httpRoot = httpRoot.substring(0, httpRoot.length - 1);
+      }
+
+      url = `${httpRoot}${url}`;
     }
 
     this.logger.debug(`Registering HTTP handler: ${service.method || method} ${url}`);

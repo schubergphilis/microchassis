@@ -150,6 +150,22 @@ describe('Http server', () => {
       expect(url).to.equal('/foobar');
     });
 
+    it('Should work with deeper paths then one', () =>{
+      const service = {
+        url: '/v1/bar/foo/bar',
+        handler: () => {
+          return new Promise((resolve, reject) => {});
+        }
+      };
+
+      httpServer.registerService(service);
+
+      // Twice, health and this new service
+      expect(getSpy).to.have.been.calledTwice;
+      const url = getSpy.getCall(1).args[0];
+      expect(url).to.equal('/v1/bar/foo/bar');
+    });
+
     it('Should prefix the url with the http root if one is given', () => {
       config['httpRoot'] = 'testing';
 
@@ -165,7 +181,23 @@ describe('Http server', () => {
       // Twice, health and this new service
       expect(getSpy).to.have.been.calledTwice;
       const url = getSpy.getCall(1).args[0];
-      expect(url).to.equal('testing/foobar');
+      expect(url).to.equal('/testing/foobar');
+    });
+
+    it('Should normalize the httpRoot properly', () => {
+      config['httpRoot'] = 'testing/';
+
+      const service = {
+        url: 'foobar',
+        handler: () => {
+          return new Promise((resolve, reject) => {});
+        }
+      };
+
+      httpServer.registerService(service);
+
+      const url = getSpy.getCall(1).args[0];
+      expect(url).to.equal('/testing/foobar');
     });
   });
 
