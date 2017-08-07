@@ -21,21 +21,13 @@ export class HttpServer {
 
     // Setup express and a json body parser
     this.server = express();
-    this.server.use(bodyParser.json());
-
-    // 404 middleware
-    this.server.use((request: Request, response: Response, next: NextFunction) => {
-      response.status(404).send({
-        message: `Unknown endpoint: ${request.url}`
-      });
-    });
-
-    // Error middleware
-    this.server.use((error, request: Request, response: Response, next: NextFunction) => {
-      response.status(500).send({
-        message: 'Something went terribly wrong....'
-      });
-    });
+    this.server.use(bodyParser.json({
+      type: (request) => {
+        if (request.headers['content-type'].startsWith('application/json')) {
+          return true;
+        }
+      }
+    }));
 
     // Register health check endpoint
     this.server.get('/health', (request: Request, response: Response) => {
