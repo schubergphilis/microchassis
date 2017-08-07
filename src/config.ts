@@ -61,6 +61,12 @@ export class Config {
     args: ['db_port'],
     dest: 'dbPort',
     value: 3306
+  }, {
+    description: 'Http server root url, used to prefix all the urls',
+    env: 'HTTP_ROOT',
+    args: ['http_root'],
+    dest: 'httpRoot',
+    value: undefined
   }];
 
   constructor(@inject('configoptions') configOptions?: Array<ConfigOption>) {
