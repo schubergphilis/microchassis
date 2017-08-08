@@ -112,7 +112,7 @@ export class HttpServer {
 
     if (!service.unauthenticated && !context.token) {
       this.logger.audit(`Unauthenticated request on: ${service.url}`);
-      response.status(httpStatus.UNAUTHORIZED).send('Unauthenticated');
+      response.status(httpStatus.FORBIDDEN).send('Unauthenticated');
       return;
     }
 
