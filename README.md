@@ -10,6 +10,7 @@
 [npm-url]: https://npmjs.org/package/rmicroservice
 [downloads-image]: https://img.shields.io/npm/dm/rmicroservice.svg?style=flat
 [downloads-url]: https://npmjs.org/package/rmicroservice
+[![Known Vulnerabilities](https://snyk.io/test/github/rthewhite/rmicroservice/badge.svg)](https://snyk.io/test/github/rthewhite/rmicroservice)
 
 This package aims to help you build "simple" microservices in Typescript.
 
@@ -20,7 +21,7 @@ It will help you setup health checks, do input validation etc. So that you can f
 ## Getting started
 There is an example service in the [repo](https://github.com/rthewhite/rmicroservice/tree/master/example).
 
-You can run this example using ts-node for example: 
+You can run this example using ts-node for example:
 
 ``` ts-node service.ts ```
 
