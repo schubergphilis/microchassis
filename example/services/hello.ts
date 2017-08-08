@@ -6,7 +6,9 @@ import { HelloManager } from './../managers';
 
 @injectable()
 export class HelloService implements Service {
+  public method = HttpMethod.GET;
   public url = '/hello';
+  public unauthenticated = true;
 
   constructor(private manager: HelloManager) {}
 
@@ -18,3 +20,4 @@ export class HelloService implements Service {
     });
   }
 }
+

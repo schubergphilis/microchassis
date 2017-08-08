@@ -54,7 +54,9 @@ export class SimpleGrpcClient {
   }
 
   // Use this to call actual methods on the client
-  public call(method: string, message: any, context?: Context): Promise<any> {
+  public call(method: string, context: Context, message: any): Promise<any> {
+    this.logger.debug(`Calling ${method} on ${this.protoConfig.service} with:`, message);
+
     const meta = context ? this.transformContext(context) : this.grpc.Metadata();
 
     return new Promise((resolve, reject) => {
@@ -63,17 +65,21 @@ export class SimpleGrpcClient {
       const normalizedMethod = method.charAt(0).toLowerCase() + method.slice(1);
 
       if (!this.client[normalizedMethod]) {
-        reject(new Error(`RPC method: ${method} doesn't exist on GRPC client: ${this.protoConfig.service}`));
-        return;
+        const errorMessage = `RPC method: ${method} doesn't exist on GRPC client: ${this.protoConfig.service}`;
+        this.logger.error(errorMessage);
+        reject(new Error(errorMessage));
+      } else {
+        this.client[normalizedMethod](message, meta, (error, response) => {
+          if (error) {
+            this.logger.error(`Call ${method} on ${this.protoConfig.service} failed with error: `, error);
+            console.error(error);
+            reject(error);
+          } else {
+            this.logger.debug(`Call ${method} on ${this.protoConfig.service} responded with: `, response);
+            resolve(response);
+          }
+        });
       }
-
-      this.client[normalizedMethod](message, meta, (error, response) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(response);
-        }
-      });
     });
   }
 

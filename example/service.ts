@@ -17,5 +17,11 @@ const service = new RService({
   ],
   managers: [
     HelloManager
+  ],
+  config: [
+    {
+      dest: 'httpRoot',
+      value: ''
+    }
   ]
 });

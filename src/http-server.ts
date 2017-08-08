@@ -32,9 +32,9 @@ export class HttpServer {
     // Register health check endpoint
     this.server.get('/health', (request: Request, response: Response) => {
       if (healthManager.healthy) {
-        response.status(200).send('Healthy');
+        response.status(httpStatus.OK).send('Healthy');
       } else {
-        response.status(503).send('Unhealthy');
+        response.status(httpStatus.SERVICE_UNAVAILABLE).send('Unhealthy');
       }
     });
   }
@@ -81,6 +81,20 @@ export class HttpServer {
 
   // Starts the http server
   public start() {
+    // 404 middleware
+    this.server.use((request: Request, response: Response, next: NextFunction) => {
+      response.status(httpStatus.NOT_FOUND).send({
+        message: `Unknown endpoint: ${request.url}`
+      });
+    });
+
+    // Error middleware
+    this.server.use((error, request: Request, response: Response, next: NextFunction) => {
+      response.status(httpStatus.INTERNAL_SERVER_ERROR).send({
+        message: 'Something went terribly wrong....'
+      });
+    });
+
     this.server.listen(this.config['httpPort'], () => {
       this.logger.info(`Http server starting listening on: ${this.config['httpPort']}`);
       this.health.next(true);
@@ -97,7 +111,7 @@ export class HttpServer {
 
     if (!service.unauthenticated && !context.token) {
       this.logger.audit(`Unauthenticated request on: ${service.url}`);
-      response.status(403).send('Unauthenticated');
+      response.status(httpStatus.UNAUTHORIZED).send('Unauthenticated');
       return;
     }
 
