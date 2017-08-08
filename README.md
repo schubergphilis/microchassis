@@ -3,6 +3,7 @@
 [![Coverage Status](https://coveralls.io/repos/rthewhite/rmicroservice/badge.svg?branch=master&service=github)](https://coveralls.io/github/rthewhite/rmicroservice?branch=master)
 [![npm][npm-image]][npm-url]
 [![downloads][downloads-image]][downloads-url]
+[![Known Vulnerabilities](https://snyk.io/test/github/rthewhite/rmicroservice/badge.svg)](https://snyk.io/test/github/rthewhite/rmicroservice)
 
 [travis-image]: https://img.shields.io/travis/rthewhite/rmicroservice.svg?style=flat
 [travis-url]: https://travis-ci.org/rthewhite/rmicroservice
@@ -10,7 +11,6 @@
 [npm-url]: https://npmjs.org/package/rmicroservice
 [downloads-image]: https://img.shields.io/npm/dm/rmicroservice.svg?style=flat
 [downloads-url]: https://npmjs.org/package/rmicroservice
-[![Known Vulnerabilities](https://snyk.io/test/github/rthewhite/rmicroservice/badge.svg)](https://snyk.io/test/github/rthewhite/rmicroservice)
 
 This package aims to help you build "simple" microservices in Typescript.
 
