@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as bodyParser from 'body-parser';
 import * as httpStatus from 'http-status';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { v4 as uuid } from 'uuid';
 
 import { HealthManager } from './health';
 import { Config } from './config';
@@ -186,6 +187,8 @@ export class HttpServer {
 
     if (request.headers['x-request-id']) {
       requestId = request.headers['x-request-id'].toString();
+    } else {
+      requestId = uuid();
     }
 
     if (request.headers['remoteuser']) {
