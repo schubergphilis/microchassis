@@ -84,6 +84,8 @@ export class HttpServer {
   public start() {
     // 404 middleware
     this.server.use((request: Request, response: Response, next: NextFunction) => {
+      this.logger.warn(`Unknown endpoint called: ${request.url}`);
+
       response.status(httpStatus.NOT_FOUND).send({
         message: `Unknown endpoint: ${request.url}`
       });
@@ -91,6 +93,9 @@ export class HttpServer {
 
     // Error middleware
     this.server.use((error, request: Request, response: Response, next: NextFunction) => {
+      this.logger.error(`Express error middleware error for ${request.url}`, error);
+      console.error(error);
+
       response.status(httpStatus.INTERNAL_SERVER_ERROR).send({
         message: 'Something went terribly wrong....'
       });
