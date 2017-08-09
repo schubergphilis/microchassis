@@ -39,6 +39,8 @@ export class Logger {
           console.error(arg);
           messages.push(JSON.stringify(arg, ['message', 'stack', 'name']));
         } else {
+          // Prevent (accidental) logging of the token incase arg is a context object
+          delete arg['token'];
           messages.push(JSON.stringify(arg));
         }
       });
