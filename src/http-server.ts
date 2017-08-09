@@ -130,12 +130,12 @@ export class HttpServer {
     // Call the httpHandler
     service.handler(context, body)
       .then((serviceResponse: ServiceResponse) => {
-        this.logger.info(`Http request '${request.url}' ended, duration: ${new Date().getTime() - startTime.getTime()}ms`);
-
         const status = serviceResponse.status || httpStatus.OK;
         const content = serviceResponse.content;
 
         response.status(status).send(content);
+
+        this.logger.info(`Http request '${request.url}' ended: ${status}, duration: ${new Date().getTime() - startTime.getTime()}ms`);
       })
       .catch((error: ServiceResponse = {}) => {
         this.logger.error(error.content);
@@ -144,6 +144,8 @@ export class HttpServer {
         const content = error.content || 'Internal server error';
 
         response.status(status).send(content);
+
+        this.logger.info(`Http request '${request.url}' ended: ${status}, duration: ${new Date().getTime() - startTime.getTime()}ms`);
       });
   }
 
@@ -197,7 +199,7 @@ export class HttpServer {
     }
 
     if (request.headers['remoteuser']) {
-      user = request.header['remoteuser'].toString();
+      user = request.headers['remoteuser'].toString();
     }
 
     return {
