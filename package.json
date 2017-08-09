@@ -14,8 +14,12 @@
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "prepublish": "npm run lint && npm run test && npm run build"
   },
-  "author": "",
+  "author": "Raymond de Wit <raymond@thewhite.nl> (http://github.com/rthewhite)",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com:rthewhite/rmicroservice.git"
+  },
   "devDependencies": {
     "@types/chai": "^4.0.1",
     "@types/express": "^4.0.36",
