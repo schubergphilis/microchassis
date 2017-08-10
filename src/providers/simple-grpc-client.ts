@@ -45,14 +45,7 @@ export class SimpleGrpcClient {
       ServiceClass = proto[this.protoConfig.service];
     }
 
-    // Build deadline object
-    const now = new Date();
-    const options = {
-      deadline: now.setSeconds(now.getSeconds() + this.callTimeout),
-      credentials: this.grpc.credentials.createInsecure()
-    };
-
-    this.client = new ServiceClass(this.serviceAddress, options);
+    this.client = new ServiceClass(this.serviceAddress, this.grpc.credentials.createInsecure());
 
     // Wiat for client to be ready and start health monitoring
     this.client.waitForReady(Infinity, (error) => {
@@ -78,6 +71,10 @@ export class SimpleGrpcClient {
       // with an capital it works to
       const normalizedMethod = method.charAt(0).toLowerCase() + method.slice(1);
 
+      // Build deadline object
+      const now = new Date();
+      const deadline = now.setSeconds(now.getSeconds() + this.callTimeout);
+
       if (!this.client[normalizedMethod]) {
         const errorMessage = `RPC method: ${method} doesn't exist on GRPC client: ${this.protoConfig.service}`;
         this.logger.error(errorMessage);
@@ -92,6 +89,8 @@ export class SimpleGrpcClient {
             this.logger.debug(`Call ${method} on ${this.protoConfig.service} responded with: `, response);
             resolve(response);
           }
+        }, {
+          deadline
         });
       }
     });
