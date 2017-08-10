@@ -80,7 +80,7 @@ export class SimpleGrpcClient {
         this.logger.error(errorMessage);
         reject(new Error(errorMessage));
       } else {
-        this.client[normalizedMethod](message, meta, (error, response) => {
+        this.client[normalizedMethod](message, meta, { deadline: deadline }, (error, response) => {
           if (error) {
             this.logger.error(`Call ${method} on ${this.protoConfig.service} failed with error: `, error);
             console.error(error);
@@ -89,8 +89,6 @@ export class SimpleGrpcClient {
             this.logger.debug(`Call ${method} on ${this.protoConfig.service} responded with: `, response);
             resolve(response);
           }
-        }, {
-          deadline
         });
       }
     });
