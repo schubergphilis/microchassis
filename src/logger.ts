@@ -36,15 +36,14 @@ export class Logger {
     if (args && args[0]) {
       args[0].forEach((arg: any) => {
         if (arg instanceof Error) {
-          console.error(arg);
           messages.push(JSON.stringify(arg, ['message', 'stack', 'name']));
         } else if (arg.token) {
           // Prevent (accidental) logging of the token incase arg is a context object
           // making a copy here, object is passed by reference, deleting the token would have
           // side effects
-          const context = Object.assign({}, args)
+          const context = Object.assign({}, arg)
           delete context['token'];
-          messages.push(arg);
+          messages.push(context);
         } else {
           messages.push(arg);
         }
