@@ -31,11 +31,15 @@ export class HttpServer {
     }));
 
     // Register health check endpoint
-    this.server.get('/health', (request: Request, response: Response) => {
+    const healthUrl = this.normalizeURL(this.config['healthCheckURL'] || '/check');
+
+    this.server.get(healthUrl, (request: Request, response: Response) => {
+      const report = healthManager.getReport();
+
       if (healthManager.healthy) {
-        response.status(httpStatus.OK).send('Healthy');
+        response.status(httpStatus.OK).send(report);
       } else {
-        response.status(httpStatus.SERVICE_UNAVAILABLE).send('Unhealthy');
+        response.status(httpStatus.SERVICE_UNAVAILABLE).send(report);
       }
     });
   }
@@ -49,29 +53,7 @@ export class HttpServer {
       method = service.method.toLowerCase();
     }
 
-    // Urls need to start with a slash
-    let url = service.url;
-
-    if (url.charAt(0) !== '/') {
-      url = `/${url}`;
-    }
-
-    // Check for root in config and prepend to the url
-    if (this.config['httpRoot']) {
-      let httpRoot = this.config['httpRoot'];
-
-      // Should start with an slash
-      if (httpRoot.charAt(0) !== '/') {
-        httpRoot = `/${httpRoot}`;
-      }
-
-      // Should not end with an slash
-      if (httpRoot.charAt(httpRoot.length - 1) === '/') {
-        httpRoot = httpRoot.substring(0, httpRoot.length - 1);
-      }
-
-      url = `${httpRoot}${url}`;
-    }
+    const url = this.normalizeURL(service.url);
 
     this.logger.debug(`Registering HTTP handler: ${service.method || method} ${url}`);
 
@@ -147,6 +129,32 @@ export class HttpServer {
 
         this.logger.info(`Http request '${request.url}' ended: ${status}, duration: ${new Date().getTime() - startTime.getTime()}ms`);
       });
+  }
+
+  private normalizeURL(url: string) {
+    // Urls need to start with a slash
+    if (url.charAt(0) !== '/') {
+      url = `/${url}`;
+    }
+
+    // Check for root in config and prepend to the url
+    if (this.config['httpRoot']) {
+      let httpRoot = this.config['httpRoot'];
+
+      // Should start with an slash
+      if (httpRoot.charAt(0) !== '/') {
+        httpRoot = `/${httpRoot}`;
+      }
+
+      // Should not end with an slash
+      if (httpRoot.charAt(httpRoot.length - 1) === '/') {
+        httpRoot = httpRoot.substring(0, httpRoot.length - 1);
+      }
+
+      url = `${httpRoot}${url}`;
+    }
+
+    return url;
   }
 
   private getQueryParams(service: Service, request: Request, body: any): any {

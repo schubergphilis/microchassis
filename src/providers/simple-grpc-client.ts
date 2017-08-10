@@ -1,5 +1,6 @@
 import { injectable, inject } from 'inversify';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Config } from './../config';
 import * as grpcExt from 'grpc/src/node/src/grpc_extension';
 const connectivityState = grpcExt.connectivityState;
 
@@ -14,8 +15,14 @@ export class SimpleGrpcClient {
   public grpc;
   public healthManager: HealthManager;
   public logger: Logger;
-
+  public callTimeout = 5; // timeout/deadline for grpc calls in seconds
   private channelState = new BehaviorSubject(-1);
+
+  constructor(private config: Config) {
+    if (config['grpcClientTimeout']) {
+      this.callTimeout = config['grpcClientTimeout'];
+    }
+  }
 
   public connect() {
     this.healthManager.registerCheck(this.protoConfig.service, this.health);
@@ -38,7 +45,14 @@ export class SimpleGrpcClient {
       ServiceClass = proto[this.protoConfig.service];
     }
 
-    this.client = new ServiceClass(this.serviceAddress, this.grpc.credentials.createInsecure());
+    // Build deadline object
+    const now = new Date();
+    const options = {
+      deadline: now.setSeconds(now.getSeconds() + this.callTimeout),
+      credentials: this.grpc.credentials.createInsecure()
+    };
+
+    this.client = new ServiceClass(this.serviceAddress, options);
 
     // Wiat for client to be ready and start health monitoring
     this.client.waitForReady(Infinity, (error) => {

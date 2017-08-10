@@ -32,6 +32,21 @@ export class Config {
     dest: 'grpcPort',
     value: 9000
   }, {
+    description: 'Http server root url, used to prefix all the urls',
+    env: 'HTTP_ROOT',
+    args: ['http_root'],
+    dest: 'httpRoot',
+    value: undefined
+  }, {
+    description: 'GRPC client timeout',
+    env: 'GRPC_CLIENT_TIMEOUT',
+    dest: 'grpcClientTimeout',
+    value: 5
+  }, {
+    description: 'Healthcheck url',
+    dest: 'healthCheckURL',
+    value: 'check'
+  }, {
     description: 'Database name',
     env: 'DB_NAME',
     args: ['db'],
@@ -61,12 +76,6 @@ export class Config {
     args: ['db_port'],
     dest: 'dbPort',
     value: 3306
-  }, {
-    description: 'Http server root url, used to prefix all the urls',
-    env: 'HTTP_ROOT',
-    args: ['http_root'],
-    dest: 'httpRoot',
-    value: undefined
   }];
 
   constructor(@inject('configoptions') configOptions?: Array<ConfigOption>) {

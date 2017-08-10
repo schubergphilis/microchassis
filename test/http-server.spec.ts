@@ -89,7 +89,7 @@ describe('Http server', () => {
       const url = getSpy.getCall(0).args[0];
       const handler = getSpy.getCall(0).args[1];
 
-      expect(url).to.equal('/health');
+      expect(url).to.equal('/check');
 
       let responseCode;
       let responseText;
@@ -109,13 +109,11 @@ describe('Http server', () => {
       handler({}, response);
 
       expect(responseCode).to.equal(503);
-      expect(responseText).to.equal('Unhealthy');
 
       healthManager.healthy = true;
       handler({}, response);
 
       expect(responseCode).to.equal(200);
-      expect(responseText).to.equal('Healthy');
     });
   });
 

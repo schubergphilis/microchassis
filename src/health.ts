@@ -63,6 +63,18 @@ export class HealthManager {
     return Object.keys(this.checks).length;
   }
 
+  public getReport() {
+    const report = {};
+
+    for (const check in this.checks) {
+      if (this.checks.hasOwnProperty(check)) {
+        report[check] = this.checks[check].getValue() ? 'healthy' : 'unhealthy';
+      }
+    }
+
+    return report;
+  }
+
   private determineHealth() {
     let status = true;
     const keys = Object.keys(this.checks);
