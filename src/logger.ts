@@ -38,10 +38,15 @@ export class Logger {
         if (arg instanceof Error) {
           console.error(arg);
           messages.push(JSON.stringify(arg, ['message', 'stack', 'name']));
-        } else {
+        } else if (arg.token) {
           // Prevent (accidental) logging of the token incase arg is a context object
-          delete arg['token'];
-          messages.push(JSON.stringify(arg));
+          // making a copy here, object is passed by reference, deleting the token would have
+          // side effects
+          const context = Object.assign({}, args)
+          delete context['token'];
+          messages.push(arg);
+        } else {
+          messages.push(arg);
         }
       });
     }
