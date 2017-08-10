@@ -18,7 +18,7 @@ export class SimpleGrpcClient {
   public callTimeout = 5; // timeout/deadline for grpc calls in seconds
   private channelState = new BehaviorSubject(-1);
 
-  constructor(private config: Config) {
+  constructor(config: Config) {
     if (config['grpcClientTimeout']) {
       this.callTimeout = config['grpcClientTimeout'];
     }
