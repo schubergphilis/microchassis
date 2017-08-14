@@ -48,15 +48,15 @@ export class TypeORMProvider {
     // Prepare the entities for dependency injection
     const entities = [];
 
-    options.entities.forEach((entity: any) => {
-      this.container.bind<any>(entity).to(entity);
-      this.container.bind<interfaces.Factory<any>>(entity.prototype.constructor.name).toFactory(() => {
+    options.entities.forEach((Entity: any) => {
+      this.container.bind<any>(Entity).to(Entity);
+      this.container.bind<interfaces.Factory<any>>(Entity.prototype.constructor.name).toFactory(() => {
         return () => {
-          return this.container.get(entity.prototype.constructor)
+          return this.container.get(Entity)
         };
       });
 
-      entities.push(this.container.get(entity));
+      entities.push(this.container.get(Entity.prototype.constructor));
     });
 
     options.entities = entities;
