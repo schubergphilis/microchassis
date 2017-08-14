@@ -24,7 +24,8 @@ export class HttpServer {
     this.server = express();
     this.server.use(bodyParser.json({
       type: (request) => {
-        if (request.headers['content-type'].startsWith('application/json')) {
+        const contentType = request.headers['content-type'];
+        if (contentType && contentType.startsWith('application/json')) {
           return true;
         }
       }

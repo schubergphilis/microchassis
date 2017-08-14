@@ -1,6 +1,6 @@
 import { createConnection, getConnectionManager, Connection, ConnectionOptions, EntityManager } from 'typeorm';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { injectable } from 'inversify';
+import { Container, injectable, interfaces } from 'inversify';
 import * as deepmerge from 'deepmerge';
 
 import { Config, HealthManager, Logger } from '../';
@@ -29,7 +29,7 @@ export class TypeORMProvider {
     return TypeORMProvider;
   }
 
-  constructor(private config: Config, private healthManager: HealthManager, private logger: Logger) {
+  constructor(private config: Config, private container: Container, private healthManager: HealthManager, private logger: Logger) {
     healthManager.registerCheck('DB connection', this.health);
 
     const options = deepmerge(this.defaultConnectionOptions, this.connectionOptions);
@@ -45,6 +45,23 @@ export class TypeORMProvider {
       throw new Error('TypeORMProvider: autoSchemaSync not supported');
     }
 
+    // Prepare the entities for dependency injection
+    const entities = [];
+
+    options.entities.forEach((entity: any) => {
+      this.container.bind<any>(entity).to(entity);
+      this.container.bind<interfaces.Factory<any>>(entity.prototype.constructor.name).toFactory(() => {
+        return () => {
+          return this.container.get(entity.prototype.constructor)
+        };
+      });
+
+      entities.push(this.container.get(entity));
+    });
+
+    options.entities = entities;
+
+    // Setup the connection
     const connectionManager = getConnectionManager();
     this.connection = connectionManager.create(options);
     this.entityManager = this.connection.entityManager;
