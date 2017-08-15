@@ -25,7 +25,6 @@ export class RService {
   private grpcServer: GrpcServer;
 
   constructor(private serviceConfig: ServiceOptions) {
-    this.container.bind<Container>(Container).toConstantValue(this.container);
     this.container.bind('configoptions').toConstantValue(serviceConfig.config);
     this.container.bind<Config>(Config).toSelf().inSingletonScope();
     this.container.bind<HealthManager>(HealthManager).toSelf().inSingletonScope();
