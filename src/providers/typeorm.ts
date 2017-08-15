@@ -48,7 +48,7 @@ export class TypeORMProvider {
     // Prepare the entities for dependency injection
     const entities = [];
 
-    options.entities.forEach((Entity: any) => {
+    for (const Entity of options.entities) {
       this.container.bind<any>(Entity.prototype.constructor.name).to(Entity);
       this.container.bind<any>(Entity).toFactory<any>(() => {
         return () => {
@@ -57,7 +57,7 @@ export class TypeORMProvider {
       });
 
       entities.push(this.container.get(Entity));
-    });
+    }
 
     options.entities = entities;
 
