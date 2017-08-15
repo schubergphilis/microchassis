@@ -49,14 +49,14 @@ export class TypeORMProvider {
     const entities = [];
 
     options.entities.forEach((Entity: any) => {
-      this.container.bind<any>(Entity).to(Entity);
-      this.container.bind<interfaces.Factory<any>>(Entity.prototype.constructor.name).toFactory(() => {
+      this.container.bind<any>(Entity.prototype.constructor.name).to(Entity);
+      this.container.bind<any>(Entity).toFactory<any>(() => {
         return () => {
-          return this.container.get(Entity)
+          return this.container.get(Entity.prototype.constructor.name);
         };
       });
 
-      entities.push(this.container.get(Entity.prototype.constructor));
+      entities.push(this.container.get(Entity));
     });
 
     options.entities = entities;
