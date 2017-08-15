@@ -53,7 +53,8 @@ export class Logger {
 
     const message = {
       level,
-      message: messages
+      message: messages.length === 1 ? messages[0] : messages,
+      timestamp: new Date()
     };
 
     console.log(JSON.stringify(message));
