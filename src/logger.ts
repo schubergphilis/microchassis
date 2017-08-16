@@ -1,61 +1,130 @@
 import { injectable } from 'inversify';
 import { Context } from './context';
-import { Config, LogLevel } from './config';
+import { Config, LogLevel as Level } from './config';
+import * as util from 'util';
+
+export enum LogLevel {
+  DEBUG,
+  INFO,
+  WARN,
+  ERROR,
+  FATAL
+}
+
+export interface LogRecord {
+  level: LogLevel;
+  message: string;
+  time: Date;
+  formatArgs: Array<string>,
+  extra: Object;
+}
+
+export interface ProcessorFunction {
+  (message: LogRecord): LogRecord
+}
+
+export interface HandlerFunction {
+  (message: LogRecord): void
+}
+
+function prepareRecord(level: LogLevel, message: string, args: Array<any>): LogRecord {
+  const formatArgs: Array<string> = [];
+  const extraArgs = {};
+  for (const arg of args) {
+    if (typeof arg === 'string') {
+      formatArgs.push(arg);
+    } else {
+      Object.assign(extraArgs, arg);
+    }
+  }
+  return {
+    message: message,
+    time: new Date(),
+    extra: extraArgs,
+    formatArgs: formatArgs,
+    level: level
+  };
+}
+
+function formatError(error: Error): any {
+  // Alternative appraoch as suggested on SO:
+  // return JSON.stringify(err, Object.getOwnPropertyNames(err));
+  return { message: error.message, stack: error.stack, name: error.name };
+
+}
+
+function consoleHandler(record: LogRecord) {
+  console.log(JSON.stringify({
+    _time: record.time,
+    level: LogLevel[record.level],
+    message: util.format(record.message, ...record.formatArgs),
+    extra: record.extra
+  }))
+}
 
 @injectable()
 export class Logger {
-  private logLevel: string;
-
-  constructor(private config: Config) {
-    this.logLevel = config['logLevel'];
-  }
-
-  info(...args: any[]) {
-    this.log('info', args);
-  }
-
-  warn(...args: any[]) {
-    this.log('warn', args);
-  }
-
-  error(...args: any[]) {
-    this.log('error', args);
-  }
-
-  audit(...args: any[]) {
-    this.log('audit', args);
-  }
-
-  debug(...args: any[]) {
-    this.log('debug', args);
-  }
-
-  private log(level: string, ...args: any[]) {
-    const messages = [];
-
-    if (args && args[0]) {
-      args[0].forEach((arg: any) => {
-        if (arg instanceof Error) {
-          messages.push(JSON.stringify(arg, ['message', 'stack', 'name']));
-        } else if (arg && arg.token) {
-          // Prevent (accidental) logging of the token incase arg is a context object
-          // making a copy here, object is passed by reference, deleting the token would have
-          // side effects
-          const context = Object.assign({}, arg)
-          delete context['token'];
-          messages.push(context);
-        } else {
-          messages.push(arg);
-        }
-      });
+  constructor(
+    private config: Config,
+    private processors: Array<ProcessorFunction> = [],
+    private handlers: Array<HandlerFunction> = [consoleHandler],
+    private logLevel: LogLevel = LogLevel.DEBUG
+  ) {
+    switch (config['logLevel']) {
+      case 'debug': this.logLevel = LogLevel.DEBUG; break;
+      case 'info': this.logLevel = LogLevel.INFO; break;
+      case 'warn': this.logLevel = LogLevel.WARN; break;
+      case 'error': this.logLevel = LogLevel.ERROR; break;
+      case 'fatal': this.logLevel = LogLevel.FATAL; break;
     }
+    if (this.handlers.length === 0) {
+      throw TypeError("No handlers configured for logger")
+    }
+  }
 
+  public get level(): LogLevel { return this.logLevel }
+  public set level(logLevel: LogLevel) { this.logLevel = logLevel }
 
-    const message = {
-      level,
-      message: messages
-    };
+  debug(message: string, ...args: any[]) {
+    this.log(prepareRecord(LogLevel.DEBUG, message, args));
+  }
 
-    console.log(JSON.stringify(message));
+  info(message: string, ...args: Array<any>) {
+    this.log(prepareRecord(LogLevel.INFO, message, args));
+  }
+
+  warn(message: string, ...args: any[]) {
+    this.log(prepareRecord(LogLevel.WARN, message, args));
+  }
+
+  error(message: string, ...args: any[]) {
+    this.log(prepareRecord(LogLevel.ERROR, message, args));
+  }
+
+  exception(error: Error, message: string, ...args: any[]) {
+    args.push({ error: formatError(error) });
+    this.log(prepareRecord(LogLevel.ERROR, message, args));
+  }
+
+  fatal(message: string, ...args: any[]) {
+    this.log(prepareRecord(LogLevel.FATAL, message, args));
+  }
+
+  audit(message: string, ...args: any[]) {
+    args.push({ audit: true });
+    this.log(prepareRecord(LogLevel.INFO, message, args));
+  }
+
+  private log(record: LogRecord) {
+    // Ignore messages below set logger level
+    if (record.level < this.logLevel) {
+      return;
+    }
+    for (const processor of this.processors) {
+      record = processor(record);
+    }
+    for (const handler of this.handlers) {
+      handler(record);
+    }
   }
 }
