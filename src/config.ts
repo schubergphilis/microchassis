@@ -1,8 +1,6 @@
 import { injectable, inject } from 'inversify';
 import * as minimist from 'minimist';
 
-export type LogLevel = 'info' | 'warn' | 'error' | 'debug';
-
 export interface ConfigOption {
   description?: string;
   env?: string;
@@ -78,7 +76,7 @@ export class Config {
     value: 3306
   }];
 
-  constructor(@inject('configoptions') configOptions?: Array<ConfigOption>) {
+  constructor( @inject('configoptions') configOptions?: Array<ConfigOption>) {
     // Merge config options
     if (configOptions) {
       this.knownOptions = this.knownOptions.concat(configOptions);
