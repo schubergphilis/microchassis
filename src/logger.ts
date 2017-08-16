@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { Context } from './context';
-import { Config, LogLevel as Level } from './config';
+import { Config } from './config';
 import * as util from 'util';
 
 export enum LogLevel {
