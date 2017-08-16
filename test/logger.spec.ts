@@ -19,6 +19,10 @@ describe('Logger', () => {
     logger = new Logger(<Config>{});
   });
 
+  afterEach(() => {
+    logSpy.restore();
+  });
+
   it('It should filter out the token', () => {
     logger.info({
       token: 'foobar',
