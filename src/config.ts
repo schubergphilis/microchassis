@@ -74,6 +74,12 @@ export class Config {
     args: ['db_port'],
     dest: 'dbPort',
     value: 3306
+  }, {
+    description: 'Debug mode flag',
+    env: 'DEBUG',
+    args: ['debug'],
+    dest: 'debug',
+    value: false
   }];
 
   constructor( @inject('configoptions') configOptions?: Array<ConfigOption>) {

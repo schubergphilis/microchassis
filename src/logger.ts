@@ -64,6 +64,8 @@ function consoleHandler(record: LogRecord) {
 
 @injectable()
 export class Logger {
+  private _debug: boolean = false;
+
   constructor(
     private config: Config,
     private processors: Array<ProcessorFunction> = [],
@@ -78,7 +80,10 @@ export class Logger {
       case 'fatal': this.logLevel = LogLevel.FATAL; break;
     }
     if (this.handlers.length === 0) {
-      throw TypeError("No handlers configured for logger")
+      throw TypeError("No handlers configured for logger");
+    }
+    if (config['debug'] === true || config['debug'] === 'true') {
+      this._debug = true;
     }
   }
 
@@ -102,6 +107,9 @@ export class Logger {
   }
 
   exception(error: Error, message: string, ...args: any[]) {
+    if (this._debug === true) {
+      console.error(error);
+    }
     args.push({ error: formatError(error) });
     this.log(prepareRecord(LogLevel.ERROR, message, args));
   }
