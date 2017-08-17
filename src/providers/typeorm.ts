@@ -57,9 +57,8 @@ export class TypeORMProvider {
         this.health.next(true);
         this.monitorHealth();
       })
-      .catch((error) => {
-        this.logger.error(`Failed to connect to database, retrying in: ${this.reconnectTime}ms`);
-        this.logger.error(error);
+      .catch((error: Error) => {
+        this.logger.exception(error, 'Failed to connect to db, retrying in: ${this.reconnectTime}ms');
 
         setTimeout(() => {
           this.connect();
@@ -74,9 +73,9 @@ export class TypeORMProvider {
         .then(() => {
           this.health.next(true);
         })
-        .catch((error) => {
+        .catch((error: Error) => {
           this.health.next(false);
-          this.logger.error(error);
+          this.logger.exception(error, 'Health check query failed');
         });
     }, this.checkInterval);
   }
