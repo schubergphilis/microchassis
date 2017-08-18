@@ -15,20 +15,25 @@ describe('Logger', () => {
   let logSpy: SinonSpy;
 
   it('should throw an exception if no handlers are provided', () => {
-    expect(() => { new Logger(new Config([{
+    const config = new Config([{
       dest: 'loggerOptions',
       value: {
         handlers: []
       }
-    }])) }).to.throw(TypeError);
+    }]);
+
+    expect(() => { new Logger(config); }).to.throw(TypeError);
   });
 
   it('sets the log level correctly', () => {
-    const levels = [['debug', LogLevel.DEBUG],
-    ['info', LogLevel.INFO],
-    ['warn', LogLevel.WARN],
-    ['error', LogLevel.ERROR],
-    ['fatal', LogLevel.FATAL]];
+    const levels = [
+      ['debug', LogLevel.DEBUG],
+      ['info', LogLevel.INFO],
+      ['warn', LogLevel.WARN],
+      ['error', LogLevel.ERROR],
+      ['fatal', LogLevel.FATAL]
+    ];
+
     for (const pair of levels) {
       logger = new Logger(new Config([{ dest: 'logLevel', value: pair[0] }]));
       expect(logger.level).to.equal(pair[1]);
@@ -41,7 +46,7 @@ describe('Logger', () => {
   });
 
   afterEach(() => {
-    console.log['restore']();
+    logSpy.restore();
     logger = undefined;
   });
 
