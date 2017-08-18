@@ -80,6 +80,10 @@ export class Config {
     args: ['debug'],
     dest: 'debug',
     value: false
+  }, {
+    description: 'Logger options',
+    dest: 'loggerOptions',
+    value: {}
   }];
 
   constructor( @inject('configoptions') configOptions?: Array<ConfigOption>) {
