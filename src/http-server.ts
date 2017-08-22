@@ -117,7 +117,8 @@ export class HttpServer {
 
         response.status(status).send(content);
 
-        this.logger.info(`Http request '${request.url}' ended: ${status}, duration: ${new Date().getTime() - startTime.getTime()}ms`);
+        const duration = new Date().getTime() - startTime.getTime();
+        this.logger.info(`Http request '${request.url}' ended: ${status}, duration: ${duration}ms`, { context });
       })
       .catch((error: ServiceResponse = {}) => {
         this.logger.error(error.content);
@@ -127,7 +128,8 @@ export class HttpServer {
 
         response.status(status).send(content);
 
-        this.logger.info(`Http request '${request.url}' ended: ${status}, duration: ${new Date().getTime() - startTime.getTime()}ms`);
+        const duration = new Date().getTime() - startTime.getTime();
+        this.logger.info(`Http request '${request.url}' ended: ${status}, duration: ${duration}ms`, { context });
       });
   }
 

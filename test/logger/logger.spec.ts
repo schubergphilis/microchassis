@@ -7,34 +7,42 @@ import * as sinonChai from 'sinon-chai';
 
 chai.use(sinonChai);
 
-import { Config } from './../src/config';
-import { Logger, LogRecord, LogLevel } from './../src/logger';
+import { Config } from './../../src/config';
+import { Logger, LogRecord, LogLevel } from './../../src/logger';
 
 describe('Logger', () => {
   let logger: Logger;
   let logSpy: SinonSpy;
 
   it('should throw an exception if no handlers are provided', () => {
-    expect(() => { new Logger(new Config(), [], []) }).to.throw(TypeError);
+    const config = new Config([{
+      dest: 'loggerOptions',
+      value: {
+        handlers: []
+      }
+    }]);
+
+    expect(() => { new Logger(config); }).to.throw(TypeError);
   });
 
   it('sets the log level correctly', () => {
-    const levels = [['debug', LogLevel.DEBUG],
-    ['info', LogLevel.INFO],
-    ['warn', LogLevel.WARN],
-    ['error', LogLevel.ERROR],
-    ['fatal', LogLevel.FATAL]];
+    const levels = [
+      ['debug', LogLevel.DEBUG],
+      ['info', LogLevel.INFO],
+      ['warn', LogLevel.WARN],
+      ['error', LogLevel.ERROR],
+      ['fatal', LogLevel.FATAL]
+    ];
+
     for (const pair of levels) {
-      const logger = new Logger(new Config([{ dest: 'logLevel', value: pair[0] }]));
+      logger = new Logger(new Config([{ dest: 'logLevel', value: pair[0] }]));
       expect(logger.level).to.equal(pair[1]);
     }
   })
 
   beforeEach(() => {
     logSpy = spy(console, 'log');
-    const processors = [
-      (record: LogRecord) => { delete record.extra['token']; return record; }];
-    logger = new Logger(new Config([{ dest: 'logLevel', value: 'debug' }]), processors);
+    logger = new Logger(new Config([{ dest: 'logLevel', value: 'debug' }]));
   });
 
   afterEach(() => {
@@ -42,32 +50,18 @@ describe('Logger', () => {
     logger = undefined;
   });
 
-  it('should filter out the token', () => {
-    logger.info('An info level message', {
-      token: 'foobar',
-      foo: 'bar'
-    });
-
-    const arg = logSpy.getCall(0).args[0];
-    const obj = JSON.parse(arg);
-
-    expect(obj.level).to.equal('INFO');
-    expect(obj.extra.token).to.equal(undefined);
-    expect(obj.extra.foo).to.equal('bar');
-  });
-
   it('should not attempt to emit messages below specified log level', () => {
     logger.level = LogLevel.INFO;
     logger.debug('A debug level message that should be ignored');
-    expect(logSpy.notCalled).to.equal(true);
+    expect(logSpy.notCalled).to.equal(true, 'debug should be ignored');
     logger.info('A message that should not be ignored');
-    expect(logSpy.called).to.equal(true);
+    expect(logSpy.called).to.equal(true, 'info should not be ignored');
     logger.warn('A message that should not be ignored');
-    expect(logSpy.called).to.equal(true);
+    expect(logSpy.called).to.equal(true, 'warn should not be ignored');
     logger.error('A message that should not be ignored');
-    expect(logSpy.called).to.equal(true);
+    expect(logSpy.called).to.equal(true, 'error should not be ignored');
     logger.fatal('A message that should not be ignored');
-    expect(logSpy.called).to.equal(true);
+    expect(logSpy.called).to.equal(true, 'fatal should not be ignored');
   });
 
   it('should correctly handle exceptions', () => {
@@ -103,6 +97,61 @@ describe('Logger', () => {
     logger.info('A message with something extra', { foo: 'foo' }, { bar: 'bar' });
     expect(logSpy.called).to.equal(true);
     expect(JSON.parse(logSpy.firstCall.args[0]).extra).to.include({ foo: 'foo', bar: 'bar' });
+  });
+
+  it('should apply processors', () => {
+    const processor = () => {
+      return (record: LogRecord): LogRecord => {
+        record.extra['processed'] = true;
+        return record;
+      }
+    }
+
+    logger =  new Logger(new Config([{
+      dest: 'loggerOptions',
+      value: {
+        processors: [processor]
+      }
+    }]))
+
+
+    logger.info('An info level message', {
+      token: 'foobar',
+      foo: 'bar'
+    });
+
+    const arg = logSpy.getCall(0).args[0];
+    const obj = JSON.parse(arg);
+
+    expect(obj.extra.processed).to.equal(true);
+  });
+
+  it('should leave the original object untouched when deleting properties in a processor', () => {
+    const processor = () => {
+      return (record: LogRecord): LogRecord => {
+        delete record.extra['token'];
+        return record;
+      }
+    }
+
+    logger =  new Logger(new Config([{
+      dest: 'loggerOptions',
+      value: {
+        processors: [processor]
+      }
+    }]))
+
+    const context = {
+      token: 'foobar'
+    };
+
+    logger.info('An info level message', context);
+
+    const arg = logSpy.getCall(0).args[0];
+    const obj = JSON.parse(arg);
+
+    expect(obj.extra.token).to.be.undefined;
+    expect(context.token).to.equal('foobar');
   });
 });
 
