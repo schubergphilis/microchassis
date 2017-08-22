@@ -33,9 +33,10 @@
       "**/*.test.js",
       "**/__tests__/**",
       "**/node_modules/**",
-      "example"
-    ],
-    "all": true
+      "example",
+      "dist",
+      "coverage"
+    ]
   },
   "devDependencies": {
     "@types/chai": "^4.0.1",
