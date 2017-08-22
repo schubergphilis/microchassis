@@ -36,7 +36,8 @@
       "example",
       "dist",
       "coverage"
-    ]
+    ],
+    "all": true
   },
   "devDependencies": {
     "@types/chai": "^4.0.1",
