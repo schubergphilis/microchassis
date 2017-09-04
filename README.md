@@ -7,10 +7,10 @@
 
 [travis-image]: https://img.shields.io/travis/sbp-contrib/microchassis.svg?style=flat
 [travis-url]: https://travis-ci.org/sbp-contrib/microchassis
-[npm-image]: https://img.shields.io/npm/v/rmicroservice.svg?style=flat
-[npm-url]: https://npmjs.org/package/rmicroservice
-[downloads-image]: https://img.shields.io/npm/dm/rmicroservice.svg?style=flat
-[downloads-url]: https://npmjs.org/package/rmicroservice
+[npm-image]: https://img.shields.io/npm/v/microchassis.svg?style=flat
+[npm-url]: https://npmjs.org/package/microchassis
+[downloads-image]: https://img.shields.io/npm/dm/microchassis.svg?style=flat
+[downloads-url]: https://npmjs.org/package/microchassis
 
 This package aims to help you build "simple" microservices in Typescript.
 
