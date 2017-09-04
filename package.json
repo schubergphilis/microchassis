@@ -1,6 +1,6 @@
 {
-  "name": "rmicroservice",
-  "version": "0.4.1",
+  "name": "microchassis",
+  "version": "0.4.2",
   "description": "",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -15,10 +15,13 @@
     "prepublish": "npm run lint && npm run test && npm run build"
   },
   "author": "Raymond de Wit <raymond@thewhite.nl> (http://github.com/rthewhite)",
+  "contributors": [
+    "Andrii Mishkovskyi <mishok13@gmail.com> (http://github.com/mishok13)"
+  ],
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://github.com:rthewhite/rmicroservice.git"
+    "url": "https://github.com:sbp-contrib/microchassis.git"
   },
   "nyc": {
     "extension": [
@@ -40,39 +43,39 @@
     "all": true
   },
   "devDependencies": {
-    "@types/chai": "^4.0.1",
-    "@types/express": "^4.0.36",
-    "@types/http-status": "^0.2.29",
-    "@types/mocha": "^2.2.41",
-    "@types/node": "^8.0.17",
+    "@types/chai": "^4.0.4",
+    "@types/express": "^4.0.37",
+    "@types/http-status": "^0.2.30",
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^8.0.26",
     "@types/reflect-metadata": "0.0.5",
     "@types/sinon": "^2.3.3",
-    "@types/sinon-chai": "^2.7.28",
-    "chai": "^4.1.0",
+    "@types/sinon-chai": "^2.7.29",
+    "chai": "^4.1.2",
     "coveralls": "^2.13.1",
-    "mocha": "^3.4.2",
+    "mocha": "^3.5.0",
     "mock-express-request": "^0.2.0",
     "nodemon": "^1.11.0",
     "nyc": "^11.1.0",
     "sinon": "^2.4.1",
-    "sinon-chai": "^2.12.0",
-    "source-map-support": "^0.4.15",
+    "sinon-chai": "^2.13.0",
+    "source-map-support": "^0.4.17",
     "ts-node": "^3.3.0",
-    "tslint": "^5.5.0",
-    "typescript": "^2.4.2"
+    "tslint": "^5.7.0",
+    "typescript": "^2.5.2"
   },
   "dependencies": {
     "body-parser": "^1.17.2",
-    "deepmerge": "^1.5.0",
-    "express": "^4.15.3",
-    "grpc": "^1.4.1",
+    "deepmerge": "^1.5.1",
+    "express": "^4.15.4",
+    "grpc": "^1.6.0",
     "http-status": "^1.0.1",
     "http-status-codes": "^1.2.0",
     "inversify": "^4.3.0",
     "minimist": "^1.2.0",
-    "mysql": "^2.14.0",
+    "mysql": "^2.14.1",
     "reflect-metadata": "^0.1.10",
-    "rxjs": "^5.4.2",
+    "rxjs": "^5.4.3",
     "typeorm": "0.0.11"
   }
 }
