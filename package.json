@@ -21,7 +21,7 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://github.com:sbp-contrib/microchassis.git"
+    "url": "https://github.com:schubergphilis/microchassis.git"
   },
   "nyc": {
     "extension": [
