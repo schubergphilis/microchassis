@@ -5,8 +5,17 @@ import { RService } from './../src';
 
 import { HelloService } from './services';
 import { HelloManager } from './managers';
+import { Subscriber, KinesisProducer } from './../src/events';
 
-const service = new RService({
+
+import * as services from './services';
+
+Object.keys(services).forEach((service) => {
+  console.log(services[service]);
+});
+
+
+new RService({
   proto: {
     path: path.resolve('./proto/hello.proto'),
     package: 'hellopb',
@@ -23,5 +32,10 @@ const service = new RService({
       dest: 'httpRoot',
       value: ''
     }
-  ]
+  ],
+  events: {
+    subscribers: [
+      KinesisProducer
+    ]
+  }
 });
