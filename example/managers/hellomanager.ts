@@ -3,14 +3,10 @@ import { EventEmitter } from './../../src/events';
 
 @injectable()
 export class HelloManager {
-  constructor(private eventEmitter: EventEmitter) {
-
-  }
+  constructor(private eventEmitter: EventEmitter) {}
 
   public hello(name: string) {
-    this.eventEmitter.emit('foobar', {
-      foo: 'bar'
-    });
+    this.eventEmitter.emit('hello', { name });
 
     return `Hello ${name || 'stranger'}`;
   }

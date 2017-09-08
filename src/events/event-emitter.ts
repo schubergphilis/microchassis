@@ -6,6 +6,7 @@ export interface Subscriber {
 }
 
 export interface Event {
+  [s: string]: any;
   _meta: {
     eventType: string;
     timestamp: string;
@@ -17,15 +18,18 @@ export interface Event {
 export class EventEmitter {
   constructor(@inject('event-subscribers') private subscribers: Array<Subscriber>) {}
 
-  public emit(eventName: string, payload: any = {}) {
-    payload._meta = {
-      eventType: eventName,
-      timestamp: new Date().toISOString(),
-      producedBy: 'TODO TODO TODO'
-    }
+  public emit(eventName: string, payload: { [s: string]: any } = {}) {
+    // Using setImmediate to postpone actual execution until the api call has finished
+    setImmediate(() => {
+      payload._meta = {
+        eventType: eventName,
+        timestamp: new Date().toISOString(),
+        producedBy: 'TODO TODO TODO'
+      }
 
-    for (const subscriber of this.subscribers) {
-      subscriber.notify(payload);
-    }
+      for (const subscriber of this.subscribers) {
+        subscriber.notify(<Event>payload);
+      }
+    });
   }
 }

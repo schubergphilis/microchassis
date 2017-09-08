@@ -7,14 +7,6 @@ import { HelloService } from './services';
 import { HelloManager } from './managers';
 import { Subscriber, KinesisProducer } from './../src/events';
 
-
-import * as services from './services';
-
-Object.keys(services).forEach((service) => {
-  console.log(services[service]);
-});
-
-
 new RService({
   proto: {
     path: path.resolve('./proto/hello.proto'),

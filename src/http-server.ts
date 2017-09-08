@@ -4,6 +4,7 @@ import * as bodyParser from 'body-parser';
 import * as httpStatus from 'http-status';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { v4 as uuid } from 'uuid';
+import * as timeout from 'connect-timeout';
 
 import { HealthManager } from './health';
 import { Config } from './config';
@@ -64,6 +65,9 @@ export class HttpServer {
 
   // Starts the http server
   public start() {
+    // Set a 30 seconds request timeout
+    this.server.use(timeout(30000));
+
     // 404 middleware
     this.server.use((request: Request, response: Response, next: NextFunction) => {
       this.logger.warn(`Unknown endpoint called: ${request.url}`);

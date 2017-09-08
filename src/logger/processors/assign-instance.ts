@@ -5,7 +5,7 @@ import { LogRecord } from './../logger';
 let instanceId = uuid();
 
 const func = function(config: Config) {
-  if (config['instaneId']) {
+  if (config['instanceId']) {
     instanceId = config['instanceId'];
   }
 
