@@ -10,11 +10,10 @@ import { HttpServer } from './http-server';
 import { GrpcServer } from './grpc-server';
 import { ProtoConfig } from './proto-config';
 
-
 export interface ServiceOptions {
-  managers?: Array<any>;
-  services: Array<any>;
-  providers?: Array<any>;
+  managers?: Array<{new(...any): any}>;
+  services: Array<{new(...any): Service}>;
+  providers?: Array<{new(...any): any}>;
   proto: ProtoConfig;
   config?: Array<ConfigOption>;
 }

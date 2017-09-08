@@ -2,8 +2,12 @@ import { v4 as uuid } from 'uuid';
 import { Config } from './../../config';
 import { LogRecord } from './../logger';
 
+let instanceId = uuid();
+
 const func = function(config: Config) {
-  const instanceId = config['instanceId'] || uuid();
+  if (config['instaneId']) {
+    instanceId = config['instanceId'];
+  }
 
   return (record: LogRecord): LogRecord => {
     if (instanceId !== undefined) {
