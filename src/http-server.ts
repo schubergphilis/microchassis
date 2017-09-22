@@ -9,16 +9,16 @@ import * as timeout from 'connect-timeout';
 import { HealthManager } from './health';
 import { Config } from './config';
 import { Service, ServiceResponse } from './service';
-import { Logger} from './logger';
+import { Logger } from './logger';
 import { Context } from './context';
-import { deepSet} from './utils';
+import { deepSet } from './utils';
 
 @injectable()
 export class HttpServer {
   private server;
   public health = new BehaviorSubject(false);
 
-  constructor(@inject('express') private express, private config: Config, private logger: Logger, healthManager: HealthManager) {
+  constructor( @inject('express') private express, private config: Config, private logger: Logger, healthManager: HealthManager) {
     healthManager.registerCheck('HTTP server', this.health);
 
     // Setup express and a json body parser
@@ -48,12 +48,7 @@ export class HttpServer {
   // Register an endpoint with the server
   public registerService(service: Service) {
     // Normalize methodType to express method function
-    let method = 'get';
-
-    if (service.method) {
-      method = service.method.toLowerCase();
-    }
-
+    const method: string = (service.method || "get").toLowerCase();
     const url = this.normalizeURL(service.url);
 
     this.logger.debug(`Registering HTTP handler: ${service.method || method} ${url}`);
