@@ -61,7 +61,8 @@ export class HttpServer {
   // Starts the http server
   public start() {
     // Set a 30 seconds request timeout
-    this.server.use(timeout(30000));
+    const connectTimeout: number = this.config["connectTimeout"] || 30000;
+    this.server.use(timeout(connectTimeout));
 
     // 404 middleware
     this.server.use((request: Request, response: Response, next: NextFunction) => {
