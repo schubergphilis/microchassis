@@ -16,7 +16,7 @@ adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 * `ServiceOptions` interface changed signature for `managers`,
   `services` and `providers` to significantly stricter ones, making
   full use of TypeScript generics support
-* TCP connections now default to 30 second non-configurable timeout
+* TCP connections now default to 30 second timeout
 
 
 ### Removed
