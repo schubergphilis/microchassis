@@ -1,0 +1,25 @@
+# Changelog
+All notable changes to `microchassis` will be documented in this file.
+
+The format is based on [Keep a
+Changelog](http://keepachangelog.com/en/1.0.0/) and the project
+adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+* This changelog has been added
+* Events support has been introduced, see `examples/helloworld` for
+  usage examples.
+
+### Changed
+* `ServiceOptions` interface changed signature for `managers`,
+  `services` and `providers` to significantly stricter ones, making
+  full use of TypeScript generics support
+* TCP connections now default to 30 second timeout
+
+
+### Removed
+* `package.lock` has been removed
+
+## [0.4.3] - 2017-06-20

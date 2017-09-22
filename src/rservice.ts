@@ -9,14 +9,17 @@ import { Service } from './service';
 import { HttpServer } from './http-server';
 import { GrpcServer } from './grpc-server';
 import { ProtoConfig } from './proto-config';
-
+import { EventEmitter, Subscriber } from './events';
 
 export interface ServiceOptions {
-  managers?: Array<any>;
-  services: Array<any>;
-  providers?: Array<any>;
+  managers?: Array<{new(...any): any}>;
+  services: Array<{new(...any): Service}>;
+  providers?: Array<{new(...any): any}>;
   proto: ProtoConfig;
   config?: Array<ConfigOption>;
+  events?: {
+    subscribers?: Array<{new(...any): Subscriber}>;
+  }
 }
 
 export class RService {
@@ -34,6 +37,12 @@ export class RService {
     this.container.bind('grpc').toConstantValue(grpc);
     this.container.bind('express').toConstantValue(express);
     this.container.bind('protoconfig').toConstantValue(serviceConfig.proto);
+
+    // Prepare the event emitter
+    const subscribers = this.prepareEventSubscribers();
+    this.container.bind('event-subscribers').toConstantValue(subscribers);
+
+    this.container.bind<EventEmitter>(EventEmitter).toSelf().inSingletonScope();
 
     // Prepare the providers and managers for DI
     this.prepareProviders();
@@ -90,5 +99,18 @@ export class RService {
         }
       }
     }
+  }
+
+  private prepareEventSubscribers() {
+    const subscribers: Array<Subscriber> = [];
+
+    if (this.serviceConfig.events && this.serviceConfig.events.subscribers) {
+      for (const subscriber of this.serviceConfig.events.subscribers) {
+        this.container.bind<any>(<any>subscriber).toSelf().inSingletonScope();
+        subscribers.push(<Subscriber>this.container.get(<any>subscriber));
+      }
+    }
+
+    return subscribers;
   }
 }
