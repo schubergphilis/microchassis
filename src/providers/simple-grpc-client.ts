@@ -8,7 +8,7 @@ import { Context, Logger, ProtoConfig, HealthManager } from './..'
 
 @injectable()
 export class SimpleGrpcClient {
-  public health =  new BehaviorSubject(false);
+  public health = new BehaviorSubject(false);
   public protoConfig: ProtoConfig;
   public serviceAddress: string;
   public client;
@@ -28,11 +28,7 @@ export class SimpleGrpcClient {
     this.healthManager.registerCheck(this.protoConfig.service, this.health);
 
     this.channelState.subscribe((state) => {
-      if (state !== connectivityState.READY) {
-        this.health.next(false);
-      } else {
-        this.health.next(true);
-      }
+      this.health.next(state === connectivityState.READY)
     });
 
     // Load the proto and create service
@@ -60,37 +56,39 @@ export class SimpleGrpcClient {
     });
   }
 
-  // Use this to call actual methods on the client
-  public call(method: string, context: Context, message: any): Promise<any> {
-    this.logger.debug(`Calling ${method} on ${this.protoConfig.service} with:`, message);
+  // gRPC method names need to camel-cased
+  private normalizeMethodName(methodName: string): string {
+    this.logger.debug(`Normalizing method name ${methodName}`);
+    return methodName.charAt(0).toLowerCase() + methodName.slice(1);
+  }
+
+  // Calls the gRPC method
+  public async call(methodName: string, context: Context, message: any): Promise<any> {
+    methodName = this.normalizeMethodName(methodName);
+    this.logger.debug(`Calling ${methodName} on ${this.protoConfig.service} with:`, message);
+
+    const method = this.client[methodName];
+    if (!method) {
+      const errorMessage = `RPC method: ${methodName} doesn't exist on GRPC client: ${this.protoConfig.service}`;
+      this.logger.error(errorMessage);
+      throw Error(errorMessage);
+    }
 
     const meta = context ? this.transformContext(context) : this.grpc.Metadata();
+    const now = new Date();
+    const deadline = now.setSeconds(now.getSeconds() + this.callTimeout);
 
     return new Promise((resolve, reject) => {
-      // method names in the proto are with capitals, make sure that if you pass them
-      // with an capital it works to
-      const normalizedMethod = method.charAt(0).toLowerCase() + method.slice(1);
-
-      // Build deadline object
-      const now = new Date();
-      const deadline = now.setSeconds(now.getSeconds() + this.callTimeout);
-
-      if (!this.client[normalizedMethod]) {
-        const errorMessage = `RPC method: ${method} doesn't exist on GRPC client: ${this.protoConfig.service}`;
-        this.logger.error(errorMessage);
-        reject(new Error(errorMessage));
-      } else {
-        this.client[normalizedMethod](message, meta, { deadline: deadline }, (error, response) => {
-          if (error) {
-            this.logger.error(`Call ${method} on ${this.protoConfig.service} failed with error: `, error);
-            console.error(error);
-            reject(error);
-          } else {
-            this.logger.debug(`Call ${method} on ${this.protoConfig.service} responded with: `, response);
-            resolve(response);
-          }
-        });
-      }
+      method(message, meta, { deadline: deadline }, (error, response) => {
+        if (error) {
+          this.logger.error(`Call ${method} on ${this.protoConfig.service} failed with error: `, error);
+          console.error(error);
+          reject(error);
+        } else {
+          this.logger.debug(`Call ${method} on ${this.protoConfig.service} responded with: `, response);
+          resolve(response);
+        }
+      });
     });
   }
 
@@ -108,7 +106,6 @@ export class SimpleGrpcClient {
     const meta = new this.grpc.Metadata();
     meta.add('Authorization', context.token);
     meta.add('request-id', context.requestId);
-
     return meta;
   }
 }
