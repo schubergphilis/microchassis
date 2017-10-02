@@ -2,6 +2,7 @@ import { injectable, inject } from 'inversify';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Config } from './../config';
 import * as grpcExt from 'grpc/src/node/src/grpc_extension';
+import * as async from 'async';
 const connectivityState = grpcExt.connectivityState;
 
 import { Context, Logger, ProtoConfig, HealthManager } from './..'
@@ -75,11 +76,9 @@ export class SimpleGrpcClient {
     }
 
     const meta = context ? this.transformContext(context) : this.grpc.Metadata();
-    const now = new Date();
-    const deadline = now.setSeconds(now.getSeconds() + this.callTimeout);
 
     return new Promise((resolve, reject) => {
-      method(message, meta, { deadline: deadline }, (error, response) => {
+      const methodCallback = (error, response) => {
         if (error) {
           this.logger.error(`Call ${method} on ${this.protoConfig.service} failed with error: `, error);
           console.error(error);
@@ -88,7 +87,13 @@ export class SimpleGrpcClient {
           this.logger.debug(`Call ${method} on ${this.protoConfig.service} responded with: `, response);
           resolve(response);
         }
-      });
+      };
+      const call = (callback) => {
+        const now = new Date();
+        const deadline = now.setSeconds(now.getSeconds() + this.callTimeout);
+        method(message, meta, { deadline: deadline }, callback);
+      };
+      async.retry(3, call, methodCallback);
     });
   }
 
