@@ -68,32 +68,30 @@ export class SimpleGrpcClient {
     methodName = this.normalizeMethodName(methodName);
     this.logger.debug(`Calling ${methodName} on ${this.protoConfig.service} with:`, message);
 
-    const method = this.client[methodName];
-    if (!method) {
+    if (!this.client[methodName]) {
       const errorMessage = `RPC method: ${methodName} doesn't exist on GRPC client: ${this.protoConfig.service}`;
       this.logger.error(errorMessage);
       throw Error(errorMessage);
     }
 
     const meta = context ? this.transformContext(context) : this.grpc.Metadata();
-
     return new Promise((resolve, reject) => {
       const methodCallback = (error, response) => {
         if (error) {
-          this.logger.error(`Call ${method} on ${this.protoConfig.service} failed with error: `, error);
+          this.logger.error(`Call ${methodName} on ${this.protoConfig.service} failed with error: `, error);
           console.error(error);
           reject(error);
         } else {
-          this.logger.debug(`Call ${method} on ${this.protoConfig.service} responded with: `, response);
+          this.logger.debug(`Call ${methodName} on ${this.protoConfig.service} responded with: `, response);
           resolve(response);
         }
       };
-      const call = (callback) => {
+      const wrappedCall = (callback) => {
         const now = new Date();
         const deadline = now.setSeconds(now.getSeconds() + this.callTimeout);
-        method(message, meta, { deadline: deadline }, callback);
+        return this.client[methodName](message, meta, { deadline: deadline }, callback);
       };
-      async.retry(3, call, methodCallback);
+      async.retry(3, wrappedCall, methodCallback);
     });
   }
 
