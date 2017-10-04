@@ -7,6 +7,8 @@ adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.0] - 2017-10-04
+
 ### Added
 * This changelog has been added
 * Events support has been introduced, see `examples/helloworld` for
@@ -17,6 +19,9 @@ adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
   `services` and `providers` to significantly stricter ones, making
   full use of TypeScript generics support
 * TCP connections now default to 30 second timeout
+* gRPC client (`SimpleGrpcClient`) will retry a failed call 3 time
+  before giving up. The retry behavior is not currently configurable.
+* `SimpleGrpcClient.call` method is now `async`
 
 
 ### Removed
