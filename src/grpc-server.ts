@@ -77,7 +77,7 @@ export class GrpcServer {
 
   private createContext(metadata): Context {
     return {
-      token: metadata.get('authorization')[0].split('Token ')[1],
+      token: (metadata.get('authorization')[0] || '').split('Token ')[1],
       requestId: metadata.get('request-id')[0],
       user: metadata.get('remoteuser')[0]
     }

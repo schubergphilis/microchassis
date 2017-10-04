@@ -107,8 +107,8 @@ export class SimpleGrpcClient {
   // Transforms context to grpc metadata
   private transformContext(context: Context) {
     const meta = new this.grpc.Metadata();
-    meta.add('Authorization', context.token);
-    meta.add('request-id', context.requestId);
+    meta.add('Authorization', context.token || '');
+    meta.add('request-id', context.requestId || '');
     return meta;
   }
 }
