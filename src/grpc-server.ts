@@ -15,11 +15,11 @@ export class GrpcServer {
   private proto;
   private health = new BehaviorSubject(false);
 
-  constructor(@inject('grpc') private grpc,
-              @inject('protoconfig') private protoConfig: ProtoConfig,
-              private config: Config,
-              private logger: Logger,
-              private healthManager: HealthManager) {
+  constructor( @inject('grpc') private grpc,
+    @inject('protoconfig') private protoConfig: ProtoConfig,
+    private config: Config,
+    private logger: Logger,
+    private healthManager: HealthManager) {
 
     healthManager.registerCheck('GRPC server', this.health);
 
@@ -39,7 +39,7 @@ export class GrpcServer {
       const context = this.createContext(call.metadata);
 
       service.handler.apply(service, [context, call])
-        .then((response: ServiceResponse ) => {
+        .then((response: ServiceResponse) => {
           callback(null, response.content);
         })
         .catch((response: ServiceResponse) => {
