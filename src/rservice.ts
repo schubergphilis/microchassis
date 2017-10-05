@@ -12,13 +12,13 @@ import { ProtoConfig } from './proto-config';
 import { EventEmitter, Subscriber } from './events';
 
 export interface ServiceOptions {
-  managers?: Array<{new(...any): any}>;
-  services: Array<{new(...any): Service}>;
-  providers?: Array<{new(...any): any}>;
+  managers?: Array<{ new(...any): any }>;
+  services: Array<{ new(...any): Service }>;
+  providers?: Array<{ new(...any): any }>;
   proto: ProtoConfig;
   config?: Array<ConfigOption>;
   events?: {
-    subscribers?: Array<{new(...any): Subscriber}>;
+    subscribers?: Array<{ new(...any): Subscriber }>;
   }
 }
 

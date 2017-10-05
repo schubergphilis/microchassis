@@ -7,6 +7,20 @@ adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+* gRPC client's `SimpleGrpcClient.call` method has been fixed
+
+### Changed
+
+* Example application has been altered to support recent features of
+`microchassis`
+
+### Added
+
+* Example application now has a gRPC-backed endpoint under `/hello2`
+  URI
+
 ## [0.5.0] - 2017-10-04
 
 ### Added
