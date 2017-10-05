@@ -3,18 +3,23 @@ import 'reflect-metadata';
 import * as path from 'path';
 import { RService } from './../src';
 
-import { HelloService } from './services';
+import { HelloService, IndirectHelloService } from './services';
 import { HelloManager } from './managers';
+import { GRPCClient } from './providers/grpc-client';
 import { Subscriber, KinesisProducer } from './../src/events';
 
-new RService({
+const service = new RService({
   proto: {
     path: path.resolve('./proto/hello.proto'),
     package: 'hellopb',
     service: 'HelloService'
   },
   services: [
-    HelloService
+    HelloService,
+    IndirectHelloService
+  ],
+  providers: [
+    GRPCClient
   ],
   managers: [
     HelloManager
