@@ -30,6 +30,7 @@ export class HelloService implements Service {
 export class IndirectHelloService implements Service {
   public method = HttpMethod.GET;
   public url = '/hello2';
+  public queryMapping = { 'name': 'name' };
   public unauthenticated = true;
   private manager = null;
 
@@ -39,10 +40,10 @@ export class IndirectHelloService implements Service {
 
   public async handler(context: Context, request: any): Promise<ServiceResponse> {
     try {
-      const response = await this.rpcClient.call('hello', context, { name: "foo" });
+      const response = await this.rpcClient.call('hello', context, { 'name': request.name });
       return {
         status: 200,
-        content: response
+        content: response.message
       };
     } catch (error) {
       return { status: 500 };
