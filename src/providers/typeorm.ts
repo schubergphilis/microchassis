@@ -8,7 +8,7 @@ import { Config, HealthManager, Logger } from '../';
 @injectable()
 export class TypeORMProvider {
   public connection: Connection;
-  public entityManager: EntityManager;
+  public readonly entityManager: EntityManager;
   public health = new BehaviorSubject(false);
 
   public defaultConnectionOptions = {
@@ -36,8 +36,8 @@ export class TypeORMProvider {
     options.driver.username = this.config['dbUser'];
     options.driver.password = this.config['dbPassword'] || '';
     options.driver.database = this.config['dbName'];
-    options.driver.host     = this.config['dbHost'];
-    options.driver.port     = this.config['dbPort'];
+    options.driver.host = this.config['dbHost'];
+    options.driver.port = this.config['dbPort'];
 
     // We dont support autoschema sync, because we want to have auto retrying connection
     // we need to use connectionManager.create which doesn't support auto schema sync
@@ -47,7 +47,7 @@ export class TypeORMProvider {
 
     const connectionManager = getConnectionManager();
     this.connection = connectionManager.create(options);
-    this.entityManager = this.connection.entityManager;
+    this.entityManager = this.connection.manager;
     this.connect();
   }
 
@@ -69,7 +69,7 @@ export class TypeORMProvider {
   // Monitors database connection and will update the health accordingly
   private monitorHealth() {
     setInterval(() => {
-      this.entityManager.query('SELECT 1;')
+      this.connection.manager.query('SELECT 1;')
         .then(() => {
           this.health.next(true);
         })
