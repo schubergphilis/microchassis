@@ -15,8 +15,9 @@ import { deepSet } from './utils';
 
 @injectable()
 export class HttpServer {
-  private server;
-  public health = new BehaviorSubject(false);
+  protected health = new BehaviorSubject(false);
+  protected registeredUrls: Array<string> = [];
+  protected server;
 
   constructor( @inject('express') private express, private config: Config, private logger: Logger, healthManager: HealthManager) {
     healthManager.registerCheck('HTTP server', this.health);
@@ -50,20 +51,27 @@ export class HttpServer {
   // Register an endpoint with the server
   public registerService(service: Service) {
     // Normalize methodType to express method function
-    const method: string = (service.method || "get").toLowerCase();
+    const method: string = (service.method || 'get').toLowerCase();
     const url = this.normalizeURL(service.url);
 
-    this.logger.debug(`Registering HTTP handler: ${service.method || method} ${url}`);
+    if (this.registeredUrls.indexOf(url) > -1) {
+      const error = `Trying to register url: ${url} twice`;
+      this.logger.fatal(error);
+      throw new Error(error);
+    } else {
+      this.logger.debug(`Registering HTTP handler: ${service.method || method} ${url}`);
+      this.registeredUrls.push(url);
 
-    this.server[method](url, (request: Request, response: Response) => {
-      this.handleRequest(service, request, response);
-    });
+      this.server[method](url, (request: Request, response: Response) => {
+        this.handleRequest(service, request, response);
+      });
+    }
   }
 
   // Starts the http server
   public start() {
     // Set a 30 seconds request timeout
-    const connectTimeout: number = this.config["connectTimeout"] || 30000;
+    const connectTimeout: number = this.config['connectTimeout'] || 30000;
     this.server.use(timeout(connectTimeout));
 
     // 404 middleware
