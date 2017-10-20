@@ -15,7 +15,7 @@ import { deepSet } from './utils';
 
 @injectable()
 export class HttpServer {
-  protected health = new BehaviorSubject(false);
+  public health = new BehaviorSubject(false);
   protected registeredUrls: Array<string> = [];
   protected server;
 
