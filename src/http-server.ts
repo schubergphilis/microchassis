@@ -12,11 +12,16 @@ import { Service, ServiceResponse } from './service';
 import { Logger } from './logger';
 import { Context } from './context';
 import { deepSet } from './utils';
+import { HttpMethod } from './service';
+
+export interface RegisteredServices {
+  [key: string]: keyof typeof HttpMethod;
+}
 
 @injectable()
 export class HttpServer {
   public health = new BehaviorSubject(false);
-  protected registeredUrls: Array<string> = [];
+  protected registeredUrls: RegisteredServices = {};
   protected server;
 
   constructor( @inject('express') private express, private config: Config, private logger: Logger, healthManager: HealthManager) {
@@ -51,16 +56,16 @@ export class HttpServer {
   // Register an endpoint with the server
   public registerService(service: Service) {
     // Normalize methodType to express method function
-    const method: string = (service.method || 'get').toLowerCase();
+    const method: string = (service.method || 'GET').toLowerCase();
     const url = this.normalizeURL(service.url);
 
-    if (this.registeredUrls.indexOf(url) > -1) {
-      const error = `Trying to register url: ${url} twice`;
+    if (this.registeredUrls[url] && this.registeredUrls[url] === service.method) {
+      const error = `Trying to register url: ${url} with the same HttpMethod (${service.method}) twice`;
       this.logger.fatal(error);
       throw new Error(error);
     } else {
       this.logger.debug(`Registering HTTP handler: ${service.method || method} ${url}`);
-      this.registeredUrls.push(url);
+      this.registeredUrls[url] = service.method;
 
       this.server[method](url, (request: Request, response: Response) => {
         this.handleRequest(service, request, response);
