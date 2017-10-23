@@ -197,6 +197,49 @@ describe('Http server', () => {
       const url = getSpy.getCall(1).args[0];
       expect(url).to.equal('/testing/foobar');
     });
+
+    it('should not throw an error when the same url with a different method is being registered', () => {
+      const serviceOne = {
+        method: HttpMethod.GET,
+        url: 'foobar',
+        handler: () => { return new Promise((resolve, reject) => {})}
+      };
+
+      const serviceTwo = {
+        method: HttpMethod.POST,
+        url: 'foobar',
+        handler: () => { return new Promise((resolve, reject) => {})}
+      };
+
+      function register() {
+        httpServer.registerService(serviceOne);
+        httpServer.registerService(serviceTwo);
+      }
+
+      expect(register).to.not.throw();
+    });
+
+
+    it('should throw an error when the same method on the same url is being registered', () => {
+      const serviceOne = {
+        method: HttpMethod.POST,
+        url: 'foobar',
+        handler: () => { return new Promise((resolve, reject) => {})}
+      };
+
+      const serviceTwo = {
+        method: HttpMethod.POST,
+        url: 'foobar',
+        handler: () => { return new Promise((resolve, reject) => {})}
+      };
+
+      function register() {
+        httpServer.registerService(serviceOne);
+        httpServer.registerService(serviceTwo);
+      }
+
+      expect(register).to.throw();
+    });
   });
 
   describe('start', () => {
