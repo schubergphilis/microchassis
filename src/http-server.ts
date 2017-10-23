@@ -12,11 +12,17 @@ import { Service, ServiceResponse } from './service';
 import { Logger } from './logger';
 import { Context } from './context';
 import { deepSet } from './utils';
+import { HttpMethod } from './service';
+
+export interface RegisteredServices {
+  [key: string]: keyof typeof HttpMethod;
+}
 
 @injectable()
 export class HttpServer {
-  private server;
   public health = new BehaviorSubject(false);
+  protected registeredUrls: RegisteredServices = {};
+  protected server;
 
   constructor( @inject('express') private express, private config: Config, private logger: Logger, healthManager: HealthManager) {
     healthManager.registerCheck('HTTP server', this.health);
@@ -25,7 +31,9 @@ export class HttpServer {
     this.server = express();
     this.server.use(bodyParser.json({
       type: (request) => {
-        if (request.headers['content-type'].startsWith('application/json')) {
+        if (request.headers &&
+            request.headers['content-type'] &&
+            request.headers['content-type'].startsWith('application/json')) {
           return true;
         }
       }
@@ -48,20 +56,27 @@ export class HttpServer {
   // Register an endpoint with the server
   public registerService(service: Service) {
     // Normalize methodType to express method function
-    const method: string = (service.method || "get").toLowerCase();
+    const method: string = (service.method || 'GET').toLowerCase();
     const url = this.normalizeURL(service.url);
 
-    this.logger.debug(`Registering HTTP handler: ${service.method || method} ${url}`);
+    if (this.registeredUrls[url] && this.registeredUrls[url] === service.method) {
+      const error = `Trying to register url: ${url} with the same HttpMethod (${service.method}) twice`;
+      this.logger.fatal(error);
+      throw new Error(error);
+    } else {
+      this.logger.debug(`Registering HTTP handler: ${service.method || method} ${url}`);
+      this.registeredUrls[url] = service.method;
 
-    this.server[method](url, (request: Request, response: Response) => {
-      this.handleRequest(service, request, response);
-    });
+      this.server[method](url, (request: Request, response: Response) => {
+        this.handleRequest(service, request, response);
+      });
+    }
   }
 
   // Starts the http server
   public start() {
     // Set a 30 seconds request timeout
-    const connectTimeout: number = this.config["connectTimeout"] || 30000;
+    const connectTimeout: number = this.config['connectTimeout'] || 30000;
     this.server.use(timeout(connectTimeout));
 
     // 404 middleware
