@@ -31,11 +31,17 @@ export class HttpServer {
     this.server = express();
     this.server.use(bodyParser.json({
       type: (request) => {
-        if (request.headers &&
-            request.headers['content-type'] &&
-            request.headers['content-type'].startsWith('application/json')) {
-          return true;
+        let contentType: string;
+
+        if (request.headers && request.headers['content-type']) {
+          if (Array.isArray(request.headers['content-type'])) {
+            contentType = request.headers['content-type'][0] || '';
+          } else {
+            contentType = <string>request.headers['content-type'];
+          }
         }
+
+        return contentType.startsWith('application/json');
       }
     }));
 

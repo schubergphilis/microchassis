@@ -28,9 +28,13 @@ export class GrpcServer {
   }
 
   public registerService(service: Service) {
-    const serviceName = service.constructor.name.split('Service')[0];
+    const serviceName = this.normalizeServiceName(service.grpcMethod);
 
     this.logger.debug(`Registering GRPC service: ${serviceName}`);
+
+    if (!this.service[serviceName]) {
+      throw new Error(`Trying to register unknown GRPC method: ${serviceName}`)
+    }
 
     // Setup handler
     this.services[serviceName] = (call, callback) => {
@@ -52,9 +56,19 @@ export class GrpcServer {
   }
 
   public start(): void {
-    const service = this.getGrpcService();
+    if (Object.keys(this.service) !== Object.keys(this.services)) {
+      const missingServices = [];
 
-    this.server.addService(service, this.services);
+      Object.keys(this.service).forEach((serviceName) => {
+        if (!this.services[serviceName]) {
+          missingServices.push(serviceName);
+        }
+      });
+
+      throw new Error(`Missing GRPC implementation of services: ${missingServices.toString()}`);
+    }
+
+    this.server.addService(this.service, this.services);
     this.server.bind(`0.0.0.0:${this.config['grpcPort']}`, this.grpc.ServerCredentials.createInsecure());
     this.server.start();
     this.logger.info(`Grpc server started listening on: ${this.config['grpcPort']}`);
@@ -63,7 +77,7 @@ export class GrpcServer {
     this.health.next(true);
   }
 
-  private getGrpcService() {
+  get service() {
     let service;
 
     if (this.protoConfig.package) {
@@ -81,5 +95,9 @@ export class GrpcServer {
       requestId: metadata.get('request-id')[0],
       user: metadata.get('remoteuser')[0]
     }
+  }
+
+  private normalizeServiceName(name: string) {
+    return name[0].toLowerCase() + name.slice(1);
   }
 }

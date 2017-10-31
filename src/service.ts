@@ -48,6 +48,11 @@ export interface UrlMapping {
  */
 export interface Service {
   /**
+   * RPC service name corresponds with the name of the method in the proto
+   */
+  grpcMethod: string;
+
+  /**
    * REST method under which the service is available.
    * @default get
    * @property method {string}

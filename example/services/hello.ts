@@ -8,6 +8,7 @@ import { GRPCClient } from './../providers/grpc-client';
 
 @injectable()
 export class HelloService implements Service {
+  public grpcMethod = 'Hello';
   public method = HttpMethod.GET;
   public url = '/hello';
   public unauthenticated = true;
@@ -28,6 +29,7 @@ export class HelloService implements Service {
 
 @injectable()
 export class IndirectHelloService implements Service {
+  public grpcMethod = 'IndirectHello';
   public method = HttpMethod.GET;
   public url = '/hello2';
   public queryMapping = { 'name': 'name' };
