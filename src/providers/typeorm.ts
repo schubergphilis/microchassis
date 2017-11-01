@@ -11,11 +11,9 @@ export class TypeORMProvider {
   public readonly entityManager: EntityManager;
   public health = new BehaviorSubject(false);
 
-  public defaultConnectionOptions = {
-    driver: {
-      type: 'mysql'
-    },
-    autoSchemaSync: false
+  public defaultConnectionOptions: ConnectionOptions = {
+    type: 'mariadb',
+    timezone: 'Z'
   };
 
   private connectionOptions: ConnectionOptions;
@@ -23,8 +21,11 @@ export class TypeORMProvider {
   private checkInterval = 5000;
   private reconnectTime = 3000;
 
+  // FIXME: better yet -- just make connectionOptions protected thus
+  // allowing subclasses to override it
+  //
   // Static method to pass options, will be deep merged with the default options
-  static setConnectionOptions(options: any) {
+  static setConnectionOptions(options: ConnectionOptions) {
     TypeORMProvider.prototype.connectionOptions = options;
     return TypeORMProvider;
   }
@@ -32,7 +33,7 @@ export class TypeORMProvider {
   constructor(private config: Config, private healthManager: HealthManager, private logger: Logger) {
     healthManager.registerCheck('DB connection', this.health);
 
-    const options = deepmerge(this.defaultConnectionOptions, this.connectionOptions);
+    const options: ConnectionOptions = deepmerge(this.defaultConnectionOptions, this.connectionOptions);
     options.driver.username = this.config['dbUser'];
     options.driver.password = this.config['dbPassword'] || '';
     options.driver.database = this.config['dbName'];
