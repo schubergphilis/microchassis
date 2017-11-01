@@ -4,9 +4,14 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Context } from './context';
 import { Config } from './config';
 import { Logger } from './logger';
-import { Service, ServiceResponse } from './service';
+import { Service, ServiceResponse, ServiceHandlerFunction } from './service';
 import { HealthManager } from './health';
 import { ProtoConfig } from './proto-config';
+
+export interface GrpcService {
+  grpcMethod: string;
+  handler: ServiceHandlerFunction;
+}
 
 @injectable()
 export class GrpcServer {
@@ -27,7 +32,7 @@ export class GrpcServer {
     this.proto = this.grpc.load(this.protoConfig.path);
   }
 
-  public registerService(service: Service) {
+  public registerService(service: GrpcService) {
     const serviceName = this.normalizeServiceName(service.grpcMethod);
 
     this.logger.debug(`Registering GRPC service: ${serviceName}`);

@@ -5,13 +5,16 @@ import { Context } from './context';
 /**
  * Http method mapping
  */
-export const HttpMethod = {
-  POST: 'post' as 'POST',
-  GET: 'get' as 'GET',
-  PUT: 'put' as 'PUT',
-  PATCH: 'patch' as 'PATCH',
-  DELETE: 'delete' as 'DELETE',
+export type HttpMethod = 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
+export const HTTP_METHOD: Record<HttpMethod, HttpMethod> = {
+  POST: 'POST',
+  GET: 'GET',
+  PUT: 'PUT',
+  PATCH: 'PATCH',
+  DELETE: 'DELETE'
 }
+
+export type ServiceHandlerFunction = (context: Context, request: any) => Promise<ServiceResponse | void>;
 
 /**
  * Response of the handler of a service
@@ -54,10 +57,10 @@ export interface Service {
 
   /**
    * REST method under which the service is available.
-   * @default get
-   * @property method {string}
+   * @default GET
+   * @property method {HttpMethod}
    */
-  method?: keyof typeof HttpMethod;
+  method: HttpMethod;
 
   /**
    * REST endpoint on which the service will be exposed
@@ -84,7 +87,5 @@ export interface Service {
   /**
    * Handles the actual request
    */
-  handler: (context: Context, request: any) => Promise<ServiceResponse | void>;
+  handler: ServiceHandlerFunction;
 }
-
-
