@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Config } from './../config';
 import * as grpcExt from 'grpc/src/node/src/grpc_extension';
 import * as async from 'async';
+import * as grpc from 'grpc';
 const connectivityState = grpcExt.connectivityState;
 
 import { Context, Logger, ProtoConfig, HealthManager } from './..'
@@ -13,7 +14,6 @@ export class SimpleGrpcClient {
   public protoConfig: ProtoConfig;
   public serviceAddress: string;
   public client;
-  public grpc;
   public healthManager: HealthManager;
   public logger: Logger;
   public callTimeout = 5; // timeout/deadline for grpc calls in seconds
@@ -33,7 +33,7 @@ export class SimpleGrpcClient {
     });
 
     // Load the proto and create service
-    const proto = this.grpc.load(this.protoConfig.path);
+    const proto = grpc.load(this.protoConfig.path);
     let ServiceClass;
 
     if (this.protoConfig.package) {
@@ -42,7 +42,7 @@ export class SimpleGrpcClient {
       ServiceClass = proto[this.protoConfig.service];
     }
 
-    this.client = new ServiceClass(this.serviceAddress, this.grpc.credentials.createInsecure());
+    this.client = new ServiceClass(this.serviceAddress, grpc.credentials.createInsecure());
 
     // Wiat for client to be ready and start health monitoring
     this.client.waitForReady(Infinity, (error) => {
@@ -74,7 +74,7 @@ export class SimpleGrpcClient {
       throw Error(errorMessage);
     }
 
-    const meta = context ? this.transformContext(context) : this.grpc.Metadata();
+    const meta = context ? this.transformContext(context) : grpc.Metadata();
     return new Promise((resolve, reject) => {
       const methodCallback = (error, response) => {
         if (error) {
@@ -106,7 +106,7 @@ export class SimpleGrpcClient {
 
   // Transforms context to grpc metadata
   private transformContext(context: Context) {
-    const meta = new this.grpc.Metadata();
+    const meta = new grpc.Metadata();
     meta.add('Authorization', context.token || '');
     meta.add('request-id', context.requestId || '');
     return meta;

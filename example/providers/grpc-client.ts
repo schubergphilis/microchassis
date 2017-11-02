@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { injectable, inject } from 'inversify';
-import { Config, Context, HealthManager, Logger, ProtoConfig, SimpleGrpcClient } from './../../src';
+import { Config, Context, HealthManager, Logger, ProtoConfig, SimpleGrpcClient } from '../../src';
 
 @injectable()
 export class GRPCClient extends SimpleGrpcClient {
@@ -11,8 +11,6 @@ export class GRPCClient extends SimpleGrpcClient {
   };
 
   constructor(
-    @inject('grpc')
-    public grpc: any,
     public healthManager: HealthManager,
     public logger: Logger,
     private config: Config

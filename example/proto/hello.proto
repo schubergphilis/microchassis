@@ -5,8 +5,8 @@ package hellopb;
 service HelloService {
   rpc Hello (HelloRequest) returns (HelloResponse);
   rpc IndirectHello (HelloRequest) returns (HelloResponse);
-  rpc FooBar (HelloRequest) returns (HelloResponse);
-  rpc BarFoo (HelloRequest) returns (HelloResponse);
+  // rpc FooBar (HelloRequest) returns (HelloResponse);
+  // rpc BarFoo (HelloRequest) returns (HelloResponse);
 }
 
 message HelloRequest {

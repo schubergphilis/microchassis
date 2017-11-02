@@ -39,7 +39,7 @@ export class HttpServer {
     this.server = express();
     this.server.use(bodyParser.json({
       type: (request) => {
-        let contentType: string;
+        let contentType: string = '';
 
         if (request.headers && request.headers['content-type']) {
           if (Array.isArray(request.headers['content-type'])) {
@@ -140,7 +140,10 @@ export class HttpServer {
 
     // Call the httpHandler
     service.handler(context, body)
-      .then((serviceResponse: ServiceResponse) => {
+      .then((serviceResponse: ServiceResponse | void) => {
+        if (!serviceResponse) {
+          throw new Error('Response is void, aborting');
+        }
         const status = serviceResponse.status || httpStatus.OK;
         const content = serviceResponse.content;
 
