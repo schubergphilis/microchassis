@@ -1,14 +1,15 @@
 import { injectable } from 'inversify';
 import * as httpStatus from 'http-status';
+import { ServiceResponse, HttpMethod, Context, Service } from '../../src';
 
-import { ServiceResponse, HttpMethod, Context, Service } from './../../src';
 import { HelloRequest } from './../proto/hello';
 import { HelloManager } from './../managers';
 import { GRPCClient } from './../providers/grpc-client';
 
 @injectable()
 export class HelloService implements Service {
-  public method = HttpMethod.GET;
+  public grpcMethod = 'Hello';
+  public method: HttpMethod = 'GET';
   public url = '/hello';
   public unauthenticated = true;
   public queryMapping = { 'name': 'name' };
@@ -28,7 +29,8 @@ export class HelloService implements Service {
 
 @injectable()
 export class IndirectHelloService implements Service {
-  public method = HttpMethod.GET;
+  public grpcMethod = 'IndirectHello';
+  public method: HttpMethod = 'GET';
   public url = '/hello2';
   public queryMapping = { 'name': 'name' };
   public unauthenticated = true;

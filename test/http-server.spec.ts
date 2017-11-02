@@ -12,21 +12,21 @@ import { Request } from 'express';
 import * as MockRequest from 'mock-express-request';
 import * as httpStatus from 'http-status';
 
-import { HttpMethod } from './../src/service';
+import { Service, HTTP_METHOD } from './../src/service';
 import { Config } from './../src/config';
 import { Logger } from './../src/logger';
-import { HealthManager } from './../src/health' ;
+import { HealthManager } from './../src/health';
 import { Context } from './../src/context';
 import { HttpServer } from './../src/http-server';
 
 const config = new Config();
 
 const mockLogger = {
-  info: (message: string) => {},
-  audit: (message: string) => {},
-  warn(message: string) {},
-  error(message: string) {},
-  debug(message: string) {}
+  info: (message: string) => { },
+  audit: (message: string) => { },
+  warn(message: string) { },
+  error(message: string) { },
+  debug(message: string) { }
 }
 
 describe('Http server', () => {
@@ -64,7 +64,7 @@ describe('Http server', () => {
         delete: deleteSpy,
         patch: patchSpy,
         listen: listenSpy,
-        use: () => {}
+        use: () => { }
       }
     };
 
@@ -121,8 +121,9 @@ describe('Http server', () => {
     it('Default method should be get', () => {
       const service = {
         url: '/foobar',
+        method: HTTP_METHOD.GET,
         handler: () => {
-          return new Promise((resolve, reject) => {});
+          return new Promise((resolve, reject) => { });
         }
       };
 
@@ -135,8 +136,9 @@ describe('Http server', () => {
     it('Should normalize the url to start with /', () => {
       const service = {
         url: 'foobar',
+        method: HTTP_METHOD.GET,
         handler: () => {
-          return new Promise((resolve, reject) => {});
+          return new Promise((resolve, reject) => { });
         }
       };
 
@@ -148,11 +150,12 @@ describe('Http server', () => {
       expect(url).to.equal('/foobar');
     });
 
-    it('Should work with deeper paths then one', () =>{
+    it('Should work with deeper paths then one', () => {
       const service = {
         url: '/v1/bar/foo/bar',
+        method: HTTP_METHOD.GET,
         handler: () => {
-          return new Promise((resolve, reject) => {});
+          return new Promise((resolve, reject) => { });
         }
       };
 
@@ -169,8 +172,9 @@ describe('Http server', () => {
 
       const service = {
         url: 'foobar',
+        method: HTTP_METHOD.GET,
         handler: () => {
-          return new Promise((resolve, reject) => {});
+          return new Promise((resolve, reject) => { });
         }
       };
 
@@ -187,8 +191,9 @@ describe('Http server', () => {
 
       const service = {
         url: 'foobar',
+        method: HTTP_METHOD.GET,
         handler: () => {
-          return new Promise((resolve, reject) => {});
+          return new Promise((resolve, reject) => { });
         }
       };
 
@@ -200,15 +205,15 @@ describe('Http server', () => {
 
     it('should not throw an error when the same url with a different method is being registered', () => {
       const serviceOne = {
-        method: HttpMethod.GET,
+        method: HTTP_METHOD.GET,
         url: 'foobar',
-        handler: () => { return new Promise((resolve, reject) => {})}
+        handler: () => { return new Promise((resolve, reject) => { }) }
       };
 
       const serviceTwo = {
-        method: HttpMethod.POST,
+        method: HTTP_METHOD.POST,
         url: 'foobar',
-        handler: () => { return new Promise((resolve, reject) => {})}
+        handler: () => { return new Promise((resolve, reject) => { }) }
       };
 
       function register() {
@@ -222,15 +227,15 @@ describe('Http server', () => {
 
     it('should throw an error when the same method on the same url is being registered', () => {
       const serviceOne = {
-        method: HttpMethod.POST,
+        method: HTTP_METHOD.POST,
         url: 'foobar',
-        handler: () => { return new Promise((resolve, reject) => {})}
+        handler: () => { return new Promise((resolve, reject) => { }) }
       };
 
       const serviceTwo = {
-        method: HttpMethod.POST,
+        method: HTTP_METHOD.POST,
         url: 'foobar',
-        handler: () => { return new Promise((resolve, reject) => {})}
+        handler: () => { return new Promise((resolve, reject) => { }) }
       };
 
       function register() {
@@ -263,9 +268,10 @@ describe('Http server', () => {
 
   describe('Handleing requests', () => {
     it('Should build up the context correctly', () => {
-      const handlerSpy = sinon.stub().returns(new Promise(() => {}));
+      const handlerSpy = sinon.stub().returns(new Promise(() => { }));
       const service = {
         url: '/foobar',
+        method: HTTP_METHOD.GET,
         handler: handlerSpy
       };
 
@@ -276,7 +282,7 @@ describe('Http server', () => {
       const expectedRequestId = 'requestid';
 
       const request = new (MockRequest as any)({
-        method: 'GET',
+        method: HTTP_METHOD.GET,
         url: '/foobar',
         headers: {
           'Authorization': `Token ${expectedToken}`,
@@ -294,9 +300,10 @@ describe('Http server', () => {
     });
 
     it('Should reject unauthenticated requests with 403', () => {
-      const handlerSpy = sinon.stub().returns(new Promise(() => {}));
+      const handlerSpy = sinon.stub().returns(new Promise(() => { }));
       const service = {
         url: '/foobar',
+        method: HTTP_METHOD.GET,
         handler: handlerSpy
       };
 
@@ -328,7 +335,7 @@ describe('Http server', () => {
     });
 
     it('Should map query params correctly', () => {
-      const handlerSpy = sinon.stub().returns(new Promise(() => {}));
+      const handlerSpy = sinon.stub().returns(new Promise(() => { }));
 
       const service = {
         url: '/foobar',
@@ -336,6 +343,7 @@ describe('Http server', () => {
           'foo': 'somekey',
           'bar': 'some.other.key'
         },
+        method: HTTP_METHOD.GET,
         handler: handlerSpy,
         unauthenticated: true
       };
@@ -343,7 +351,7 @@ describe('Http server', () => {
       httpServer.registerService(service);
       const handler = getSpy.getCall(1).args[1];
       const request = new (MockRequest as any)({
-        method: 'GET',
+        method: HTTP_METHOD.GET,
         url: '/foobar',
         query: {
           'foo': 'hello',
@@ -360,7 +368,7 @@ describe('Http server', () => {
     });
 
     it('Should map url params correctly', () => {
-      const handlerSpy = sinon.stub().returns(new Promise(() => {}));
+      const handlerSpy = sinon.stub().returns(new Promise(() => { }));
 
       const service = {
         url: '/:id/:id2/foobar',
@@ -368,6 +376,7 @@ describe('Http server', () => {
           id1: 'foo.bar',
           id2: 'hello'
         },
+        method: HTTP_METHOD.GET,
         handler: handlerSpy,
         unauthenticated: true
       };
@@ -376,7 +385,7 @@ describe('Http server', () => {
 
       const handler = getSpy.getCall(1).args[1];
       const request = new (MockRequest as any)({
-        method: 'GET',
+        method: HTTP_METHOD.GET,
         url: '/1/2/foobar',
         params: {
           id1: '1',
@@ -398,6 +407,7 @@ describe('Http server', () => {
 
       const service = {
         url: '/foobar',
+        method: HTTP_METHOD.GET,
         handler: handlerSpy,
         unauthenticated: true
       };
@@ -406,7 +416,7 @@ describe('Http server', () => {
 
       const handler = getSpy.getCall(1).args[1];
       const request = new (MockRequest as any)({
-        method: 'GET',
+        method: HTTP_METHOD.GET,
         url: '/foobar'
       });
 
@@ -426,7 +436,7 @@ describe('Http server', () => {
       handler(request, response);
     });
 
-      it('It should return the status code and content passed when handler promise is rejected', (done) => {
+    it('It should return the status code and content passed when handler promise is rejected', (done) => {
       const handlerSpy = sinon.stub().returns(new Promise((resolve, reject) => {
         reject({
           status: httpStatus.BAD_REQUEST,
@@ -436,6 +446,7 @@ describe('Http server', () => {
 
       const service = {
         url: '/foobar',
+        method: HTTP_METHOD.GET,
         handler: handlerSpy,
         unauthenticated: true
       };
@@ -444,7 +455,7 @@ describe('Http server', () => {
 
       const handler = getSpy.getCall(1).args[1];
       const request = new (MockRequest as any)({
-        method: 'GET',
+        method: HTTP_METHOD.GET,
         url: '/foobar'
       });
 
@@ -474,6 +485,7 @@ describe('Http server', () => {
 
       const service = {
         url: '/foobar',
+        method: HTTP_METHOD.GET,
         handler: handlerSpy,
         unauthenticated: true
       };
@@ -482,7 +494,7 @@ describe('Http server', () => {
 
       const handler = getSpy.getCall(1).args[1];
       const request = new (MockRequest as any)({
-        method: 'GET',
+        method: HTTP_METHOD.GET,
         url: '/foobar'
       });
 
@@ -513,6 +525,7 @@ describe('Http server', () => {
 
       const service = {
         url: '/foobar',
+        method: HTTP_METHOD.GET,
         handler: handlerSpy,
         unauthenticated: true
       };
@@ -521,7 +534,7 @@ describe('Http server', () => {
 
       const handler = getSpy.getCall(1).args[1];
       const request = new (MockRequest as any)({
-        method: 'GET',
+        method: HTTP_METHOD.GET,
         url: '/foobar'
       });
 

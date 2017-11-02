@@ -1,11 +1,10 @@
 {
     "compilerOptions": {
-        "strict": true,
         "outDir": "dist",
         "module": "commonjs",
         "moduleResolution": "node",
-        "target": "es2017",
-        "lib": ["es2017", "dom"],
+        "target": "es6",
+        "lib": ["es6", "dom"],
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
         "noImplicitAny": false,

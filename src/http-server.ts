@@ -8,14 +8,22 @@ import * as timeout from 'connect-timeout';
 
 import { HealthManager } from './health';
 import { Config } from './config';
-import { Service, ServiceResponse } from './service';
+import { HttpMethod, ServiceHandlerFunction, Service, ServiceResponse, QueryMapping, UrlMapping } from './service';
 import { Logger } from './logger';
 import { Context } from './context';
 import { deepSet } from './utils';
-import { HttpMethod } from './service';
 
 export interface RegisteredServices {
-  [key: string]: keyof typeof HttpMethod;
+  [key: string]: HttpMethod;
+}
+
+export interface HttpService {
+  url: string;
+  method: HttpMethod;
+  handler: ServiceHandlerFunction;
+  unauthenticated?: boolean;
+  queryMapping?: QueryMapping;
+  urlMapping?: UrlMapping;
 }
 
 @injectable()
@@ -31,11 +39,17 @@ export class HttpServer {
     this.server = express();
     this.server.use(bodyParser.json({
       type: (request) => {
-        if (request.headers &&
-            request.headers['content-type'] &&
-            request.headers['content-type'].startsWith('application/json')) {
-          return true;
+        let contentType: string = '';
+
+        if (request.headers && request.headers['content-type']) {
+          if (Array.isArray(request.headers['content-type'])) {
+            contentType = request.headers['content-type'][0] || '';
+          } else {
+            contentType = <string>request.headers['content-type'];
+          }
         }
+
+        return contentType.startsWith('application/json');
       }
     }));
 
@@ -54,7 +68,7 @@ export class HttpServer {
   }
 
   // Register an endpoint with the server
-  public registerService(service: Service) {
+  public registerService(service: HttpService) {
     // Normalize methodType to express method function
     const method: string = (service.method || 'GET').toLowerCase();
     const url = this.normalizeURL(service.url);
@@ -104,7 +118,7 @@ export class HttpServer {
     });
   }
 
-  private handleRequest(service: Service, request: Request, response: Response) {
+  private handleRequest(service: HttpService, request: Request, response: Response) {
     // Build up context object
     const context = this.createContext(request);
 
@@ -126,7 +140,10 @@ export class HttpServer {
 
     // Call the httpHandler
     service.handler(context, body)
-      .then((serviceResponse: ServiceResponse) => {
+      .then((serviceResponse: ServiceResponse | void) => {
+        if (!serviceResponse) {
+          throw new Error('Response is void, aborting');
+        }
         const status = serviceResponse.status || httpStatus.OK;
         const content = serviceResponse.content;
 
@@ -174,7 +191,7 @@ export class HttpServer {
     return url;
   }
 
-  private getQueryParams(service: Service, request: Request, body: any): any {
+  private getQueryParams(service: HttpService, request: Request, body: any): any {
     if (service.queryMapping) {
       for (const param in service.queryMapping) {
         if (service.queryMapping.hasOwnProperty(param)) {
@@ -191,7 +208,7 @@ export class HttpServer {
     return body;
   }
 
-  private getUrlParams(service: Service, request: Request, body: any): any {
+  private getUrlParams(service: HttpService, request: Request, body: any): any {
     if (service.urlMapping) {
       for (const param in service.urlMapping) {
         if (service.urlMapping.hasOwnProperty(param)) {

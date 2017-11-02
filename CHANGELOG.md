@@ -10,6 +10,7 @@ adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 ### Changed
 * `providers.TypeORMProvider`'s `entityManager` is now `readonly`
 * TypeORM dependency has been updated to `0.1.1` release
+* `Service` implementations must provide gRPC method name
 
 ## [0.5.1] - 2017-10-06
 

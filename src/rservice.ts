@@ -1,5 +1,4 @@
 import { Container, injectable } from 'inversify';
-import * as grpc from 'grpc';
 import * as express from 'express';
 
 import { Config, ConfigOption } from './config';
@@ -28,13 +27,12 @@ export class RService {
   private grpcServer: GrpcServer;
 
   constructor(private serviceConfig: ServiceOptions) {
-    this.container.bind('configoptions').toConstantValue(serviceConfig.config);
+    this.container.bind('configoptions').toConstantValue(serviceConfig.config || []);
     this.container.bind<Config>(Config).toSelf().inSingletonScope();
     this.container.bind<HealthManager>(HealthManager).toSelf().inSingletonScope();
     this.container.bind<Logger>(Logger).toSelf();
     this.container.bind<HttpServer>(HttpServer).toSelf();
     this.container.bind<GrpcServer>(GrpcServer).toSelf();
-    this.container.bind('grpc').toConstantValue(grpc);
     this.container.bind('express').toConstantValue(express);
     this.container.bind('protoconfig').toConstantValue(serviceConfig.proto);
 
@@ -90,7 +88,6 @@ export class RService {
       for (const serviceName in this.serviceConfig.services) {
         if (this.serviceConfig.services.hasOwnProperty(serviceName)) {
           const serviceClass = this.serviceConfig.services[serviceName];
-
           this.container.bind<any>(<any>serviceClass).toSelf().inSingletonScope();
           const serviceInstance = <Service>this.container.get(<any>serviceClass);
 
