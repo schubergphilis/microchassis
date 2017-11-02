@@ -47,7 +47,7 @@ describe('Logger', () => {
 
   afterEach(() => {
     logSpy.restore();
-    logger = undefined;
+    logger = new Logger(new Config());
   });
 
   it('should not attempt to emit messages below specified log level', () => {
@@ -107,7 +107,7 @@ describe('Logger', () => {
       }
     }
 
-    logger =  new Logger(new Config([{
+    logger = new Logger(new Config([{
       dest: 'loggerOptions',
       value: {
         processors: [processor]
@@ -134,7 +134,7 @@ describe('Logger', () => {
       }
     }
 
-    logger =  new Logger(new Config([{
+    logger = new Logger(new Config([{
       dest: 'loggerOptions',
       value: {
         processors: [processor]
