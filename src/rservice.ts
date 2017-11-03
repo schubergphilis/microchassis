@@ -1,4 +1,4 @@
-import { Container, injectable } from 'inversify';
+import { Container } from 'inversify';
 import * as express from 'express';
 
 import { Config, ConfigOption } from './config';

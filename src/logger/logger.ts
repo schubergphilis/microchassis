@@ -1,5 +1,4 @@
 import { injectable } from 'inversify';
-import { Context } from './../context';
 import { Config } from './../config';
 
 import {

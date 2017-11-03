@@ -2,7 +2,7 @@ import * as util from 'util';
 import { Config } from './../../config';
 import { LogRecord, LogLevel } from './../logger';
 
-export function consoleHandler(config: Config) {
+export function consoleHandler(_: Config) {
   return (record: LogRecord) => {
     console.log(JSON.stringify({
       _time: record.time,

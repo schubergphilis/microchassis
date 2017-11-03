@@ -8,7 +8,7 @@ import * as timeout from 'connect-timeout';
 
 import { HealthManager } from './health';
 import { Config } from './config';
-import { HttpMethod, ServiceHandlerFunction, Service, ServiceResponse, QueryMapping, UrlMapping } from './service';
+import { HttpMethod, ServiceHandlerFunction, ServiceResponse, QueryMapping, UrlMapping } from './service';
 import { Logger } from './logger';
 import { Context } from './context';
 import { deepSet } from './utils';
@@ -39,7 +39,7 @@ export class HttpServer {
     this.server = express();
     this.server.use(bodyParser.json({
       type: (request) => {
-        let contentType: string = '';
+        let contentType = '';
 
         if (request.headers && request.headers['content-type']) {
           if (Array.isArray(request.headers['content-type'])) {
@@ -56,7 +56,7 @@ export class HttpServer {
     // Register health check endpoint
     const healthUrl = this.normalizeURL(this.config['healthCheckURL'] || '/check');
 
-    this.server.get(healthUrl, (request: Request, response: Response) => {
+    this.server.get(healthUrl, (_: Request, response: Response) => {
       const report = healthManager.getReport();
 
       if (healthManager.healthy) {
@@ -77,7 +77,6 @@ export class HttpServer {
       const error = `Trying to register url: ${url} with the same HttpMethod (${service.method}) twice`;
       this.logger.fatal(error);
       throw new Error(error);
-    } else {
       this.logger.info(`Registering HTTP handler: ${service.method || method} ${url}`);
       this.registeredUrls[url] = service.method;
 
@@ -94,7 +93,7 @@ export class HttpServer {
     this.server.use(timeout(connectTimeout));
 
     // 404 middleware
-    this.server.use((request: Request, response: Response, next: NextFunction) => {
+    this.server.use((request: Request, response: Response, _: NextFunction) => {
       this.logger.warn(`Unknown endpoint called: ${request.url}`);
 
       response.status(httpStatus.NOT_FOUND).send({
@@ -103,7 +102,7 @@ export class HttpServer {
     });
 
     // Error middleware
-    this.server.use((error, request: Request, response: Response, next: NextFunction) => {
+    this.server.use((error, request: Request, response: Response, _: NextFunction) => {
       this.logger.error(`Express error middleware error for ${request.url}`, error);
       console.error(error);
 

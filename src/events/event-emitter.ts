@@ -1,5 +1,4 @@
 import { inject, injectable } from 'inversify';
-import { Config } from './../config';
 
 export interface Subscriber {
   notify(event: Event): void;
@@ -16,7 +15,7 @@ export interface Event {
 
 @injectable()
 export class EventEmitter {
-  constructor(@inject('event-subscribers') private subscribers: Array<Subscriber>) {}
+  constructor( @inject('event-subscribers') private subscribers: Array<Subscriber>) { }
 
   public emit(eventName: string, payload: { [s: string]: any } = {}) {
     // Using setImmediate to postpone actual execution until the api call has finished
