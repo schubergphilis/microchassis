@@ -64,8 +64,21 @@ export abstract class DbProvider {
 
 }
 
+export interface EntityProvider {
+  readonly entities: Array<Function>;
+}
+
+export interface EntityProviderT {
+  new(...args: any[]): EntityProvider;
+};
+
+export function ProvidesEntities<T extends EntityProviderT>(Base: T, entities: Array<Function>) {
+  return class extends Base {
+    public entities = entities;
+  }
+}
 @injectable()
-export class MariadbProvider extends DbProvider {
+export class MariadbProvider extends DbProvider implements EntityProvider {
   protected connectionOptions: ConnectionOptions = {
     type: 'mariadb',
     timezone: 'Z',
@@ -73,13 +86,13 @@ export class MariadbProvider extends DbProvider {
     logging: ['schema', 'error', 'warn', 'migration']
   };
 
+  public readonly entities: Array<Function>;
   public connection: Connection;
 
   constructor(
     protected config: Config,
     protected healthManager: HealthManager,
     protected logger: Logger,
-
   ) {
     super();
 
@@ -93,10 +106,6 @@ export class MariadbProvider extends DbProvider {
     };
     const options: ConnectionOptions = deepmerge(this.connectionOptions, providedOptions);
     this.connect(options);
-  }
-
-  public get entities(): Array<Function> {
-    return [];
   }
 
   public get entityManager(): EntityManager {
