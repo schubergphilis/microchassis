@@ -78,7 +78,7 @@ export class HttpServer {
       this.logger.fatal(error);
       throw new Error(error);
     } else {
-      this.logger.debug(`Registering HTTP handler: ${service.method || method} ${url}`);
+      this.logger.info(`Registering HTTP handler: ${service.method || method} ${url}`);
       this.registeredUrls[url] = service.method;
 
       this.server[method](url, (request: Request, response: Response) => {
