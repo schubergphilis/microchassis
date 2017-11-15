@@ -42,9 +42,10 @@ export class RService {
 
     this.container.bind<EventEmitter>(EventEmitter).toSelf().inSingletonScope();
 
-    // Prepare the providers and managers for DI
-    this.prepareProviders();
-    this.prepareManagers();
+    // Prepare for DI
+    this.registerSingletons(this.serviceConfig.providers);
+    this.registerSingletons(this.serviceConfig.managers);
+    this.registerSingletons(this.serviceConfig.services);
 
     // Get server instances
     this.httpServer = this.container.get(HttpServer);
@@ -58,42 +59,14 @@ export class RService {
     this.grpcServer.start();
   }
 
-  // Makes providers available for dependency injection
-  private prepareProviders() {
-    if (this.serviceConfig.providers) {
-      for (const providerName in this.serviceConfig.providers) {
-        if (this.serviceConfig.providers.hasOwnProperty(providerName)) {
-          const providerClass = this.serviceConfig.providers[providerName];
-          this.container.bind<any>(providerClass).toSelf().inSingletonScope();
-        }
-      }
-    }
-  }
-
-  // Makes managers available for dependency injection
-  private prepareManagers() {
-    if (this.serviceConfig.managers) {
-      for (const managerName in this.serviceConfig.managers) {
-        if (this.serviceConfig.managers.hasOwnProperty(managerName)) {
-          const managerClass = this.serviceConfig.managers[managerName];
-          this.container.bind<any>(managerClass).toSelf().inSingletonScope();
-        }
-      }
-    }
-  }
-
   // Create services and register them with the grpc and http server
   private registerServices() {
     if (this.serviceConfig.services) {
-      for (const serviceName in this.serviceConfig.services) {
-        if (this.serviceConfig.services.hasOwnProperty(serviceName)) {
-          const serviceClass = this.serviceConfig.services[serviceName];
-          this.container.bind<any>(<any>serviceClass).toSelf().inSingletonScope();
-          const serviceInstance = <Service>this.container.get(<any>serviceClass);
+      for (const serviceClass of this.serviceConfig.services) {
+        const serviceInstance = <Service>this.container.get(<any>serviceClass);
 
-          this.httpServer.registerService(serviceInstance);
-          this.grpcServer.registerService(serviceInstance);
-        }
+        this.httpServer.registerService(serviceInstance);
+        this.grpcServer.registerService(serviceInstance);
       }
     }
   }
@@ -109,5 +82,13 @@ export class RService {
     }
 
     return subscribers;
+  }
+
+  private registerSingletons(items?: Array<{ new(...any): any }>) {
+    if (items) {
+      for (const itemClass of items) {
+        this.container.bind<any>(<any>itemClass).toSelf().inSingletonScope();
+      }
+    }
   }
 }
