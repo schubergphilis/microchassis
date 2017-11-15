@@ -89,3 +89,30 @@ export interface Service {
    */
   handler: ServiceHandlerFunction;
 }
+
+
+@injectable()
+class Base { }
+
+const BaseSafeService = ErrorHandlingServiceMixin(AuthorizedCoachServiceMixin(InjectableBase));
+
+@injectable()
+export abstract class SafeService<T, U extends ServiceResponse> extends BaseSafeService implements Service {
+  public abstract url: string;
+  public abstract method: keyof typeof HttpMethod;
+  protected abstract circleClient: providers.CircleClient;
+  protected abstract coachManager: managers.CoachManager;
+  public urlMapping: UrlMapping<T>;
+
+  public async handler(context: Context, request: any): Promise<ServiceResponse> {
+    try {
+      await this.authorize(context, request);
+      return await this.handle(context, request as T);
+    } catch (e) {
+      return this.handleError(e);
+    }
+  }
+
+  // Override this method to implement the actual service handler
+  protected abstract async handle(context: Context, request: T): Promise<U>;
+}
