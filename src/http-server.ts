@@ -77,13 +77,13 @@ export class HttpServer {
       const error = `Trying to register url: ${url} with the same HttpMethod (${service.method}) twice`;
       this.logger.fatal(error);
       throw new Error(error);
-      this.logger.info(`Registering HTTP handler: ${service.method || method} ${url}`);
-      this.registeredUrls[url] = service.method;
-
-      this.server[method](url, (request: Request, response: Response) => {
-        this.handleRequest(service, request, response);
-      });
     }
+    this.logger.info(`Registering HTTP handler: ${service.method || method} ${url}`);
+    this.registeredUrls[url] = service.method;
+
+    this.server[method](url, (request: Request, response: Response) => {
+      this.handleRequest(service, request, response);
+    });
   }
 
   // Starts the http server
