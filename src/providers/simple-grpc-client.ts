@@ -1,4 +1,4 @@
-import { injectable, inject } from 'inversify';
+import { injectable } from 'inversify';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Config } from './../config';
 import * as grpcExt from 'grpc/src/node/src/grpc_extension';

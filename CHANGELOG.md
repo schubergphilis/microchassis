@@ -11,6 +11,10 @@ adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 * `providers.TypeORMProvider`'s `entityManager` is now `readonly`
 * TypeORM dependency has been updated to `0.1.1` release
 * `Service` implementations must provide gRPC method name
+* `TypeORMProvider` has been dropped, instead a new abstract class
+  `DbProvider` is now available for use as well as basic
+  implementation of Mariadb provider has been added under
+  `MariadbProvider` name.
 
 ## [0.5.1] - 2017-10-06
 

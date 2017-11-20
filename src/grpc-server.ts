@@ -5,7 +5,7 @@ import * as grpc from 'grpc';
 import { Context } from './context';
 import { Config } from './config';
 import { Logger } from './logger';
-import { Service, ServiceResponse, ServiceHandlerFunction } from './service';
+import { ServiceResponse, ServiceHandlerFunction } from './service';
 import { HealthManager } from './health';
 import { ProtoConfig } from './proto-config';
 
@@ -83,7 +83,10 @@ export class GrpcServer {
       this.logger.info(`GRPC request started ${serviceName}`);
       const context = this.createContext(call.metadata);
       service.handler(context, call.request)
-        .then((response: ServiceResponse) => {
+        .then((response: ServiceResponse | void) => {
+          if (!response) {
+            throw new Error('Empty response returned');
+          }
           callback(null, response.content);
         })
         .catch((response: ServiceResponse) => {

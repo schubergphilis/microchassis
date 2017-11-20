@@ -1,73 +1,52 @@
-import { createConnection, getConnectionManager, Connection, ConnectionOptions, EntityManager } from 'typeorm';
+import { getConnectionManager, Connection, ConnectionOptions, EntityManager, ObjectLiteral } from 'typeorm';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { injectable } from 'inversify';
-import * as deepmerge from 'deepmerge';
 
 import { Config, HealthManager, Logger } from '../';
 
-@injectable()
-export class TypeORMProvider {
-  public connection: Connection;
-  public readonly entityManager: EntityManager;
-  public health = new BehaviorSubject(false);
+export abstract class DbProvider {
+  public abstract readonly entityManager: EntityManager;
+  public abstract readonly entities: Array<ObjectLiteral>;
+  public abstract connection: Connection;
+  public readonly health: BehaviorSubject<boolean>;
 
-  public defaultConnectionOptions = {
-    driver: {
-      type: 'mysql'
-    },
-    autoSchemaSync: false
-  };
+  protected abstract logger: Logger;
+  protected abstract config: Config;
+  protected abstract connectionOptions: ConnectionOptions;
+  protected healthManager: HealthManager;
 
-  private connectionOptions: ConnectionOptions;
-  private entities = [];
-  private checkInterval = 5000;
-  private reconnectTime = 3000;
+  protected reconnectTime = 3000;
+  protected checkInterval = 5000;
 
-  // Static method to pass options, will be deep merged with the default options
-  static setConnectionOptions(options: any) {
-    TypeORMProvider.prototype.connectionOptions = options;
-    return TypeORMProvider;
+  constructor() {
+    this.health = new BehaviorSubject(false);
+    this.healthManager.registerCheck('DB connection', this.health);
   }
 
-  constructor(private config: Config, private healthManager: HealthManager, private logger: Logger) {
-    healthManager.registerCheck('DB connection', this.health);
-
-    const options = deepmerge(this.defaultConnectionOptions, this.connectionOptions);
-    options.driver.username = this.config['dbUser'];
-    options.driver.password = this.config['dbPassword'] || '';
-    options.driver.database = this.config['dbName'];
-    options.driver.host = this.config['dbHost'];
-    options.driver.port = this.config['dbPort'];
-
+  protected connect(options: ConnectionOptions): void {
     // We dont support autoschema sync, because we want to have auto retrying connection
     // we need to use connectionManager.create which doesn't support auto schema sync
-    if (options['autoSchemaSync'] === true) {
-      throw new Error('TypeORMProvider: autoSchemaSync not supported');
+    if (options.synchronize === true) {
+      throw new Error('DbProvider: synchronize option is explicitely forbidden');
     }
 
     const connectionManager = getConnectionManager();
     this.connection = connectionManager.create(options);
-    this.entityManager = this.connection.manager;
-    this.connect();
-  }
-
-  private connect() {
-    this.connection.connect()
+    this.connection
+      .connect()
       .then(() => {
         this.health.next(true);
         this.monitorHealth();
       })
       .catch((error: Error) => {
         this.logger.exception(error, 'Failed to connect to db, retrying in: ${this.reconnectTime}ms');
-
-        setTimeout(() => {
-          this.connect();
-        }, this.reconnectTime);
+        setTimeout(
+          () => { this.connect(options); },
+          this.reconnectTime);
       });
   }
 
   // Monitors database connection and will update the health accordingly
-  private monitorHealth() {
+  protected monitorHealth() {
     setInterval(() => {
       this.connection.manager.query('SELECT 1;')
         .then(() => {
@@ -78,5 +57,20 @@ export class TypeORMProvider {
           this.logger.exception(error, 'Health check query failed');
         });
     }, this.checkInterval);
+  }
+
+}
+
+export interface EntityProvider {
+  readonly entities: Array<Function>;
+}
+
+export interface EntityProviderT {
+  new(...args: any[]): EntityProvider;
+};
+
+export function ProvidesEntities<T extends EntityProviderT>(Base: T, entities: Array<Function>) {
+  return class extends Base {
+    public entities = entities;
   }
 }
