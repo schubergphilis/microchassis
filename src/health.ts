@@ -2,7 +2,7 @@ import { injectable } from 'inversify';
 import { Logger } from './logger';
 import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/skip';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { BehaviorSubject } from 'rxjs';
 
 
 interface HealthChecks {
@@ -16,7 +16,7 @@ export class HealthManager {
 
   constructor(private logger: Logger) { }
 
-  public registerCheck(name: string, check: any) {
+  public registerCheck(name: string, check: BehaviorSubject<boolean>) {
     if (this.checks[name]) {
       throw new Error(`Health check with name: ${name} already exists`);
     }

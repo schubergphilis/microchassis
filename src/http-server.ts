@@ -1,7 +1,6 @@
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 
-import * as express from 'express';
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, Express } from 'express';
 import * as bodyParser from 'body-parser';
 import * as httpStatus from 'http-status';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -32,13 +31,18 @@ export interface HttpService {
 export class HttpServer {
   public health = new BehaviorSubject(false);
   protected registeredUrls: RegisteredServices = {};
-  protected server: express.Express;
+  protected server: Express;
 
-  constructor(private config: Config, private logger: Logger, healthManager: HealthManager) {
+  constructor(
+    @inject('express') private express: () => Express | Object,
+    private config: Config,
+    private logger: Logger,
+    healthManager: HealthManager
+  ) {
     healthManager.registerCheck('HTTP server', this.health);
 
     // Setup express and a json body parser
-    this.server = express();
+    this.server = <Express>(this.express());
     this.server.use(bodyParser.json({
       type: (request) => {
         let contentType = '';
@@ -169,7 +173,7 @@ export class HttpServer {
   private normalizeURL(url: string) {
     // Urls need to start with a slash
     if (url.charAt(0) !== '/') {
-      url = `/ ${url} `;
+      url = `/${url}`;
     }
 
     // Check for root in config and prepend to the url
@@ -178,7 +182,7 @@ export class HttpServer {
 
       // Should start with an slash
       if (httpRoot.charAt(0) !== '/') {
-        httpRoot = `/ ${httpRoot} `;
+        httpRoot = `/${httpRoot}`;
       }
 
       // Should not end with an slash
@@ -186,7 +190,7 @@ export class HttpServer {
         httpRoot = httpRoot.substring(0, httpRoot.length - 1);
       }
 
-      url = `${httpRoot} ${url} `;
+      url = `${httpRoot}${url}`;
     }
 
     return url;
@@ -245,14 +249,14 @@ export class HttpServer {
       user = request.headers['remoteuser'].toString();
     }
 
-    if (token === undefined || user === undefined) {
-      throw new Error('Could not create context, lacking token or user');
-    }
+    // if (token === undefined || user === undefined) {
+    //   throw new Error('Could not create context, lacking token or user');
+    // }
 
     return {
-      token,
-      requestId,
-      user
+      token: <string>token,
+      requestId: requestId,
+      user: <string>user
     }
   }
 }

@@ -25,3 +25,11 @@ declare module 'grpc/src/node/src/grpc_extension' {
     SHUTDOWN
   }
 }
+
+declare module 'mock-express-request' {
+  class C {
+    constructor(...args: any[]);
+  }
+  namespace C { }
+  export = C;
+}

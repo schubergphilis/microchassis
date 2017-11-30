@@ -1,7 +1,5 @@
-import * as chai from 'chai';
 import { expect } from 'chai';
-import { spy } from 'sinon';
-
+import 'mocha';
 import { Config } from './../../../src/config';
 import { consoleHandler, LogLevel, LogRecord } from './../../../src/logger';
 
