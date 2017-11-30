@@ -1,4 +1,6 @@
-import { injectable, inject } from 'inversify';
+import { injectable } from 'inversify';
+
+import * as express from 'express';
 import { Request, Response, NextFunction } from 'express';
 import * as bodyParser from 'body-parser';
 import * as httpStatus from 'http-status';
@@ -30,9 +32,9 @@ export interface HttpService {
 export class HttpServer {
   public health = new BehaviorSubject(false);
   protected registeredUrls: RegisteredServices = {};
-  protected server;
+  protected server: express.Express;
 
-  constructor( @inject('express') private express, private config: Config, private logger: Logger, healthManager: HealthManager) {
+  constructor(private config: Config, private logger: Logger, healthManager: HealthManager) {
     healthManager.registerCheck('HTTP server', this.health);
 
     // Setup express and a json body parser
@@ -54,7 +56,7 @@ export class HttpServer {
     }));
 
     // Register health check endpoint
-    const healthUrl = this.normalizeURL(this.config['healthCheckURL'] || '/check');
+    const healthUrl = this.normalizeURL((<any>this.config)['healthCheckURL'] || '/check');
 
     this.server.get(healthUrl, (_: Request, response: Response) => {
       const report = healthManager.getReport();
@@ -81,7 +83,7 @@ export class HttpServer {
     this.logger.info(`Registering HTTP handler: ${service.method || method} ${url}`);
     this.registeredUrls[url] = service.method;
 
-    this.server[method](url, (request: Request, response: Response) => {
+    (this.server as any)[method](url, (request: Request, response: Response) => {
       this.handleRequest(service, request, response);
     });
   }
@@ -89,8 +91,8 @@ export class HttpServer {
   // Starts the http server
   public start() {
     // Set a 30 seconds request timeout
-    const connectTimeout: number = this.config['connectTimeout'] || 30000;
-    this.server.use(timeout(connectTimeout));
+    const connectTimeout: number = (<any>this.config)['connectTimeout'] || 30000;
+    this.server.use(timeout(`${connectTimeout}ms`));
 
     // 404 middleware
     this.server.use((request: Request, response: Response, _: NextFunction) => {
@@ -102,7 +104,7 @@ export class HttpServer {
     });
 
     // Error middleware
-    this.server.use((error, request: Request, response: Response, _: NextFunction) => {
+    this.server.use((error: any, request: Request, response: Response, _: NextFunction) => {
       this.logger.error(`Express error middleware error for ${request.url}`, error);
       console.error(error);
 
@@ -111,8 +113,8 @@ export class HttpServer {
       });
     });
 
-    this.server.listen(this.config['httpPort'], () => {
-      this.logger.info(`Http server starting listening on: ${this.config['httpPort']}`);
+    this.server.listen((<any>this.config)['httpPort'], () => {
+      this.logger.info(`Http server starting listening on: ${(<any>this.config)['httpPort']} `);
       this.health.next(true);
     });
   }
@@ -126,7 +128,7 @@ export class HttpServer {
 
 
     if (!service.unauthenticated && !context.token) {
-      this.logger.audit(`Unauthenticated request on: ${service.url}`);
+      this.logger.audit(`Unauthenticated request on: ${service.url} `);
       response.status(httpStatus.FORBIDDEN).send('Unauthenticated');
       return;
     }
@@ -149,7 +151,7 @@ export class HttpServer {
         response.status(status).send(content);
 
         const duration = new Date().getTime() - startTime.getTime();
-        this.logger.info(`Http request '${request.url}' ended: ${status}, duration: ${duration}ms`, { context });
+        this.logger.info(`Http request '${request.url}' ended: ${status}, duration: ${duration} ms`, { context });
       })
       .catch((error: ServiceResponse = {}) => {
         this.logger.error(error.content);
@@ -160,23 +162,23 @@ export class HttpServer {
         response.status(status).send(content);
 
         const duration = new Date().getTime() - startTime.getTime();
-        this.logger.info(`Http request '${request.url}' ended: ${status}, duration: ${duration}ms`, { context });
+        this.logger.info(`Http request '${request.url}' ended: ${status}, duration: ${duration} ms`, { context });
       });
   }
 
   private normalizeURL(url: string) {
     // Urls need to start with a slash
     if (url.charAt(0) !== '/') {
-      url = `/${url}`;
+      url = `/ ${url} `;
     }
 
     // Check for root in config and prepend to the url
-    if (this.config['httpRoot']) {
-      let httpRoot = this.config['httpRoot'];
+    if ((<any>this.config)['httpRoot']) {
+      let httpRoot = (<any>this.config)['httpRoot'];
 
       // Should start with an slash
       if (httpRoot.charAt(0) !== '/') {
-        httpRoot = `/${httpRoot}`;
+        httpRoot = `/ ${httpRoot} `;
       }
 
       // Should not end with an slash
@@ -184,7 +186,7 @@ export class HttpServer {
         httpRoot = httpRoot.substring(0, httpRoot.length - 1);
       }
 
-      url = `${httpRoot}${url}`;
+      url = `${httpRoot} ${url} `;
     }
 
     return url;
@@ -241,6 +243,10 @@ export class HttpServer {
 
     if (request.headers['remoteuser']) {
       user = request.headers['remoteuser'].toString();
+    }
+
+    if (token === undefined || user === undefined) {
+      throw new Error('Could not create context, lacking token or user');
     }
 
     return {

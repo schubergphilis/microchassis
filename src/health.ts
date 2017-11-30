@@ -13,11 +13,10 @@ interface HealthChecks {
 export class HealthManager {
   private checks: HealthChecks = {};
   private _health = false;
-  private _previousHealth = false;
 
-  constructor(private logger: Logger) {}
+  constructor(private logger: Logger) { }
 
-  public registerCheck(name: string, check) {
+  public registerCheck(name: string, check: any) {
     if (this.checks[name]) {
       throw new Error(`Health check with name: ${name} already exists`);
     }
@@ -32,13 +31,13 @@ export class HealthManager {
     check
       .skip(1)
       .distinctUntilChanged()
-      .subscribe((status) => {
-        if (status === false) {
-          this.logger.warn(`Health check: ${name} became unhealthy`);
-          this.healthy = false;
-        } else {
+      .subscribe((status: boolean) => {
+        if (status === true) {
           this.logger.info(`Health check: ${name} became healthy`);
           this.determineHealth();
+        } else {
+          this.logger.warn(`Health check: ${name} became unhealthy`);
+          this.healthy = false;
         }
       });
   }
@@ -64,7 +63,7 @@ export class HealthManager {
   }
 
   public getReport() {
-    const report = {};
+    const report: any = {};
 
     for (const check in this.checks) {
       if (this.checks.hasOwnProperty(check)) {
@@ -80,11 +79,11 @@ export class HealthManager {
     const keys = Object.keys(this.checks);
 
     for (let i = 0, len = keys.length; i < len; i++) {
-       const checkStatus = this.checks[keys[i]].getValue();
-       if (checkStatus === false) {
-         status = false;
-         break;
-       }
+      const checkStatus = this.checks[keys[i]].getValue();
+      if (checkStatus === false) {
+        status = false;
+        break;
+      }
     }
 
     this.healthy = status;

@@ -23,7 +23,7 @@ export interface LogRecord {
   message: string;
   time: Date;
   formatArgs: Array<string>,
-  extra: Object;
+  extra: any;
 }
 
 export type LogProcessor = (message: LogRecord) => LogRecord;
@@ -61,7 +61,7 @@ export class Logger {
   private handlers: Array<LogHandler> = [];
 
   constructor(private config: Config) {
-    switch (config['logLevel'] || LogLevel.DEBUG) {
+    switch ((<any>this.config)['logLevel'] || LogLevel.DEBUG) {
       case 'debug': this.logLevel = LogLevel.DEBUG; break;
       case 'info': this.logLevel = LogLevel.INFO; break;
       case 'warn': this.logLevel = LogLevel.WARN; break;
@@ -69,11 +69,11 @@ export class Logger {
       case 'fatal': this.logLevel = LogLevel.FATAL; break;
     }
 
-    if (config['debug'] === true || config['debug'] === 'true') {
+    if ((<any>config)['debug'] === true || (<any>config)['debug'] === 'true') {
       this._debug = true;
     }
 
-    const loggerOptions: LoggerOptions = this.config['loggerOptions']
+    const loggerOptions: LoggerOptions = (<any>this.config)['loggerOptions']
     const processors = loggerOptions && loggerOptions.processors ? loggerOptions.processors : this.defaultProcessors;
     const handlers = loggerOptions && loggerOptions.handlers ? loggerOptions.handlers : this.defaultHandlers;
 

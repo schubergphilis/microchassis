@@ -55,7 +55,7 @@ interface GrpcImplementation {
 
 @injectable()
 export class GrpcServer {
-  private server;
+  private server: any;
   private services: GrpcImplementation = {};
   private proto: PackagedProtobufDefinition | ProtobufDefinition;
   private health = new BehaviorSubject(false);
@@ -66,7 +66,7 @@ export class GrpcServer {
     private logger: Logger,
     private healthManager: HealthManager
   ) {
-    healthManager.registerCheck('GRPC server', this.health);
+    this.healthManager.registerCheck('GRPC server', this.health);
     this.proto = grpc.load(this.protoConfig.path);
   }
 
@@ -111,9 +111,9 @@ export class GrpcServer {
 
     this.server = new grpc.Server();
     this.server.addService(this.service, this.services);
-    this.server.bind(`0.0.0.0:${this.config['grpcPort']}`, grpc.ServerCredentials.createInsecure());
+    this.server.bind(`0.0.0.0:${(<any>this.config)['grpcPort']}`, grpc.ServerCredentials.createInsecure());
     this.server.start();
-    this.logger.info(`Grpc server started listening on: ${this.config['grpcPort']}`);
+    this.logger.info(`Grpc server started listening on: ${(<any>this.config)['grpcPort']}`);
 
     // Notify the server is healhty
     this.health.next(true);
