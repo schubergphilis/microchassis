@@ -45,17 +45,16 @@ export class HttpServer {
     this.server = <Express>(this.express());
     this.server.use(bodyParser.json({
       type: (request) => {
-        let contentType = '';
-
-        if (request.headers && request.headers['content-type']) {
-          if (Array.isArray(request.headers['content-type'])) {
-            contentType = request.headers['content-type'][0] || '';
-          } else {
-            contentType = <string>request.headers['content-type'];
-          }
+        if (request.headers === undefined) {
+          return false;
         }
 
-        return contentType.startsWith('application/json');
+        let contentType: string | string[] = request.headers['content-type'] || '';
+        if (Array.isArray(contentType)) {
+          contentType = contentType[0] || '';
+        }
+
+        return (<string>contentType).startsWith('application/json');
       }
     }));
 
@@ -236,17 +235,17 @@ export class HttpServer {
     let user;
 
     if (request.headers['authorization']) {
-      token = request.headers['authorization'].toString().split('Token ')[1];
+      token = (request.headers['authorization'] || '').toString().split('Token ')[1];
     }
 
     if (request.headers['x-request-id']) {
-      requestId = request.headers['x-request-id'].toString();
+      requestId = (request.headers['x-request-id'] || '').toString();
     } else {
       requestId = uuid();
     }
 
     if (request.headers['remoteuser']) {
-      user = request.headers['remoteuser'].toString();
+      user = (request.headers['remoteuser'] || '').toString();
     }
 
     // if (token === undefined || user === undefined) {

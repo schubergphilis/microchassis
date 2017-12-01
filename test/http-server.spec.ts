@@ -92,16 +92,13 @@ describe('Http server', () => {
       expect(url).to.equal('/check');
 
       let responseCode: number = -1;
-      let responseText: string = '';
 
       const response = {
         status: (statusCode: number) => {
           responseCode = statusCode;
 
           return {
-            send: (sendResponse: string) => {
-              responseText = sendResponse;
-            }
+            send: (_: string) => { }
           }
         }
       };
