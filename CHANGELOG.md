@@ -15,6 +15,7 @@ adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
   `DbProvider` is now available for use as well as basic
   implementation of Mariadb provider has been added under
   `MariadbProvider` name.
+* TypeScript `strict` mode is enabled
 
 ## [0.5.1] - 2017-10-06
 
