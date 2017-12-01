@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import 'mocha'
 
 import * as sinonChai from 'sinon-chai';
 import * as sinon from 'sinon';
@@ -8,35 +9,34 @@ chai.use(sinonChai);
 import { SinonSpy } from 'sinon';
 import { expect } from 'chai';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Request } from 'express';
 import * as MockRequest from 'mock-express-request';
 import * as httpStatus from 'http-status';
 
-import { Service, HTTP_METHOD } from './../src/service';
-import { Config } from './../src/config';
-import { Logger } from './../src/logger';
-import { HealthManager } from './../src/health';
-import { Context } from './../src/context';
-import { HttpServer } from './../src/http-server';
+import { HTTP_METHOD } from '../src/service';
+import { Config } from '../src/config';
+import { Logger } from '../src/logger';
+import { HealthManager } from '../src/health';
+import { Context } from '../src/context';
+import { HttpServer } from '../src/http-server';
 
 const config = new Config();
 
 const mockLogger = {
-  info: (message: string) => { },
-  audit: (message: string) => { },
-  warn(message: string) { },
-  error(message: string) { },
-  debug(message: string) { }
+  info: (_: string) => { },
+  audit: (_: string) => { },
+  warn(_: string) { },
+  error(_: string) { },
+  debug(_: string) { }
 }
 
 describe('Http server', () => {
   let httpServer: HttpServer;
   let healthManager: HealthManager;
   let healthSpy: SinonSpy;
-  let mockExpress;
+  let mockExpress: () => Object;
 
   // Express mock spies
-  let expressInstantiated;
+  let expressInstantiated: boolean;
   let getSpy: SinonSpy;
   let postSpy: SinonSpy;
   let deleteSpy: SinonSpy;
@@ -91,15 +91,15 @@ describe('Http server', () => {
 
       expect(url).to.equal('/check');
 
-      let responseCode;
-      let responseText;
+      let responseCode: number = -1;
+      let responseText: string = '';
 
       const response = {
-        status: (statusCode) => {
+        status: (statusCode: number) => {
           responseCode = statusCode;
 
           return {
-            send: (sendResponse) => {
+            send: (sendResponse: string) => {
               responseText = sendResponse;
             }
           }
@@ -123,7 +123,7 @@ describe('Http server', () => {
         url: '/foobar',
         method: HTTP_METHOD.GET,
         handler: () => {
-          return new Promise((resolve, reject) => { });
+          return new Promise(() => { });
         }
       };
 
@@ -138,7 +138,7 @@ describe('Http server', () => {
         url: 'foobar',
         method: HTTP_METHOD.GET,
         handler: () => {
-          return new Promise((resolve, reject) => { });
+          return new Promise(() => { });
         }
       };
 
@@ -155,7 +155,7 @@ describe('Http server', () => {
         url: '/v1/bar/foo/bar',
         method: HTTP_METHOD.GET,
         handler: () => {
-          return new Promise((resolve, reject) => { });
+          return new Promise(() => { });
         }
       };
 
@@ -168,13 +168,13 @@ describe('Http server', () => {
     });
 
     it('Should prefix the url with the http root if one is given', () => {
-      config['httpRoot'] = 'testing';
+      (<any>config)['httpRoot'] = 'testing';
 
       const service = {
         url: 'foobar',
         method: HTTP_METHOD.GET,
         handler: () => {
-          return new Promise((resolve, reject) => { });
+          return new Promise(() => { });
         }
       };
 
@@ -187,13 +187,13 @@ describe('Http server', () => {
     });
 
     it('Should normalize the httpRoot properly', () => {
-      config['httpRoot'] = 'testing/';
+      (<any>config)['httpRoot'] = 'testing/';
 
       const service = {
         url: 'foobar',
         method: HTTP_METHOD.GET,
         handler: () => {
-          return new Promise((resolve, reject) => { });
+          return new Promise(() => { });
         }
       };
 
@@ -207,13 +207,13 @@ describe('Http server', () => {
       const serviceOne = {
         method: HTTP_METHOD.GET,
         url: 'foobar',
-        handler: () => { return new Promise((resolve, reject) => { }) }
+        handler: () => { return new Promise(() => { }) }
       };
 
       const serviceTwo = {
         method: HTTP_METHOD.POST,
         url: 'foobar',
-        handler: () => { return new Promise((resolve, reject) => { }) }
+        handler: () => { return new Promise(() => { }) }
       };
 
       function register() {
@@ -229,13 +229,13 @@ describe('Http server', () => {
       const serviceOne = {
         method: HTTP_METHOD.POST,
         url: 'foobar',
-        handler: () => { return new Promise((resolve, reject) => { }) }
+        handler: () => { return new Promise(() => { }) }
       };
 
       const serviceTwo = {
         method: HTTP_METHOD.POST,
         url: 'foobar',
-        handler: () => { return new Promise((resolve, reject) => { }) }
+        handler: () => { return new Promise(() => { }) }
       };
 
       function register() {
@@ -251,7 +251,7 @@ describe('Http server', () => {
     it('It should call listen on express when starting server with the correct port', () => {
       httpServer.start();
       expect(listenSpy).to.have.been.calledOnce;
-      expect(listenSpy.getCall(0).args[0]).to.equal(config['httpPort']);
+      expect(listenSpy.getCall(0).args[0]).to.equal((<any>config)['httpPort']);
     });
 
     it('It should send out an health update when the server is started', () => {
@@ -314,8 +314,8 @@ describe('Http server', () => {
         headers: {}
       });
 
-      let responseText;
-      let statusCode;
+      let responseText: string = '';
+      let statusCode: number = -1;
 
       const response = {
         status: (status: number) => {
@@ -401,7 +401,7 @@ describe('Http server', () => {
     });
 
     it('It should return 500 internal server when handler promise is rejected without status code or content', (done) => {
-      const handlerSpy = sinon.stub().returns(new Promise((resolve, reject) => {
+      const handlerSpy = sinon.stub().returns(new Promise((_, reject) => {
         reject();
       }));
 
@@ -437,7 +437,7 @@ describe('Http server', () => {
     });
 
     it('It should return the status code and content passed when handler promise is rejected', (done) => {
-      const handlerSpy = sinon.stub().returns(new Promise((resolve, reject) => {
+      const handlerSpy = sinon.stub().returns(new Promise((_, reject) => {
         reject({
           status: httpStatus.BAD_REQUEST,
           content: 'Foo is not correct'
@@ -454,7 +454,7 @@ describe('Http server', () => {
       httpServer.registerService(service);
 
       const handler = getSpy.getCall(1).args[1];
-      const request = new (MockRequest as any)({
+      const request = new MockRequest({
         method: HTTP_METHOD.GET,
         url: '/foobar'
       });
@@ -477,7 +477,7 @@ describe('Http server', () => {
 
     it('Default response status code for success should be 200', (done) => {
       const responseBody = { foo: 'bar' };
-      const handlerSpy = sinon.stub().returns(new Promise((resolve, reject) => {
+      const handlerSpy = sinon.stub().returns(new Promise((resolve, _) => {
         resolve({
           content: responseBody
         });
@@ -514,9 +514,9 @@ describe('Http server', () => {
       handler(request, response);
     });
 
-    it('It should return success and content is callback called without error', (done) => {
+    it('It should return success and content is callback called without error', (done: any) => {
       const responseBody = { foo: 'bar' };
-      const handlerSpy = sinon.stub().returns(new Promise((resolve, reject) => {
+      const handlerSpy = sinon.stub().returns(new Promise((resolve, _) => {
         resolve({
           status: httpStatus.CREATED,
           content: responseBody

@@ -1,4 +1,4 @@
-import * as chai from 'chai';
+import 'mocha';
 import { expect } from 'chai';
 
 import { Config } from './../../../src/config';

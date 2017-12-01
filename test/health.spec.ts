@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import 'mocha';
 import { expect } from 'chai';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
@@ -6,11 +7,11 @@ import { Logger } from './../src/logger';
 import { HealthManager } from './../src/health';
 
 const mockLogger = {
-  info: (message: string) => {},
-  audit: (message: string) => {},
-  warn(message: string) {},
-  error(message: string) {},
-  debug(message: string) {}
+  info: (_: string) => { },
+  audit: (_: string) => { },
+  warn(_: string) { },
+  error(_: string) { },
+  debug(_: string) { }
 }
 
 describe('HealthManager', () => {

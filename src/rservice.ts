@@ -11,13 +11,13 @@ import { ProtoConfig } from './proto-config';
 import { EventEmitter, Subscriber } from './events';
 
 export interface ServiceOptions {
-  managers?: Array<{ new(...any): any }>;
-  services: Array<{ new(...any): Service }>;
-  providers?: Array<{ new(...any): any }>;
+  managers?: Array<{ new(...args: any[]): any }>;
+  services: Array<{ new(...args: any[]): Service }>;
+  providers?: Array<{ new(...args: any[]): any }>;
   proto: ProtoConfig;
   config?: Array<ConfigOption>;
   events?: {
-    subscribers?: Array<{ new(...any): Subscriber }>;
+    subscribers?: Array<{ new(...args: any[]): Subscriber }>;
   }
 }
 
@@ -84,7 +84,7 @@ export class RService {
     return subscribers;
   }
 
-  private registerSingletons(items?: Array<{ new(...any): any }>) {
+  private registerSingletons(items?: Array<{ new(...args: any[]): any }>) {
     if (items) {
       for (const itemClass of items) {
         this.container.bind<any>(<any>itemClass).toSelf().inSingletonScope();

@@ -2,7 +2,7 @@ import { Config } from './../../config';
 import { LogRecord } from './../logger';
 
 export function assignVersion(config: Config) {
-  const version = config['applicationVersion'];
+  const version = (<any>config)['applicationVersion'];
 
   return (record: LogRecord): LogRecord => {
     if (version !== undefined) {

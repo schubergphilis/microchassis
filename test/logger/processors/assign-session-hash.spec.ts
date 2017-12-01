@@ -1,4 +1,4 @@
-import * as chai from 'chai';
+import 'mocha';
 import { expect } from 'chai';
 
 import { Config } from './../../../src/config';
@@ -24,10 +24,8 @@ describe('Log processor - assign session hash', () => {
       }
     };
 
-    const version = 'v1';
     const assignedRecord = assignSessionHash(config)(record);
 
-    expect(assignedRecord.extra['session-hash']).to.exist;
     expect(assignedRecord.extra['session-hash']).to.not.equal(record.extra['context']['token']);
     expect(assignedRecord.extra['session-hash'].length).to.equal(10);
   });

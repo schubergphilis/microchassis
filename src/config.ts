@@ -99,7 +99,7 @@ export class Config {
     for (let i = 0, len = this.knownOptions.length; i < len; i++) {
       const option = this.knownOptions[i];
 
-      this[option.dest] = option.value;
+      (<any>this)[option.dest] = option.value;
 
       // Check for commandline arguments
       if (option.args) {
@@ -109,20 +109,20 @@ export class Config {
           const value = args[option.args[j]];
           if (value) {
             argValue = value;
-            this[option.dest] = value;
+            (<any>this)[option.dest] = value;
             break;
           }
         }
 
         if (argValue) {
-          this[option.dest] = argValue;
+          (<any>this)[option.dest] = argValue;
           break;
         }
       }
 
       // Check for environment variables
       if (option.env && process.env[option.env]) {
-        this[option.dest] = process.env[option.env];
+        (<any>this)[option.dest] = process.env[option.env];
       }
     };
   }

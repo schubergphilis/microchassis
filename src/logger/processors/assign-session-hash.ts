@@ -3,7 +3,7 @@ import { Config } from './../../config';
 import { LogRecord } from './../logger';
 
 export function assignSessionHash(config: Config) {
-  const secret = config['sessionHashKey'];
+  const secret = (<any>config)['sessionHashKey'];
 
   return (record: LogRecord): LogRecord => {
     if (secret && record.extra['context'] !== undefined) {

@@ -1,4 +1,4 @@
-import * as chai from 'chai';
+import 'mocha';
 import { expect } from 'chai';
 
 import { Config } from './../../../src';
@@ -41,5 +41,3 @@ describe('Log processor - assign instance id', () => {
     expect(assignedRecordThree.extra['instance-id']).to.equal('foobar');
   });
 });
-
-

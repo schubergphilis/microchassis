@@ -1,7 +1,8 @@
 import 'reflect-metadata';
 
+import 'mocha';
 import { expect } from 'chai';
-import { sandbox, SinonSandbox, SinonSpy, SinonStub, spy, stub } from 'sinon';
+import { SinonSpy, spy } from 'sinon';
 import * as chai from 'chai';
 import * as sinonChai from 'sinon-chai';
 

@@ -4,8 +4,8 @@ import { LogRecord } from './../logger';
 export function removeSensitiveInfo(config: Config) {
   let sensitiveKeys = ['token', 'user', 'password', 'context'];
 
-  if (config['sensitiveKeys']) {
-    sensitiveKeys = sensitiveKeys.concat(config['sensitiveKeys']);
+  if ((<any>config)['sensitiveKeys']) {
+    sensitiveKeys = sensitiveKeys.concat((<any>config)['sensitiveKeys']);
   }
 
   return (record: LogRecord): LogRecord => {
@@ -17,4 +17,3 @@ export function removeSensitiveInfo(config: Config) {
     return record;
   }
 }
-
