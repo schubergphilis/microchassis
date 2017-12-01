@@ -36,6 +36,7 @@
       "**/*.test.js",
       "**/__tests__/**",
       "**/node_modules/**",
+      "src/vendor.d.ts",
       "example",
       "dist",
       "coverage"
