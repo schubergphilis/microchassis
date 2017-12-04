@@ -1,3 +1,4 @@
+import { injectable } from 'inversify';
 import { Context } from './context';
 
 /**
@@ -20,10 +21,10 @@ export type ServiceHandlerFunction = (context: Context, request: any) => Promise
  * @property status {number}
  * @property content {any}
  */
-export interface ServiceResponse {
-  headers?: { [key: string]: string | Array<string> };
+export interface ServiceResponse<T> {
   status?: number;
-  content?: any;
+  content?: T;
+  headers?: { [key: string]: string | Array<string> };
 }
 
 /**
@@ -87,4 +88,37 @@ export interface Service {
    * Handles the actual request
    */
   handler: ServiceHandlerFunction;
+}
+
+// Generic URL mapping type
+export type TUrlMapping<T> = {
+  [s: string]: keyof T;
+};
+
+
+@injectable()
+export abstract class BaseService<TRequest, TResponse> implements Service {
+  public abstract url: string;
+  public abstract method: HttpMethod;
+  public grpcMethod: string;
+
+  protected abstract schema: Object;
+  public urlMapping: TUrlMapping<TRequest> = {};
+
+  protected abstract handleError(error: Error): TResponse
+  protected abstract async validate(context: Context, request: TRequest): Promise<void>
+  protected abstract async authorize(context: Context, request: TRequest): Promise<TResponse>
+
+  public async handler(context: Context, request: TRequest): Promise<ServiceResponse<TResponse>> {
+    try {
+      await this.validate(context, request);
+      await this.authorize(context, request);
+      return await this.handle(context, request);
+    } catch (e) {
+      return this.handleError(e);
+    }
+  }
+
+  // Override this method to implement the actual service handler
+  protected abstract async handle(context: Context, request: TRequest): Promise<ServiceResponse<TResponse>>;
 }
