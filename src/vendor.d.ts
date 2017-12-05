@@ -16,7 +16,7 @@ declare module 'grpc' {
   };
 }
 
-declare module 'grpc/src/node/src/grpc_extension' {
+declare module 'grpc/src/grpc_extension' {
   export enum connectivityState {
     CONNECTING,
     READY,
