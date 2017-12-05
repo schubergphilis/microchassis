@@ -23,7 +23,7 @@ export class MariadbProvider extends DbProvider implements EntityProvider {
     protected healthManager: HealthManager,
     protected logger: Logger,
   ) {
-    super();
+    super(healthManager);
 
     const providedOptions: Partial<MysqlConnectionOptions> = {
       username: (this.config as any)['dbUser'],

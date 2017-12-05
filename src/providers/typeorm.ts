@@ -14,12 +14,11 @@ export abstract class DbProvider {
   protected abstract logger: Logger;
   protected abstract config: Config;
   protected abstract connectionOptions: ConnectionOptions;
-  protected healthManager: HealthManager;
 
   protected reconnectTime = 3000;
   protected checkInterval = 5000;
 
-  constructor() {
+  constructor(protected healthManager: HealthManager) {
     this.health = new BehaviorSubject(false);
     this.healthManager.registerCheck('DB connection', this.health);
   }
