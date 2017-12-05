@@ -42,6 +42,7 @@ describe('Http server', () => {
   let deleteSpy: SinonSpy;
   let patchSpy: SinonSpy;
   let listenSpy: SinonSpy;
+  let disableSpy: SinonSpy;
 
   beforeEach(() => {
     healthManager = new HealthManager(<Logger>mockLogger);
@@ -55,6 +56,7 @@ describe('Http server', () => {
     deleteSpy = sinon.spy();
     patchSpy = sinon.spy();
     listenSpy = sinon.spy();
+    disableSpy = sinon.spy();
 
     mockExpress = () => {
       expressInstantiated = true;
@@ -64,6 +66,7 @@ describe('Http server', () => {
         delete: deleteSpy,
         patch: patchSpy,
         listen: listenSpy,
+        disable: disableSpy,
         use: () => { }
       }
     };
@@ -74,6 +77,10 @@ describe('Http server', () => {
   describe('Constructor', () => {
     it('should instantiate an express server', () => {
       expect(expressInstantiated).to.equal(true);
+    });
+
+    it('should disable the x-powered-by header', () => {
+      expect(disableSpy).to.have.been.calledWith('x-powered-by');
     });
 
     it('should register with the health manager with initial state unhealthy', () => {
