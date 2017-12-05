@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Config } from '../config';
-import * as grpcExt from 'grpc/src/node/src/grpc_extension';
+import * as grpcExt from 'grpc/src/grpc_extension';
 import * as async from 'async';
 import * as grpc from 'grpc';
 const connectivityState = grpcExt.connectivityState;
