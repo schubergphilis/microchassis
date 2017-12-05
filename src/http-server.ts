@@ -151,6 +151,10 @@ export class HttpServer {
         const status = serviceResponse.status || httpStatus.OK;
         const content = serviceResponse.content;
 
+        if (serviceResponse.headers) {
+          response.set(serviceResponse.headers);
+        }
+
         response.status(status).send(content);
 
         const duration = new Date().getTime() - startTime.getTime();
@@ -161,6 +165,10 @@ export class HttpServer {
 
         const status = error.status || httpStatus.INTERNAL_SERVER_ERROR;
         const content = error.content || 'Internal server error';
+
+        if (error.headers) {
+          response.set(error.headers);
+        }
 
         response.status(status).send(content);
 
