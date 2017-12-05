@@ -21,7 +21,7 @@ export type ServiceHandlerFunction = (context: Context, request: any) => Promise
  * @property content {any}
  */
 export interface ServiceResponse {
-  headers?: { [key: string]: string };
+  headers?: { [key: string]: string | Array<string> };
   status?: number;
   content?: any;
 }
