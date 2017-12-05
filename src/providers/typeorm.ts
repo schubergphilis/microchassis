@@ -1,8 +1,10 @@
+import { injectable } from 'inversify';
 import { getConnectionManager, Connection, ConnectionOptions, EntityManager, ObjectLiteral } from 'typeorm';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 import { Config, HealthManager, Logger } from '../';
 
+@injectable()
 export abstract class DbProvider {
   public abstract readonly entityManager: EntityManager;
   public abstract readonly entities: Array<ObjectLiteral>;
