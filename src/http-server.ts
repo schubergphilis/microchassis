@@ -43,6 +43,11 @@ export class HttpServer {
 
     // Setup express and a json body parser
     this.server = <Express>(this.express());
+
+    // Disable sending out the default x-powered-by header from express
+    this.server.disable('x-powered-by');
+
+    // Set the json body parser middleware
     this.server.use(bodyParser.json({
       type: (request) => {
         if (request.headers === undefined) {
