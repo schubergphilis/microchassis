@@ -8,6 +8,7 @@ import { Logger } from './logger';
 import { ServiceResponse, ServiceHandlerFunction } from './service';
 import { HealthManager } from './health';
 import { ProtoConfig } from './proto-config';
+import { MicroChassisError } from './errors';
 
 export interface GrpcService {
   grpcMethod: string;
@@ -89,7 +90,7 @@ export class GrpcServer {
           }
           callback(null, response.content);
         })
-        .catch((response: ServiceResponse) => {
+        .catch((response: ServiceResponse | MicroChassisError) => {
           this.logger.error(response.content);
           callback(response.content, null);
         });

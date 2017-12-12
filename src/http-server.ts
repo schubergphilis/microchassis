@@ -13,6 +13,7 @@ import { HttpMethod, ServiceHandlerFunction, ServiceResponse, QueryMapping, UrlM
 import { Logger } from './logger';
 import { Context } from './context';
 import { deepSet } from './utils';
+import { MicroChassisError } from './errors';
 
 export interface RegisteredServices {
   [key: string]: HttpMethod;
@@ -165,15 +166,11 @@ export class HttpServer {
         const duration = new Date().getTime() - startTime.getTime();
         this.logger.info(`Http request '${request.url}' ended: ${status}, duration: ${duration} ms`, { context });
       })
-      .catch((error: ServiceResponse = {}) => {
+      .catch((error: ServiceResponse | MicroChassisError = {}) => {
         this.logger.error(error.content);
 
         const status = error.status || httpStatus.INTERNAL_SERVER_ERROR;
         const content = error.content || 'Internal server error';
-
-        if (error.headers) {
-          response.set(error.headers);
-        }
 
         response.status(status).send(content);
 
@@ -260,10 +257,6 @@ export class HttpServer {
     if (request.headers['remoteuser']) {
       user = (request.headers['remoteuser'] || '').toString();
     }
-
-    // if (token === undefined || user === undefined) {
-    //   throw new Error('Could not create context, lacking token or user');
-    // }
 
     return {
       token: <string>token,
