@@ -11,7 +11,7 @@ import { ProtoConfig } from './proto-config';
 
 export interface GrpcService {
   grpcMethod: string;
-  handler: ServiceHandlerFunction;
+  handler: ServiceHandlerFunction<any>;
 }
 
 interface UnaryCall {

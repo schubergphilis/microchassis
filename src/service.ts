@@ -13,7 +13,7 @@ export const HTTP_METHOD: Record<HttpMethod, HttpMethod> = {
   DELETE: 'DELETE'
 }
 
-export type ServiceHandlerFunction = (context: Context, request: any) => Promise<ServiceResponse | void>;
+export type ServiceHandlerFunction<T = any> = (context: Context, request: any) => Promise<ServiceResponse<T> | void>;
 
 /**
  * Response of the handler of a service
@@ -21,7 +21,7 @@ export type ServiceHandlerFunction = (context: Context, request: any) => Promise
  * @property status {number}
  * @property content {any}
  */
-export interface ServiceResponse<T> {
+export interface ServiceResponse<T = any> {
   status?: number;
   content?: T;
   headers?: { [key: string]: string | Array<string> };
@@ -91,7 +91,8 @@ export interface Service {
 }
 
 // Generic URL mapping type
-export type TUrlMapping<T> = {
+// tslint:disable-next-line
+export type TRequestMapping<T> = {
   [s: string]: keyof T;
 };
 
@@ -103,7 +104,8 @@ export abstract class BaseService<TRequest, TResponse> implements Service {
   public grpcMethod: string;
 
   protected abstract schema: Object;
-  public urlMapping: TUrlMapping<TRequest> = {};
+  public urlMapping: TRequestMapping<TRequest> = {};
+  public queryMapping: TRequestMapping<TRequest> = {};
 
   protected abstract handleError(error: Error): TResponse
   protected abstract async validate(context: Context, request: TRequest): Promise<void>
