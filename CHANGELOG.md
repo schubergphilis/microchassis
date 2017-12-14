@@ -15,6 +15,12 @@ adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
   `DbProvider` is now available for use as well as basic
   implementation of Mariadb provider has been added under
   `MariadbProvider` name.
+* Introduces `MicroChassisError` error type
+* Introduces `BaseService` class with JSON schema validation (based on
+  `ajv`)
+* Introduces type parameter for `ServiceResponse` interface. Use of
+  un-parametrized is deprecated from now and will be removed in 0.7
+  release.
 * TypeScript `strict` mode is enabled
 
 ## [0.5.1] - 2017-10-06
