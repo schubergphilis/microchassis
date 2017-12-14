@@ -3,7 +3,7 @@ import { injectable } from 'inversify';
 
 import { Context } from './context';
 import { Logger } from './logger';
-import { ValidationError, MicroChassisError } from './errors';
+import { ValidationError, MicroChassisError, UnauthorizedError } from './errors';
 
 const schemaCompiler = new ajv({ allErrors: true });
 
@@ -116,7 +116,7 @@ export abstract class BaseService<TRequest, TResponse> implements Service {
   public queryMapping: TRequestMapping<TRequest> = {};
 
   protected abstract handleError(error: Error): ServiceResponse<TResponse>
-  protected abstract async authorize(context: Context, request: TRequest): Promise<TResponse>
+  protected abstract async authorize(context: Context, request: TRequest): Promise<boolean>
 
 
   constructor(protected logger: Logger) { }
@@ -137,10 +137,12 @@ export abstract class BaseService<TRequest, TResponse> implements Service {
 
   public async handler(context: Context, request: TRequest): Promise<ServiceResponse<TResponse>> {
     try {
-      await this.authorize(context, request);
       if (!await this.validate(context, request)) {
         throw new ValidationError('Bad request');
       }
+      if (!await this.authorize(context, request)) {
+        throw new UnauthorizedError('Unauthorized');
+      };
       return await this.handle(context, request);
     } catch (e) {
       return this.handleError(e);
