@@ -270,7 +270,7 @@ describe('Http server', () => {
     });
   });
 
-  describe('Handleing requests', () => {
+  describe('Request handler', () => {
     it('Should build up the context correctly', () => {
       const handlerSpy = sinon.stub().returns(new Promise(() => { }));
       const service = {

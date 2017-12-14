@@ -1,7 +1,7 @@
 import * as httpStatus from 'http-status';
 
 export class MicroChassisError extends Error {
-  public readonly status: number = httpStatus.INTERNAL_SERVER_ERROR;
+  public readonly status?: number = httpStatus.INTERNAL_SERVER_ERROR;
 
   get content(): string {
     return this.message;

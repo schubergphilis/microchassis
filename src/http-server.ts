@@ -166,11 +166,13 @@ export class HttpServer {
         const duration = new Date().getTime() - startTime.getTime();
         this.logger.info(`Http request '${request.url}' ended: ${status}, duration: ${duration} ms`, { context });
       })
-      .catch((error: MicroChassisError) => {
-        this.logger.error(error.content);
-
+      .catch((error: MicroChassisError | undefined) => {
+        if (error === undefined) {
+          error = new MicroChassisError();
+        }
         const status = error.status || httpStatus.INTERNAL_SERVER_ERROR;
         const content = error.content || 'Internal server error';
+        this.logger.error(content);
 
         response.status(status).send(content);
 
