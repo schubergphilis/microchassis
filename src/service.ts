@@ -3,6 +3,7 @@ import { injectable } from 'inversify';
 
 import { Context } from './context';
 import { Logger } from './logger';
+import { ValidationError, MicroChassisError } from './errors';
 
 const schemaCompiler = new ajv({ allErrors: true });
 
@@ -18,7 +19,7 @@ export const HTTP_METHOD: Record<HttpMethod, HttpMethod> = {
   DELETE: 'DELETE'
 }
 
-export type ServiceHandlerFunction<T = any> = (context: Context, request: any) => Promise<ServiceResponse<T> | void>;
+export type ServiceHandlerFunction<T = any> = (context: Context, request: any) => Promise<ServiceResponse<T> | MicroChassisError | void>;
 
 /**
  * Response of the handler of a service
@@ -110,13 +111,13 @@ export abstract class BaseService<TRequest, TResponse> implements Service {
 
   // JSON Schema that is used for validation of request
   protected abstract schema: Object;
+  protected schemaValidator: ajv.ValidateFunction;
   public urlMapping: TRequestMapping<TRequest> = {};
   public queryMapping: TRequestMapping<TRequest> = {};
 
-  protected abstract handleError(error: Error): TResponse
+  protected abstract handleError(error: Error): ServiceResponse<TResponse>
   protected abstract async authorize(context: Context, request: TRequest): Promise<TResponse>
 
-  protected schemaValidator: ajv.ValidateFunction;
 
   constructor(protected logger: Logger) { }
 
@@ -138,7 +139,7 @@ export abstract class BaseService<TRequest, TResponse> implements Service {
     try {
       await this.authorize(context, request);
       if (!await this.validate(context, request)) {
-        return { status: 400, content: 'Bad request' };
+        throw new ValidationError('Bad request');
       }
       return await this.handle(context, request);
     } catch (e) {

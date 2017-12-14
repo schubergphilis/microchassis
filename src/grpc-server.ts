@@ -90,7 +90,7 @@ export class GrpcServer {
           }
           callback(null, response.content);
         })
-        .catch((response: ServiceResponse | MicroChassisError) => {
+        .catch((response: MicroChassisError) => {
           this.logger.error(response.content);
           callback(response.content, null);
         });

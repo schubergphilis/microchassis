@@ -6,7 +6,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc --declaration",
-    "lint": "./node_modules/tslint/bin/tslint src/**/*.ts",
+    "lint": "tslint --project tslint.json src/**/*.ts",
     "dev": "tsc -w",
     "test": "mocha",
     "test:watch": "mocha --watch --watch-extensions ts",

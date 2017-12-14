@@ -8,7 +8,7 @@ export class MicroChassisError extends Error {
   }
 }
 
-export class NotFoundError extends  MicroChassisError {
+export class NotFoundError extends MicroChassisError {
   public readonly status = httpStatus.NOT_FOUND;
 }
 
@@ -16,7 +16,7 @@ export class ValidationError extends MicroChassisError {
   public readonly status = httpStatus.BAD_REQUEST;
 }
 
-export class UnAuthorizedError extends MicroChassisError {
+export class UnauthorizedError extends MicroChassisError {
   public readonly status = httpStatus.UNAUTHORIZED;
 }
 
