@@ -1,5 +1,10 @@
+import * as ajv from 'ajv';
 import { injectable } from 'inversify';
+
 import { Context } from './context';
+import { Logger } from './logger';
+
+const schemaCompiler = new ajv({ allErrors: true });
 
 /**
  * Http method mapping
@@ -103,18 +108,38 @@ export abstract class BaseService<TRequest, TResponse> implements Service {
   public abstract method: HttpMethod;
   public grpcMethod: string;
 
+  // JSON Schema that is used for validation of request
   protected abstract schema: Object;
   public urlMapping: TRequestMapping<TRequest> = {};
   public queryMapping: TRequestMapping<TRequest> = {};
 
   protected abstract handleError(error: Error): TResponse
-  protected abstract async validate(context: Context, request: TRequest): Promise<void>
   protected abstract async authorize(context: Context, request: TRequest): Promise<TResponse>
+
+  protected schemaValidator: ajv.ValidateFunction;
+
+  constructor(protected logger: Logger) { }
+
+  // Validates request against Service's JSON schema.
+  protected async validate(_: Context, request: TRequest): Promise<boolean> {
+    if (this.schemaValidator === undefined) {
+      this.schemaValidator = schemaCompiler.compile(this.schema);
+    }
+
+    if (!this.schemaValidator(request)) {
+      this.logger.debug(`Could not validate request: ${schemaCompiler.errorsText()}`);
+      return false;
+    }
+
+    return true;
+  }
 
   public async handler(context: Context, request: TRequest): Promise<ServiceResponse<TResponse>> {
     try {
-      await this.validate(context, request);
       await this.authorize(context, request);
+      if (!await this.validate(context, request)) {
+        return { status: 400, content: 'Bad request' };
+      }
       return await this.handle(context, request);
     } catch (e) {
       return this.handleError(e);
