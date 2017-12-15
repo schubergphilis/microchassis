@@ -7,21 +7,32 @@ adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+
+### [0.6.0] - 2017-12-15
+
+### Fixed
+
+* Multiple type errors
+
 ### Changed
+* TypeScript `strict` mode is enabled
 * `providers.TypeORMProvider`'s `entityManager` is now `readonly`
 * TypeORM dependency has been updated to `0.1.1` release
 * `Service` implementations must provide gRPC method name
-* `TypeORMProvider` has been dropped, instead a new abstract class
-  `DbProvider` is now available for use as well as basic
-  implementation of Mariadb provider has been added under
-  `MariadbProvider` name.
+
+### Added
 * Introduces `MicroChassisError` error type
 * Introduces `BaseService` class with JSON schema validation (based on
   `ajv`)
 * Introduces type parameter for `ServiceResponse` interface. Use of
   un-parametrized is deprecated from now and will be removed in 0.7
   release.
-* TypeScript `strict` mode is enabled
+
+### Removed
+* `TypeORMProvider` has been dropped, instead a new abstract class
+  `DbProvider` is now available for use as well as basic
+  implementation of Mariadb provider has been added under
+  `MariadbProvider` name.
 
 ## [0.5.1] - 2017-10-06
 
