@@ -18,6 +18,7 @@ import { Logger } from '../src/logger';
 import { HealthManager } from '../src/health';
 import { Context } from '../src/context';
 import { HttpServer } from '../src/http-server';
+import { ValidationError } from '../src/errors';
 
 const config = new Config();
 
@@ -442,10 +443,7 @@ describe('Http server', () => {
 
     it('It should return the status code and content passed when handler promise is rejected', (done) => {
       const handlerSpy = sinon.stub().returns(new Promise((_, reject) => {
-        reject({
-          status: httpStatus.BAD_REQUEST,
-          content: 'Foo is not correct'
-        });
+        reject(new ValidationError('Foo is not correct'));
       }));
 
       const service = {
