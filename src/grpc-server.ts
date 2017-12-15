@@ -8,10 +8,11 @@ import { Logger } from './logger';
 import { ServiceResponse, ServiceHandlerFunction } from './service';
 import { HealthManager } from './health';
 import { ProtoConfig } from './proto-config';
+import { MicroChassisError } from './errors';
 
 export interface GrpcService {
   grpcMethod: string;
-  handler: ServiceHandlerFunction;
+  handler: ServiceHandlerFunction<any>;
 }
 
 interface UnaryCall {
@@ -89,9 +90,16 @@ export class GrpcServer {
           }
           callback(null, response.content);
         })
-        .catch((response: ServiceResponse) => {
-          this.logger.error(response.content);
-          callback(response.content, null);
+        .catch((error: Error | MicroChassisError | undefined) => {
+          let content = 'Internal server error';
+          if (error instanceof MicroChassisError) {
+            content = error.content || content;
+          } else if (error instanceof Error) {
+            content = error.message;
+          }
+
+          this.logger.error(content);
+          callback(content, null);
         });
     };
     this.services[serviceName] = handler;

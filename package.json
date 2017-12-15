@@ -6,7 +6,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc --declaration",
-    "lint": "./node_modules/tslint/bin/tslint src/**/*.ts",
+    "lint": "tslint --project tslint.json src/**/*.ts",
     "dev": "tsc -w",
     "test": "mocha",
     "test:watch": "mocha --watch --watch-extensions ts",
@@ -59,6 +59,7 @@
     "@types/sinon": "^2.3.5",
     "@types/sinon-chai": "^2.7.29",
     "@types/uuid": "^3.4.3",
+    "ajv": "^5.5.1",
     "chai": "^4.1.2",
     "coveralls": "^2.13.3",
     "mocha": "^3.5.3",

@@ -1,4 +1,11 @@
+import * as ajv from 'ajv';
+import { injectable } from 'inversify';
+
 import { Context } from './context';
+import { Logger } from './logger';
+import { ValidationError, MicroChassisError, UnauthorizedError } from './errors';
+
+const schemaCompiler = new ajv({ allErrors: true });
 
 /**
  * Http method mapping
@@ -12,7 +19,7 @@ export const HTTP_METHOD: Record<HttpMethod, HttpMethod> = {
   DELETE: 'DELETE'
 }
 
-export type ServiceHandlerFunction = (context: Context, request: any) => Promise<ServiceResponse | void>;
+export type ServiceHandlerFunction<T = any> = (context: Context, request: any) => Promise<ServiceResponse<T> | MicroChassisError | void>;
 
 /**
  * Response of the handler of a service
@@ -20,10 +27,10 @@ export type ServiceHandlerFunction = (context: Context, request: any) => Promise
  * @property status {number}
  * @property content {any}
  */
-export interface ServiceResponse {
-  headers?: { [key: string]: string | Array<string> };
+export interface ServiceResponse<T = any> {
   status?: number;
-  content?: any;
+  content?: T;
+  headers?: { [key: string]: string | Array<string> };
 }
 
 /**
@@ -87,4 +94,65 @@ export interface Service {
    * Handles the actual request
    */
   handler: ServiceHandlerFunction;
+}
+
+// Generic URL mapping type
+// tslint:disable-next-line
+export type TRequestMapping<T> = {
+  [s: string]: keyof T;
+};
+
+
+@injectable()
+export abstract class BaseService<TRequest, TResponse> implements Service {
+  public abstract url: string;
+  public abstract method: HttpMethod;
+  public grpcMethod: string;
+
+  // JSON Schema that is used for validation of request
+  protected abstract schema: Object;
+  protected schemaValidator: ajv.ValidateFunction;
+  public urlMapping: TRequestMapping<TRequest> = {};
+  public queryMapping: TRequestMapping<TRequest> = {};
+
+  protected abstract handleError(error: MicroChassisError): ServiceResponse<TResponse>
+  protected abstract async authorize(context: Context, request: TRequest): Promise<boolean>
+
+
+  constructor(protected logger: Logger) { }
+
+  // Validates request against Service's JSON schema.
+  protected async validate(_: Context, request: TRequest): Promise<boolean> {
+    if (this.schemaValidator === undefined) {
+      this.schemaValidator = schemaCompiler.compile(this.schema);
+    }
+
+    if (!this.schemaValidator(request)) {
+      this.logger.debug(`Could not validate request: ${schemaCompiler.errorsText()}`);
+      return false;
+    }
+
+    return true;
+  }
+
+  public async handler(context: Context, request: TRequest): Promise<ServiceResponse<TResponse>> {
+    try {
+      if (!await this.validate(context, request)) {
+        throw new ValidationError('Bad request');
+      }
+      if (!await this.authorize(context, request)) {
+        throw new UnauthorizedError('Unauthorized');
+      };
+      return await this.handle(context, request);
+    } catch (e) {
+      if (e instanceof MicroChassisError) {
+        return this.handleError(e);
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  // Override this method to implement the actual service handler
+  protected abstract async handle(context: Context, request: TRequest): Promise<ServiceResponse<TResponse>>;
 }
