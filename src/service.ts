@@ -115,7 +115,7 @@ export abstract class BaseService<TRequest, TResponse> implements Service {
   public urlMapping: TRequestMapping<TRequest> = {};
   public queryMapping: TRequestMapping<TRequest> = {};
 
-  protected abstract handleError(error: Error): ServiceResponse<TResponse>
+  protected abstract handleError(error: MicroChassisError): ServiceResponse<TResponse>
   protected abstract async authorize(context: Context, request: TRequest): Promise<boolean>
 
 
@@ -145,7 +145,11 @@ export abstract class BaseService<TRequest, TResponse> implements Service {
       };
       return await this.handle(context, request);
     } catch (e) {
-      return this.handleError(e);
+      if (e instanceof MicroChassisError) {
+        return this.handleError(e);
+      } else {
+        throw e;
+      }
     }
   }
 

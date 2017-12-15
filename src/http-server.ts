@@ -166,16 +166,18 @@ export class HttpServer {
         const duration = new Date().getTime() - startTime.getTime();
         this.logger.info(`Http request '${request.url}' ended: ${status}, duration: ${duration} ms`, { context });
       })
-      .catch((error: MicroChassisError | undefined) => {
-        if (error === undefined) {
-          error = new MicroChassisError();
+      .catch((error: Error | MicroChassisError | undefined) => {
+        let content = 'Internal server error';
+        let status: number = httpStatus.INTERNAL_SERVER_ERROR;
+        if (error instanceof MicroChassisError) {
+          status = error.status || status;
+          content = error.content || content;
+        } else if (error instanceof Error) {
+          content = error.message;
         }
-        const status = error.status || httpStatus.INTERNAL_SERVER_ERROR;
-        const content = error.content || 'Internal server error';
+
         this.logger.error(content);
-
         response.status(status).send(content);
-
         const duration = new Date().getTime() - startTime.getTime();
         this.logger.info(`Http request '${request.url}' ended: ${status}, duration: ${duration} ms`, { context });
       });
