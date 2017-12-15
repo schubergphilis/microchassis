@@ -7,11 +7,13 @@ adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## [0.6.1] - 2017-12-15
+
 ### Fixed
 
 * Dependency on `ajv` added to `package.json`. This fixes npm installations.
 
-### [0.6.0] - 2017-12-15
+## [0.6.0] - 2017-12-15 (release unpublished)
 
 ### Fixed
 
