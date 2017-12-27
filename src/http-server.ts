@@ -1,4 +1,4 @@
-import { injectable, inject } from 'inversify';
+import { injectable, inject, interfaces } from 'inversify';
 
 import { Request, Response, NextFunction, Express } from 'express';
 import * as bodyParser from 'body-parser';
@@ -79,7 +79,11 @@ export class HttpServer {
   }
 
   // Register an endpoint with the server
-  public registerService(service: HttpService) {
+  public registerService(serviceFactory: interfaces.Factory<HttpService>) {
+    // Creates a throw away service instance that is used for getting
+    // all required information for express
+    const service = <HttpService>serviceFactory();
+
     // Normalize methodType to express method function
     const method: string = (service.method || 'GET').toLowerCase();
     const url = this.normalizeURL(service.url);
@@ -93,7 +97,7 @@ export class HttpServer {
     this.registeredUrls[url] = service.method;
 
     (this.server as any)[method](url, (request: Request, response: Response) => {
-      this.handleRequest(service, request, response);
+      this.handleRequest(serviceFactory, request, response);
     });
   }
 
@@ -128,13 +132,14 @@ export class HttpServer {
     });
   }
 
-  private async handleRequest(service: HttpService, request: Request, response: Response): Promise<void> {
+  private async handleRequest(serviceFactory: interfaces.Factory<HttpService>, request: Request, response: Response): Promise<void> {
     // Build up context object
     const context = this.createContext(request);
 
     const startTime = new Date();
     this.logger.info(`Http request: '${request.url}' started`, context);
 
+    const service = <HttpService>serviceFactory();
 
     if (!service.unauthenticated && !context.token) {
       this.logger.audit(`Unauthenticated request on: ${service.url} `);
