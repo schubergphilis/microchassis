@@ -61,13 +61,11 @@ export class RService {
 
   // Create services and register them with the grpc and http server
   private registerServices() {
-    if (this.serviceConfig.services) {
-      for (const serviceClass of this.serviceConfig.services) {
-        const serviceInstance = <Service>this.container.get(<any>serviceClass);
+    for (const serviceClass of this.serviceConfig.services) {
+      const serviceInstance = <Service>this.container.get(<any>serviceClass);
 
-        this.httpServer.registerService(serviceInstance);
-        this.grpcServer.registerService(serviceInstance);
-      }
+      this.httpServer.registerService(serviceInstance);
+      this.grpcServer.registerService(serviceInstance);
     }
   }
 
