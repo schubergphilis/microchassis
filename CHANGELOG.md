@@ -11,6 +11,16 @@ adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 * Multiple fields were added for HTTP server for ease of searching
 
+### Fixed
+
+* Services are no longer passed as singletons to respective services
+  thus avoiding potential sharing issues
+
+### Changed
+
+* `HttpServer` and `GrpcServer` now both accept factories of instances
+  instead of final instances in `registerService` method
+
 ## [0.6.2] - 2018-01-02
 
 ### Fixed
