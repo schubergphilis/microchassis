@@ -139,8 +139,15 @@ export class GrpcServer {
   }
 
   private createContext(metadata: Map<string, any>): Context {
+    let token = metadata.get('authorization')[0] || '';
+
+    // As a precaution if authorization header starts with Token strip it off
+    if (token.indexOf('Token ') === 0) {
+      token = token.split('Token ')[1];
+    }
+
     return {
-      token: (metadata.get('authorization')[0] || '').split('Token ')[1],
+      token,
       requestId: metadata.get('request-id')[0],
       user: metadata.get('remoteuser')[0]
     }
