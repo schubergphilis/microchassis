@@ -7,6 +7,12 @@ adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## [0.6.2] - 2018-01-02
+
+### Fixed
+
+* Issue where authorization token was not properly parsed by GRPC server
+
 ## [0.6.1] - 2017-12-15
 
 ### Fixed
