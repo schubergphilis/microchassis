@@ -128,7 +128,7 @@ export class HttpServer {
     });
   }
 
-  private handleRequest(service: HttpService, request: Request, response: Response) {
+  private async handleRequest(service: HttpService, request: Request, response: Response): Promise<void> {
     // Build up context object
     const context = this.createContext(request);
 
@@ -148,39 +148,48 @@ export class HttpServer {
     body = this.getQueryParams(service, request, body);
     body = this.getUrlParams(service, request, body);
 
+    // Set default status to 500 in an attempt to be defensive
+    let content = 'Internal server error';
+    let status: number = httpStatus.INTERNAL_SERVER_ERROR;
+
     // Call the httpHandler
-    service.handler(context, body)
-      .then((serviceResponse: ServiceResponse | void) => {
-        if (!serviceResponse) {
-          throw new Error('Response is void, aborting');
-        }
-        const status = serviceResponse.status || httpStatus.OK;
-        const content = serviceResponse.content;
+    try {
+      const serviceResponse = await service.handler(context, body);
+      if (!serviceResponse) {
+        throw new Error('Response is void, aborting');
+      } else if (serviceResponse instanceof MicroChassisError) {
+        throw serviceResponse;
+      }
 
-        if (serviceResponse.headers) {
-          response.set(serviceResponse.headers);
-        }
+      status = serviceResponse.status || httpStatus.OK;
+      content = serviceResponse.content;
+      if (serviceResponse.headers) {
+        response.set(serviceResponse.headers);
+      }
+    } catch (error) {
+      if (error instanceof MicroChassisError) {
+        status = error.status || status;
+        content = error.content || content;
+      } else if (error instanceof Error) {
+        content = error.message;
+      }
 
-        response.status(status).send(content);
+      this.logger.error(content);
+    }
 
-        const duration = new Date().getTime() - startTime.getTime();
-        this.logger.info(`Http request '${request.url}' ended: ${status}, duration: ${duration} ms`, { context });
-      })
-      .catch((error: Error | MicroChassisError | undefined) => {
-        let content = 'Internal server error';
-        let status: number = httpStatus.INTERNAL_SERVER_ERROR;
-        if (error instanceof MicroChassisError) {
-          status = error.status || status;
-          content = error.content || content;
-        } else if (error instanceof Error) {
-          content = error.message;
-        }
+    response.status(status).send(content);
 
-        this.logger.error(content);
-        response.status(status).send(content);
-        const duration = new Date().getTime() - startTime.getTime();
-        this.logger.info(`Http request '${request.url}' ended: ${status}, duration: ${duration} ms`, { context });
-      });
+    const duration = new Date().getTime() - startTime.getTime();
+    const extra = {
+      url: request.url,
+      context,
+      duration,
+      status,
+      httpMethod: service.method,
+      uri: service.url,
+      transport: 'HTTP'
+    };
+    this.logger.info(`HTTP request '${request.url}' ended: ${status}, duration: ${duration} ms`, extra);
   }
 
   private normalizeURL(url: string) {
