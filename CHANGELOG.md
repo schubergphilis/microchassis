@@ -7,6 +7,10 @@ adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+* Multiple fields were added for HTTP server for ease of searching
+
 ## [0.6.2] - 2018-01-02
 
 ### Fixed
