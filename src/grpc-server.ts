@@ -48,8 +48,10 @@ interface PackagedProtobufDefinition {
   [packageName: string]: ProtobufDefinition;
 }
 
-type CallbackFn = (error: string | null, content: string | null) => any;
+type CallbackFn = (error: { code: number, details?: string } | null, content: string | null) => any;
+
 type HandlerFn = (call: UnaryCall, callback: CallbackFn) => any;
+
 interface GrpcImplementation {
   [methodName: string]: HandlerFn;
 };
@@ -93,15 +95,19 @@ export class GrpcServer {
           callback(null, response.content);
         })
         .catch((error: Error | MicroChassisError | undefined) => {
-          let content = 'Internal server error';
+          const errorResponse = {
+            code: grpc.status.INTERNAL,
+            details: 'Internal server error'
+          };
           if (error instanceof MicroChassisError) {
-            content = error.content || content;
+            errorResponse.details = error.content;
+            errorResponse.code = error.grpcCode;
           } else if (error instanceof Error) {
-            content = error.message;
+            errorResponse.details = error.message;
           }
 
-          this.logger.error(content);
-          callback(content, null);
+          this.logger.error(`Unexpected error when handling gRPC call: ${errorResponse.details}`, errorResponse);
+          callback(errorResponse, null);
         });
     };
     this.services[serviceName] = handler;

@@ -64,7 +64,7 @@
     "coveralls": "^2.13.3",
     "mocha": "^3.5.3",
     "mock-express-request": "^0.2.0",
-    "nodemon": "^1.12.1",
+    "nodemon": "^1.14.7",
     "nyc": "^11.2.1",
     "sinon": "^2.4.1",
     "sinon-chai": "^2.14.0",
