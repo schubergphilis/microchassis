@@ -132,7 +132,7 @@ describe('Http server', () => {
         }
       };
 
-      httpServer.registerService(service);
+      httpServer.registerService(() => service);
 
       // Twice, health and this new service
       expect(getSpy).to.have.been.calledTwice;
@@ -147,7 +147,7 @@ describe('Http server', () => {
         }
       };
 
-      httpServer.registerService(service);
+      httpServer.registerService(() => service);
 
       // Twice, health and this new service
       expect(getSpy).to.have.been.calledTwice;
@@ -164,7 +164,7 @@ describe('Http server', () => {
         }
       };
 
-      httpServer.registerService(service);
+      httpServer.registerService(() => service);
 
       // Twice, health and this new service
       expect(getSpy).to.have.been.calledTwice;
@@ -183,7 +183,7 @@ describe('Http server', () => {
         }
       };
 
-      httpServer.registerService(service);
+      httpServer.registerService(() => service);
 
       // Twice, health and this new service
       expect(getSpy).to.have.been.calledTwice;
@@ -202,7 +202,7 @@ describe('Http server', () => {
         }
       };
 
-      httpServer.registerService(service);
+      httpServer.registerService(() => service);
 
       const url = getSpy.getCall(1).args[0];
       expect(url).to.equal('/testing/foobar');
@@ -222,8 +222,8 @@ describe('Http server', () => {
       };
 
       function register() {
-        httpServer.registerService(serviceOne);
-        httpServer.registerService(serviceTwo);
+        httpServer.registerService(() => serviceOne);
+        httpServer.registerService(() => serviceTwo);
       }
 
       expect(register).to.not.throw();
@@ -244,8 +244,8 @@ describe('Http server', () => {
       };
 
       function register() {
-        httpServer.registerService(serviceOne);
-        httpServer.registerService(serviceTwo);
+        httpServer.registerService(() => serviceOne);
+        httpServer.registerService(() => serviceTwo);
       }
 
       expect(register).to.throw();
@@ -280,7 +280,7 @@ describe('Http server', () => {
         handler: handlerSpy
       };
 
-      httpServer.registerService(service);
+      httpServer.registerService(() => service);
 
       const handler = getSpy.getCall(1).args[1];
       const expectedToken = 'foobar';
@@ -312,7 +312,7 @@ describe('Http server', () => {
         handler: handlerSpy
       };
 
-      httpServer.registerService(service);
+      httpServer.registerService(() => service);
 
       const handler = getSpy.getCall(1).args[1];
       const request = new (MockRequest as any)({
@@ -353,7 +353,7 @@ describe('Http server', () => {
         unauthenticated: true
       };
 
-      httpServer.registerService(service);
+      httpServer.registerService(() => service);
       const handler = getSpy.getCall(1).args[1];
       const request = new (MockRequest as any)({
         method: HTTP_METHOD.GET,
@@ -386,7 +386,7 @@ describe('Http server', () => {
         unauthenticated: true
       };
 
-      httpServer.registerService(service);
+      httpServer.registerService(() => service);
 
       const handler = getSpy.getCall(1).args[1];
       const request = new (MockRequest as any)({
@@ -417,7 +417,7 @@ describe('Http server', () => {
         unauthenticated: true
       };
 
-      httpServer.registerService(service);
+      httpServer.registerService(() => service);
 
       const handler = getSpy.getCall(1).args[1];
       const request = new (MockRequest as any)({
@@ -453,7 +453,7 @@ describe('Http server', () => {
         unauthenticated: true
       };
 
-      httpServer.registerService(service);
+      httpServer.registerService(() => service);
 
       const handler = getSpy.getCall(1).args[1];
       const request = new MockRequest({
@@ -492,7 +492,7 @@ describe('Http server', () => {
         unauthenticated: true
       };
 
-      httpServer.registerService(service);
+      httpServer.registerService(() => service);
 
       const handler = getSpy.getCall(1).args[1];
       const request = new (MockRequest as any)({
@@ -532,7 +532,7 @@ describe('Http server', () => {
         unauthenticated: true
       };
 
-      httpServer.registerService(service);
+      httpServer.registerService(() => service);
 
       const handler = getSpy.getCall(1).args[1];
       const request = new (MockRequest as any)({

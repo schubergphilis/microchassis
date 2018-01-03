@@ -1,4 +1,4 @@
-import { injectable, inject } from 'inversify';
+import { injectable, inject, interfaces } from 'inversify';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import * as grpc from 'grpc';
 
@@ -71,8 +71,8 @@ export class GrpcServer {
     this.proto = grpc.load(this.protoConfig.path);
   }
 
-  public registerService(service: GrpcService) {
-    const serviceName = this.normalizeServiceName(service.grpcMethod);
+  public registerService(serviceFactory: interfaces.Factory<GrpcService>) {
+    const serviceName = this.normalizeServiceName((<GrpcService>serviceFactory()).grpcMethod);
     this.logger.info(`Registering GRPC service: ${serviceName}`);
 
     if (!this.service[serviceName]) {
@@ -83,6 +83,8 @@ export class GrpcServer {
     const handler: HandlerFn = (call, callback) => {
       this.logger.info(`GRPC request started ${serviceName}`);
       const context = this.createContext(call.metadata);
+      const service = <GrpcService>serviceFactory();
+
       service.handler(context, call.request)
         .then((response: ServiceResponse | void) => {
           if (!response) {
