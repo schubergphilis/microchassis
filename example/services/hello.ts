@@ -1,10 +1,13 @@
 import { injectable } from 'inversify';
 import * as httpStatus from 'http-status';
-import { ServiceResponse, HttpMethod, Context, Service } from '../../src';
+import {
+  ServiceResponse, HttpMethod, Context, Service,
+  MicroChassisError, UnauthorizedError, ForbiddenError, NotFoundError, ValidationError
+} from '../../src';
 
-import { HelloRequest } from './../proto/hello';
-import { HelloManager } from './../managers';
-import { GRPCClient } from './../providers/grpc-client';
+import { HelloRequest } from '../proto/hello';
+import { HelloManager } from '../managers';
+import { GRPCClient } from '../providers/grpc-client';
 
 @injectable()
 export class HelloService implements Service {
@@ -50,5 +53,33 @@ export class IndirectHelloService implements Service {
     } catch (error) {
       return { status: 500 };
     }
+  }
+}
+
+@injectable()
+export class RandomErrorService implements Service {
+
+  private static errors: Error[] = [
+    new Error('Unhandled error'),
+    new MicroChassisError('Generic error'),
+    new UnauthorizedError('Unauthorized'),
+    new ForbiddenError('Forbidden'),
+    new NotFoundError('Not found'),
+    new ValidationError('Failed validation'),
+  ];
+
+  public grpcMethod = 'RandomError';
+  public method: HttpMethod = 'GET';
+  public url = '/random_error';
+  public unauthenticated = true;
+  private manager = null;
+
+  constructor(
+    private rpcClient: GRPCClient
+  ) { }
+
+  public async handler(context: Context, request: any): Promise<ServiceResponse> {
+    const error = RandomErrorService.errors[Math.floor(Math.random() * RandomErrorService.errors.length)];
+    throw error;
   }
 }

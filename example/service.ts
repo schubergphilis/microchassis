@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import * as path from 'path';
 import { RService } from './../src';
 
-import { HelloService, IndirectHelloService } from './services';
+import { HelloService, IndirectHelloService, RandomErrorService } from './services';
 import { HelloManager } from './managers';
 import { GRPCClient } from './providers/grpc-client';
 import { Subscriber, KinesisProducer } from './../src/events';
@@ -16,7 +16,8 @@ const service = new RService({
   },
   services: [
     HelloService,
-    IndirectHelloService
+    IndirectHelloService,
+    RandomErrorService,
   ],
   providers: [
     GRPCClient

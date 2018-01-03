@@ -5,14 +5,13 @@ package hellopb;
 service HelloService {
   rpc Hello (HelloRequest) returns (HelloResponse);
   rpc IndirectHello (HelloRequest) returns (HelloResponse);
-  // rpc FooBar (HelloRequest) returns (HelloResponse);
-  // rpc BarFoo (HelloRequest) returns (HelloResponse);
+  rpc RandomError (HelloRequest) returns (HelloResponse);
 }
 
 message HelloRequest {
-  required string name = 1;
+  string name = 1;
 }
 
 message HelloResponse {
-  required string message = 1;
+  string message = 1;
 }

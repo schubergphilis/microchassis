@@ -7,6 +7,10 @@ adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Fixed
+
+* Fixes gRPC error code handling
+
 ## [0.6.3] - 2018-01-03
 
 ### Added
