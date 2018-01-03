@@ -9,7 +9,7 @@ import * as timeout from 'connect-timeout';
 
 import { HealthManager } from './health';
 import { Config } from './config';
-import { HttpMethod, ServiceHandlerFunction, ServiceResponse, QueryMapping, UrlMapping } from './service';
+import { HttpMethod, ServiceHandlerFunction, QueryMapping, UrlMapping } from './service';
 import { Logger } from './logger';
 import { Context } from './context';
 import { deepSet } from './utils';
