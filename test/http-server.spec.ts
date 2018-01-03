@@ -244,8 +244,8 @@ describe('Http server', () => {
       };
 
       function register() {
-        httpServer.registerService(serviceOne);
-        httpServer.registerService(serviceTwo);
+        httpServer.registerService(() => serviceOne);
+        httpServer.registerService(() => serviceTwo);
       }
 
       expect(register).to.throw();
