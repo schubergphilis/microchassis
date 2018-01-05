@@ -1,4 +1,6 @@
 # Microchassis
+This package aims to help you build "simple" microservices in Typescript.
+
 [![travis][travis-image]][travis-url]
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/bb6b65f7e0ee4280b6bfd8fd6f1db2b7)](https://www.codacy.com/app/mishok13/microchassis?utm_source=github.com&utm_medium=referral&utm_content=schubergphilis/microchassis&utm_campaign=badger)
 [![Coverage Status](https://coveralls.io/repos/schubergphilis/microchassis/badge.svg?branch=master&service=github)](https://coveralls.io/github/schubergphilis/microchassis?branch=master)
@@ -12,8 +14,6 @@
 [npm-url]: https://npmjs.org/package/microchassis
 [downloads-image]: https://img.shields.io/npm/dm/microchassis.svg?style=flat
 [downloads-url]: https://npmjs.org/package/microchassis
-
-This package aims to help you build "simple" microservices in Typescript.
 
 The Connect team at Schuberg Philis is building microservices which use [Protobuf](https://github.com/google/protobuf) and [GRPC](https://grpc.io) as a basis and bolt REST on top of that for web usage. This package aims to use the proto as the basis for the service and make it simple to bolt REST on top of that.
 
