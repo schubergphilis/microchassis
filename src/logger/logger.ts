@@ -61,7 +61,7 @@ export class Logger {
   private handlers: Array<LogHandler> = [];
 
   constructor(private config: Config) {
-    switch ((<any>this.config)['logLevel'] || LogLevel.DEBUG) {
+    switch (this.config.get('logLevel') || LogLevel.DEBUG) {
       case 'debug': this.logLevel = LogLevel.DEBUG; break;
       case 'info': this.logLevel = LogLevel.INFO; break;
       case 'warn': this.logLevel = LogLevel.WARN; break;
@@ -73,7 +73,7 @@ export class Logger {
       this._debug = true;
     }
 
-    const loggerOptions: LoggerOptions = (<any>this.config)['loggerOptions']
+    const loggerOptions: LoggerOptions = this.config.get('loggerOptions');
     const processors = loggerOptions && loggerOptions.processors ? loggerOptions.processors : this.defaultProcessors;
     const handlers = loggerOptions && loggerOptions.handlers ? loggerOptions.handlers : this.defaultHandlers;
 

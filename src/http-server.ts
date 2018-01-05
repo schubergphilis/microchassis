@@ -65,7 +65,7 @@ export class HttpServer {
     }));
 
     // Register health check endpoint
-    const healthUrl = this.normalizeURL((<any>this.config)['healthCheckURL'] || '/check');
+    const healthUrl = this.normalizeURL(this.config.get('healthCheckURL') || '/check');
 
     this.server.get(healthUrl, (_: Request, response: Response) => {
       const report = healthManager.getReport();
@@ -104,7 +104,7 @@ export class HttpServer {
   // Starts the http server
   public start() {
     // Set a 30 seconds request timeout
-    const connectTimeout: number = (<any>this.config)['connectTimeout'] || 30000;
+    const connectTimeout: number = this.config.get('connectTimeout') || 30000;
     this.server.use(timeout(`${connectTimeout}ms`));
 
     // 404 middleware
@@ -126,8 +126,8 @@ export class HttpServer {
       });
     });
 
-    this.server.listen((<any>this.config)['httpPort'], () => {
-      this.logger.info(`Http server starting listening on: ${(<any>this.config)['httpPort']} `);
+    this.server.listen(this.config.get('httpPort'), () => {
+      this.logger.info(`Http server starting listening on: ${this.config.get('httpPort')} `);
       this.health.next(true);
     });
   }
@@ -204,8 +204,8 @@ export class HttpServer {
     }
 
     // Check for root in config and prepend to the url
-    if ((<any>this.config)['httpRoot']) {
-      let httpRoot = (<any>this.config)['httpRoot'];
+    if (this.config.get('httpRoot')) {
+      let httpRoot = this.config.get('httpRoot');
 
       // Should start with an slash
       if (httpRoot.charAt(0) !== '/') {
