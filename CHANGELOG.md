@@ -11,6 +11,10 @@ adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 * Fixes gRPC error code handling
 
+### Changed
+
+* Add an get method to the config object
+
 ## [0.6.3] - 2018-01-03
 
 ### Added
