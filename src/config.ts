@@ -126,4 +126,8 @@ export class Config {
       }
     };
   }
+
+  get(key: string): any  {
+    return (<any>this)[key];
+  }
 }

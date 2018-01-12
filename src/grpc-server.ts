@@ -127,9 +127,9 @@ export class GrpcServer {
 
     this.server = new grpc.Server();
     this.server.addService(this.service, this.services);
-    this.server.bind(`0.0.0.0:${(<any>this.config)['grpcPort']}`, grpc.ServerCredentials.createInsecure());
+    this.server.bind(`0.0.0.0:${this.config.get('grpcPort')}`, grpc.ServerCredentials.createInsecure());
     this.server.start();
-    this.logger.info(`Grpc server started listening on: ${(<any>this.config)['grpcPort']}`);
+    this.logger.info(`Grpc server started listening on: ${this.config.get('grpcPort')}`);
 
     // Notify the server is healhty
     this.health.next(true);

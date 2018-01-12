@@ -13,11 +13,11 @@ describe('Config', () => {
   });
 
   it('It should have default ports for http and grpc', () => {
-    expect((<any>config)['httpPort']).to.equal(8000);
-    expect((<any>config)['grpcPort']).to.equal(9000);
+    expect(config.get('httpPort')).to.equal(8000);
+    expect(config.get('grpcPort')).to.equal(9000);
   });
 
   it('Default log level should be info', () => {
-    expect((<any>config)['logLevel']).to.equal('info');
+    expect(config.get('logLevel')).to.equal('info');
   });
 });
