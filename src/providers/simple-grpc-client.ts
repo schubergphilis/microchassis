@@ -1,12 +1,12 @@
 import { injectable } from 'inversify';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Config } from '../config';
 import * as grpcExt from 'grpc/src/grpc_extension';
 import * as async from 'async';
 import * as grpc from 'grpc';
 const connectivityState = grpcExt.connectivityState;
 
-import { Context, Logger, ProtoConfig, HealthManager } from './..'
+import { Config, Context, Logger, ProtoConfig, HealthManager } from '..'
+import * as errors from '../errors';
 
 @injectable()
 export class SimpleGrpcClient {
@@ -76,11 +76,11 @@ export class SimpleGrpcClient {
 
     const meta = context ? this.transformContext(context) : new grpc.Metadata();
     return new Promise((resolve, reject) => {
-      const methodCallback = (error: Error, response: any) => {
+      const methodCallback = (error: errors.GrpcError, response: any) => {
         if (error) {
           this.logger.error(`Call ${methodName} on ${this.protoConfig.service} failed with error: `, error);
           console.error(error);
-          reject(error);
+          reject(errors.fromGrpcError(error));
         } else {
           this.logger.debug(`Call ${methodName} on ${this.protoConfig.service} responded with: `, response);
           resolve(response);
