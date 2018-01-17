@@ -5,6 +5,13 @@ The format is based on [Keep a
 Changelog](http://keepachangelog.com/en/1.0.0/) and the project
 adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+* Propagation of errors in gRPC client now maintains the original
+  error code and message
+
 ## [0.6.4] - 2018-01-16
 
 ### Fixed
