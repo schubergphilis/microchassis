@@ -29,3 +29,17 @@ export class ForbiddenError extends MicroChassisError {
   public readonly status = httpStatus.FORBIDDEN;
   public readonly grpcCode = grpc.status.UNAUTHENTICATED;
 }
+
+export function fromGrpcError(error: GrpcError): MicroChassisError {
+  switch (error.code) {
+    case grpc.status.NOT_FOUND: return new NotFoundError(error.message);
+    case grpc.status.FAILED_PRECONDITION: return new ValidationError(error.message);
+    case grpc.status.UNAUTHENTICATED: return new UnauthorizedError(error.message);
+    default: return new MicroChassisError(error.message)
+  }
+}
+
+export interface GrpcError {
+  code: grpc.status;
+  message: string;
+}
