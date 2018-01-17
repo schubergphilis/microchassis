@@ -5,6 +5,12 @@ The format is based on [Keep a
 Changelog](http://keepachangelog.com/en/1.0.0/) and the project
 adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.6.5] - 2018-01-17
+
+### Fixed
+
+* Fixes gRPC error code handling in the SimpleGRPCClient
+
 ## [0.6.4] - 2018-01-16
 
 ### Fixed
