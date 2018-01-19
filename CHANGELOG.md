@@ -5,7 +5,13 @@ The format is based on [Keep a
 Changelog](http://keepachangelog.com/en/1.0.0/) and the project
 adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [0.6.5] - 2018-01-17
+## [0.6.6] - 2018-01-19
+
+### Fixed 
+
+* Fixed issue where logger class wasn't applying the processors. Causing possible sensitive information leaks
+
+## [0.6.5] - 2018-01-17  (release unpublished)
 
 ### Fixed
 

@@ -127,6 +127,21 @@ describe('Logger', () => {
     expect(obj.extra.processed).to.equal(true);
   });
 
+  it('should apply the default processors (remove sensitive info as example)', () => {
+    const config = new Config();
+    logger = new Logger(config);
+
+    const extra =  { foo: 'bar', context: { token: 'super secret', foo: 'bar' } };
+    logger.info('foobar', extra);
+
+    const arg = logSpy.getCall(0).args[0];
+    const obj = JSON.parse(arg);
+
+
+    expect(obj.extra.foo).to.equal('bar');
+    expect(obj.extra.context).to.equal(undefined);
+  });
+
   it('should leave the original object untouched when deleting properties in a processor', () => {
     const processor = () => {
       return (record: LogRecord): LogRecord => {
@@ -151,7 +166,7 @@ describe('Logger', () => {
     const arg = logSpy.getCall(0).args[0];
     const obj = JSON.parse(arg);
 
-    expect(obj.extra.token).to.be.undefined;
+    expect(obj.extra.token).to.equal(undefined);
     expect(context.token).to.equal('foobar');
   });
 });
