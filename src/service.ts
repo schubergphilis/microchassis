@@ -10,13 +10,14 @@ const schemaCompiler = new ajv({ allErrors: true });
 /**
  * Http method mapping
  */
-export type HttpMethod = 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
+export type HttpMethod = 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE' | 'ALL';
 export const HTTP_METHOD: Record<HttpMethod, HttpMethod> = {
   POST: 'POST',
   GET: 'GET',
   PUT: 'PUT',
   PATCH: 'PATCH',
-  DELETE: 'DELETE'
+  DELETE: 'DELETE',
+  ALL: 'ALL'
 }
 
 export type ServiceHandlerFunction<T = any> = (context: Context, request: any) => Promise<ServiceResponse<T> | MicroChassisError | void>;
