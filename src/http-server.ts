@@ -159,10 +159,12 @@ export class HttpServer {
 
     // Call the httpHandler
     try {
-      const serviceResponse = await service.handler(context, body);
+      const serviceResponse = await service.handler(context, body, { http: request });
       if (!serviceResponse) {
         throw new Error('Response is void, aborting');
-      } else if (serviceResponse instanceof MicroChassisError) {
+      }
+
+      if (serviceResponse instanceof MicroChassisError) {
         throw serviceResponse;
       }
 

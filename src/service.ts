@@ -4,6 +4,7 @@ import { injectable } from 'inversify';
 import { Context } from './context';
 import { Logger } from './logger';
 import { ValidationError, MicroChassisError, UnauthorizedError } from './errors';
+import { Request } from 'express';
 
 const schemaCompiler = new ajv({ allErrors: true });
 
@@ -19,7 +20,13 @@ export const HTTP_METHOD: Record<HttpMethod, HttpMethod> = {
   DELETE: 'DELETE'
 }
 
-export type ServiceHandlerFunction<T = any> = (context: Context, request: any) => Promise<ServiceResponse<T> | MicroChassisError | void>;
+export interface RequestOptions {
+  http?: Request;
+  grpc?: any;
+}
+
+export type ServiceHandlerFunction<T = any> = (context: Context, body: any, requestOptions?: RequestOptions)
+  => Promise<ServiceResponse<T> | MicroChassisError | void>;
 
 /**
  * Response of the handler of a service

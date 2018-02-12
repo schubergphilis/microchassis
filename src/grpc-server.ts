@@ -87,7 +87,7 @@ export class GrpcServer {
       const context = this.createContext(call.metadata);
       const service = <GrpcService>serviceFactory();
 
-      service.handler(context, call.request)
+      service.handler(context, call.request, { grpc: call })
         .then((response: ServiceResponse | void) => {
           if (!response) {
             throw new Error('Empty response returned');
