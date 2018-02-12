@@ -18,9 +18,7 @@ export interface ServiceOptions {
   config?: Array<ConfigOption>;
   events?: {
     subscribers?: Array<{ new(...args: any[]): Subscriber }>;
-  },
-  disableGRPC?: boolean;
-  disableHTTP?: boolean;
+  }
 }
 
 export class RService {
@@ -47,13 +45,15 @@ export class RService {
     this.registerSingletons(this.serviceConfig.managers || []);
     this.registerFactories(this.serviceConfig.services);
 
+    const config = this.container.get(Config);
+
     // FIXME: make both server implementations injectable/configurable
-    if (serviceConfig.disableHTTP !== true) {
+    if (config.get('disableHTTP') !== true) {
       this.container.bind<HttpServer>(HttpServer).toSelf();
       this.httpServer = this.container.get(HttpServer);
     }
 
-    if (serviceConfig.disableGRPC !== true) {
+    if (config.get('disableGRPC') !== true) {
       if (!serviceConfig.proto) {
         throw new Error('GRPC server is enabled but no protoConfig was given');
       }
