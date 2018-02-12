@@ -14,7 +14,7 @@ export interface ServiceOptions {
   managers?: Array<{ new(...args: any[]): any }>;
   services: Array<{ new(...args: any[]): Service }>;
   providers?: Array<{ new(...args: any[]): any }>;
-  proto: ProtoConfig;
+  proto?: ProtoConfig;
   config?: Array<ConfigOption>;
   events?: {
     subscribers?: Array<{ new(...args: any[]): Subscriber }>;
@@ -23,27 +23,21 @@ export interface ServiceOptions {
 
 export class RService {
   private container: Container;
-  private httpServer: HttpServer;
-  private grpcServer: GrpcServer;
+  private httpServer?: HttpServer;
+  private grpcServer?: GrpcServer;
 
   constructor(private serviceConfig: ServiceOptions) {
     this.container = new Container();
-
-    // FIXME: make both server implementations injectable/configurable
-    this.container.bind<HttpServer>(HttpServer).toSelf();
-    this.container.bind<GrpcServer>(GrpcServer).toSelf();
 
     this.container.bind('configoptions').toConstantValue(serviceConfig.config || []);
     this.container.bind<Config>(Config).toSelf().inSingletonScope();
     this.container.bind<HealthManager>(HealthManager).toSelf().inSingletonScope();
     this.container.bind<Logger>(Logger).toSelf();
     this.container.bind('express').toConstantValue(express);
-    this.container.bind('protoconfig').toConstantValue(serviceConfig.proto);
 
     // Prepare the event emitter
     const subscribers = this.prepareEventSubscribers();
     this.container.bind('event-subscribers').toConstantValue(subscribers);
-
     this.container.bind<EventEmitter>(EventEmitter).toSelf().inSingletonScope();
 
     // Prepare for DI
@@ -51,16 +45,39 @@ export class RService {
     this.registerSingletons(this.serviceConfig.managers || []);
     this.registerFactories(this.serviceConfig.services);
 
-    // Get server instances
-    this.httpServer = this.container.get(HttpServer);
-    this.grpcServer = this.container.get(GrpcServer);
+    const config = this.container.get(Config);
+
+    // FIXME: make both server implementations injectable/configurable
+    if (config.get('disableHTTP') !== true) {
+      this.container.bind<HttpServer>(HttpServer).toSelf();
+      this.httpServer = this.container.get(HttpServer);
+    }
+
+    if (config.get('disableGRPC') !== true) {
+      if (!serviceConfig.proto) {
+        throw new Error('GRPC server is enabled but no protoConfig was given');
+      }
+
+      this.container.bind('protoconfig').toConstantValue(serviceConfig.proto);
+      this.container.bind<GrpcServer>(GrpcServer).toSelf();
+      this.grpcServer = this.container.get(GrpcServer);
+    }
 
     // Register services
     this.registerServices();
 
     // Done initializing
-    this.httpServer.start();
-    this.grpcServer.start();
+    if (this.httpServer) {
+      this.httpServer.start();
+    }
+
+    if (this.grpcServer) {
+      this.grpcServer.start();
+    }
+
+    if (!this.httpServer && !this.grpcServer) {
+      throw new Error('Both HTTP and GRPC server are disabled');
+    }
   }
 
   // Create services and register them with the grpc and http server
@@ -68,8 +85,14 @@ export class RService {
     for (const serviceClass of this.serviceConfig.services) {
       const factory = this.container
         .get<interfaces.Factory<Service>>(composeFactoryBindName(serviceClass));
-      this.httpServer.registerService(factory);
-      this.grpcServer.registerService(factory);
+
+      if (this.httpServer) {
+        this.httpServer.registerService(factory);
+      }
+
+      if (this.grpcServer) {
+        this.grpcServer.registerService(factory);
+      }
     }
   }
 

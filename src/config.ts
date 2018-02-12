@@ -18,11 +18,23 @@ export class Config {
     dest: 'logLevel',
     value: 'info'
   }, {
+    description: 'Disable the HTTP Server',
+    env: 'DISABLE_HTTP',
+    args: ['disable_http'],
+    dest: 'disableHTTP',
+    value: false
+  }, {
     description: 'Port on which the HTTP server runs',
     env: 'HTTP_PORT',
     args: ['h', 'http_port'],
     dest: 'httpPort',
     value: 8000
+  }, {
+    description: 'Disable the GRPC Server',
+    env: 'DISABLE_GRPC',
+    args: ['disable_grpc'],
+    dest: 'disableGRPC',
+    value: false
   }, {
     description: 'Port on which the GRPC server runs',
     env: 'GRPC_PORT',
