@@ -7,15 +7,16 @@ const connectivityState = grpcExt.connectivityState;
 
 import { Config, Context, Logger, ProtoConfig, HealthManager } from '..'
 import * as errors from '../errors';
+import { GrpcObject } from 'grpc';
 
 @injectable()
 export class SimpleGrpcClient {
   public health = new BehaviorSubject(false);
-  public protoConfig: ProtoConfig;
-  public serviceAddress: string;
-  public client: any;
-  public healthManager: HealthManager;
-  public logger: Logger;
+  public protoConfig!: ProtoConfig;
+  public serviceAddress!: string;
+  public client!: grpc.Client;
+  public healthManager!: HealthManager;
+  public logger!: Logger;
   public callTimeout = 5; // timeout/deadline for grpc calls in seconds
   private channelState = new BehaviorSubject(-1);
 
@@ -33,19 +34,20 @@ export class SimpleGrpcClient {
     });
 
     // Load the proto and create service
-    const proto = grpc.load(this.protoConfig.path);
-    let ServiceClass;
+    const proto: GrpcObject = grpc.load(this.protoConfig.path);
+    let ServiceClass: typeof grpc.Client;
 
     if (this.protoConfig.package) {
-      ServiceClass = proto[this.protoConfig.package][this.protoConfig.service];
+      const pkg: GrpcObject = (proto[this.protoConfig.package]) as GrpcObject;
+      ServiceClass = pkg[this.protoConfig.service] as (typeof grpc.Client);
     } else {
-      ServiceClass = proto[this.protoConfig.service];
+      ServiceClass = proto[this.protoConfig.service] as (typeof grpc.Client);
     }
 
     this.client = new ServiceClass(this.serviceAddress, grpc.credentials.createInsecure());
 
     // Wiat for client to be ready and start health monitoring
-    this.client.waitForReady(Infinity, (error: Error | undefined) => {
+    this.client.waitForReady(Infinity, (error: Error | null) => {
       if (!error) {
         this.health.next(true);
         this.monitorGRPCHealth(connectivityState.READY);
@@ -68,7 +70,7 @@ export class SimpleGrpcClient {
     methodName = this.normalizeMethodName(methodName);
     this.logger.debug(`Calling ${methodName} on ${this.protoConfig.service} with:`, message);
 
-    if (!this.client[methodName]) {
+    if (!(this.client as any)[methodName]) {
       const errorMessage = `RPC method: ${methodName} doesn't exist on GRPC client: ${this.protoConfig.service}`;
       this.logger.error(errorMessage);
       throw Error(errorMessage);
@@ -89,7 +91,7 @@ export class SimpleGrpcClient {
       const wrappedCall = (callback: any) => {
         const now = new Date();
         const deadline = now.setSeconds(now.getSeconds() + this.callTimeout);
-        return this.client[methodName](message, meta, { deadline: deadline }, callback);
+        return (this.client as any)[methodName](message, meta, { deadline: deadline }, callback);
       };
       async.retry<any, any>(3, wrappedCall, methodCallback);
     });

@@ -40,7 +40,7 @@ export interface LoggerOptions {
 @injectable()
 export class Logger {
   private _debug = false;
-  private logLevel: LogLevel;
+  private logLevel: LogLevel = LogLevel.DEBUG;
 
   // Note that order of calls is important here, so please make sure
   // that processors that are *removing* properties from log record

@@ -15,8 +15,8 @@ export class MariadbProvider extends DbProvider implements EntityProvider {
     logging: ['schema', 'error', 'warn', 'migration']
   };
 
-  public readonly entities: Array<Function>;
-  public connection: Connection;
+  public readonly entities!: Array<Function>;
+  public connection!: Connection;
 
   constructor(
     protected config: Config,

@@ -100,7 +100,7 @@ export interface Service {
 // Generic URL mapping type
 // tslint:disable-next-line
 export type TRequestMapping<T> = {
-  [s: string]: keyof T;
+  [s: string]: Extract<keyof T, string>;
 };
 
 
@@ -108,11 +108,11 @@ export type TRequestMapping<T> = {
 export abstract class BaseService<TRequest, TResponse> implements Service {
   public abstract url: string;
   public abstract method: HttpMethod;
-  public grpcMethod: string;
+  public abstract grpcMethod: string;
 
   // JSON Schema that is used for validation of request
   protected abstract schema: Object;
-  protected schemaValidator: ajv.ValidateFunction;
+  protected abstract schemaValidator: ajv.ValidateFunction;
   public urlMapping: TRequestMapping<TRequest> = {};
   public queryMapping: TRequestMapping<TRequest> = {};
 
