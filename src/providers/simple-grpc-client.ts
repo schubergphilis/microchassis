@@ -77,7 +77,7 @@ export class SimpleGrpcClient {
     }
 
     const meta = context ? this.transformContext(context) : new grpc.Metadata();
-    return new Promise((resolve, reject) => {
+    return new Promise<any>((resolve, reject): void => {
       const methodCallback = (error: errors.GrpcError, response: any) => {
         if (error) {
           this.logger.error(`Call ${methodName} on ${this.protoConfig.service} failed with error: `, error);

@@ -1,13 +1,8 @@
 {
-  "rulesDirectory": ["tslint-consistent-codestyle"],
+  "extends": "typestrict",
   "rules": {
-    "no-as-type-assertion": true,
-    "no-collapsible-if": true,
     "early-exit": false,
     "curly": "always",
-    "no-unnecessary-else": true,
-    "no-unused": true,
-    "no-var-before-return": true,
     "callable-types": true,
     "class-name": true,
     "comment-format": [
@@ -91,7 +86,6 @@
         "variable-declaration": "nospace"
       }
     ],
-    "typeof-compare": true,
     "unified-signatures": true,
     "variable-name": false,
     "whitespace": [

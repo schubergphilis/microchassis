@@ -78,14 +78,10 @@ export class Logger {
     const handlers = loggerOptions && loggerOptions.handlers ? loggerOptions.handlers : this.defaultHandlers;
 
     // Inject config into processors
-    processors.map((processor: ProcessorFunction) => {
-      this.processors.push(processor(this.config));
-    });
+    this.processors = processors.map(p => p(this.config));
 
     // Assign handlers
-    handlers.map((handler: HandlerFunction) => {
-      this.handlers.push(handler(this.config));
-    });
+    this.handlers = handlers.map(h => h(this.config));
 
     if (this.handlers.length === 0) {
       throw TypeError('No handlers configured for logger');
