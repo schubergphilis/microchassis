@@ -1,9 +1,7 @@
 import { injectable } from 'inversify';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import * as grpcExt from 'grpc/src/grpc_extension';
 import * as async from 'async';
 import * as grpc from 'grpc';
-const connectivityState = grpcExt.connectivityState;
 
 import { Config, Context, Logger, ProtoConfig, HealthManager } from '..'
 import * as errors from '../errors';
@@ -30,7 +28,7 @@ export class SimpleGrpcClient {
     this.healthManager.registerCheck(this.protoConfig.service, this.health);
 
     this.channelState.subscribe((state) => {
-      this.health.next(state === connectivityState.READY)
+      this.health.next(state === grpc.connectivityState.READY)
     });
 
     // Load the proto and create service
@@ -50,7 +48,7 @@ export class SimpleGrpcClient {
     this.client.waitForReady(Infinity, (error: Error | null) => {
       if (!error) {
         this.health.next(true);
-        this.monitorGRPCHealth(connectivityState.READY);
+        this.monitorGRPCHealth(grpc.connectivityState.READY);
       } else {
         // This should be really fatal since we are waiting infinite for the client to become ready
         this.logger.error('Failed to connect to GRPC client', error);
