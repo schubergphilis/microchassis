@@ -63,7 +63,7 @@
     "chai": "^4.1.2",
     "coveralls": "^2.13.3",
     "mocha": "^5.2.0",
-    "mock-express-request": "^0.2.0",
+    "node-mocks-http": "^1.7.0",
     "nodemon": "^1.18.3",
     "nyc": "^11.2.1",
     "sinon": "^2.4.1",
