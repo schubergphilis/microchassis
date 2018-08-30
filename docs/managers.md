@@ -1,2 +1,0 @@
-# Managers
-todo write documentation

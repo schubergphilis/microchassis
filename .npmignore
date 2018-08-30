@@ -13,3 +13,5 @@ coverage
 
 tsconfig.json
 tslint.json
+
+microchassis-*.tgz
