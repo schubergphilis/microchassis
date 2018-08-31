@@ -5,9 +5,26 @@ The format is based on [Keep a
 Changelog](http://keepachangelog.com/en/1.0.0/) and the project
 adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.6.7]
+
+### Fixed
+
+* Multiple security findings in dependencies have been addressed (by
+  upgrading said dependencies)
+* gRPC library has been upgraded to version 1.14, addressing multiple
+  issues
+
+### Changed
+
+* TypeScript compiler version has been bumped to 3.0
+* `vendor.d.ts` type definitions have been removed in favour of using
+  provided types
+* Travis CI build now uses Node.js 8.x (current LTS) and 10.x releases
+  for testing
+
 ## [0.6.6] - 2018-01-19
 
-### Fixed 
+### Fixed
 
 * Fixed issue where logger class wasn't applying the processors. Causing possible sensitive information leaks
 
