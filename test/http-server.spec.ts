@@ -9,8 +9,8 @@ chai.use(sinonChai);
 import { SinonSpy } from 'sinon';
 import { expect } from 'chai';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import * as MockRequest from 'mock-express-request';
 import * as httpStatus from 'http-status';
+import * as nodeMocks from 'node-mocks-http';
 
 import { HTTP_METHOD } from '../src/service';
 import { Config } from '../src/config';
@@ -19,6 +19,10 @@ import { HealthManager } from '../src/health';
 import { Context } from '../src/context';
 import { HttpServer } from '../src/http-server';
 import { ValidationError } from '../src/errors';
+
+function mockRequest(options: { [key: string]: any }): nodeMocks.MockRequest<any> {
+  return nodeMocks.createRequest<any>(options);
+}
 
 const config = new Config();
 
@@ -286,7 +290,7 @@ describe('Http server', () => {
       const expectedToken = 'foobar';
       const expectedRequestId = 'requestid';
 
-      const request = new (MockRequest as any)({
+      const request = nodeMocks.createRequest({
         method: HTTP_METHOD.GET,
         url: '/foobar',
         headers: {
@@ -315,7 +319,7 @@ describe('Http server', () => {
       httpServer.registerService(() => service);
 
       const handler = getSpy.getCall(1).args[1];
-      const request = new (MockRequest as any)({
+      const request = nodeMocks.createRequest({
         headers: {}
       });
 
@@ -355,7 +359,7 @@ describe('Http server', () => {
 
       httpServer.registerService(() => service);
       const handler = getSpy.getCall(1).args[1];
-      const request = new (MockRequest as any)({
+      const request = nodeMocks.createRequest({
         method: HTTP_METHOD.GET,
         url: '/foobar',
         query: {
@@ -389,7 +393,7 @@ describe('Http server', () => {
       httpServer.registerService(() => service);
 
       const handler = getSpy.getCall(1).args[1];
-      const request = new (MockRequest as any)({
+      const request = nodeMocks.createRequest({
         method: HTTP_METHOD.GET,
         url: '/1/2/foobar',
         params: {
@@ -420,7 +424,7 @@ describe('Http server', () => {
       httpServer.registerService(() => service);
 
       const handler = getSpy.getCall(1).args[1];
-      const request = new (MockRequest as any)({
+      const request = nodeMocks.createRequest({
         method: HTTP_METHOD.GET,
         url: '/foobar'
       });
@@ -456,7 +460,7 @@ describe('Http server', () => {
       httpServer.registerService(() => service);
 
       const handler = getSpy.getCall(1).args[1];
-      const request = new MockRequest({
+      const request = mockRequest({
         method: HTTP_METHOD.GET,
         url: '/foobar'
       });
@@ -495,7 +499,7 @@ describe('Http server', () => {
       httpServer.registerService(() => service);
 
       const handler = getSpy.getCall(1).args[1];
-      const request = new (MockRequest as any)({
+      const request = nodeMocks.createRequest({
         method: HTTP_METHOD.GET,
         url: '/foobar'
       });
@@ -535,7 +539,7 @@ describe('Http server', () => {
       httpServer.registerService(() => service);
 
       const handler = getSpy.getCall(1).args[1];
-      const request = new (MockRequest as any)({
+      const request = nodeMocks.createRequest({
         method: HTTP_METHOD.GET,
         url: '/foobar'
       });

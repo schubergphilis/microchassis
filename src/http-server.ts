@@ -97,7 +97,7 @@ export class HttpServer {
     this.registeredUrls[url] = service.method;
 
     (this.server as any)[method](url, (request: Request, response: Response) => {
-      this.handleRequest(serviceFactory, request, response);
+      return this.handleRequest(serviceFactory, request, response);
     });
   }
 
