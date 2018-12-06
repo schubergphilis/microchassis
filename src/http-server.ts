@@ -14,6 +14,7 @@ import { Logger } from './logger';
 import { Context } from './context';
 import { deepSet } from './utils';
 import { MicroChassisError } from './errors';
+import * as Sentry from '@sentry/node';
 
 export interface RegisteredServices {
   [key: string]: HttpMethod;
@@ -42,11 +43,15 @@ export class HttpServer {
   ) {
     healthManager.registerCheck('HTTP server', this.health);
 
-    // Setup express and a json body parser
     this.server = <Express>(this.express());
 
     // Disable sending out the default x-powered-by header from express
     this.server.disable('x-powered-by');
+
+    // Unconditionally setup Sentry
+    Sentry.init({ dsn: '__PUBLIC_DSN__' });
+    this.server.use(Sentry.Handlers.requestHandler());
+    this.server.use(Sentry.Handlers.errorHandler());
 
     // Set the json body parser middleware
     this.server.use(bodyParser.json({
@@ -204,9 +209,8 @@ export class HttpServer {
     }
 
     // Check for root in config and prepend to the url
-    if (this.config.get('httpRoot')) {
-      let httpRoot = this.config.get('httpRoot');
-
+    let httpRoot = this.config.get('httpRoot');
+    if (httpRoot) {
       // Should start with an slash
       if (httpRoot.charAt(0) !== '/') {
         httpRoot = `/${httpRoot}`;

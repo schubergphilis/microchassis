@@ -98,7 +98,7 @@ export class Config {
     value: {}
   }];
 
-  constructor( @inject('configoptions') configOptions?: Array<ConfigOption>) {
+  constructor(@inject('configoptions') configOptions?: Array<ConfigOption>) {
     // Merge config options
     if (configOptions) {
       this.knownOptions = this.knownOptions.concat(configOptions);
@@ -115,7 +115,9 @@ export class Config {
 
       // Check for commandline arguments
       if (option.args) {
-        let argValue;
+        const values = option.args.map((key: string): minimist.ParsedArgs | undefined => args[key]);
+        //   .filter((x): x is minimist.ParsedArgs => x)[0];
+        // const value = values[0];
 
         for (let j = 0, lenJ = option.args.length; j < lenJ; j++) {
           const value = args[option.args[j]];
@@ -133,13 +135,20 @@ export class Config {
       }
 
       // Check for environment variables
-      if (option.env && process.env[option.env]) {
-        (<any>this)[option.dest] = process.env[option.env];
+      if (option.env) {
+        const value = process.env[option.env];
+        if (value) {
+          this.set[option.dest] = value;
+        }
       }
     };
   }
 
-  get(key: string): any  {
+  get(key: string): string | number | object | boolean | undefined {
     return (<any>this)[key];
+  }
+
+  set(key: string, value: string | number | boolean | object): void {
+    (<any>this)[key] = value;
   }
 }

@@ -105,7 +105,7 @@ export class RService {
           .bind<any>(<any>subscriber)
           .toSelf()
           .inSingletonScope();
-        subscribers.push(<Subscriber>this.container.get(<any>subscriber));
+        subscribers.push(<Subscriber>this.container.get(subscriber));
       }
     }
 

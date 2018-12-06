@@ -1,6 +1,7 @@
 {
   "extends": "typestrict",
   "rules": {
+    "no-unused-variable": false,
     "early-exit": false,
     "curly": "always",
     "callable-types": true,

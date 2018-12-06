@@ -3,7 +3,7 @@ This package aims to help you build "simple" microservices in Typescript.
 
 [![travis][travis-image]][travis-url]
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/bb6b65f7e0ee4280b6bfd8fd6f1db2b7)](https://www.codacy.com/app/mishok13/microchassis?utm_source=github.com&utm_medium=referral&utm_content=schubergphilis/microchassis&utm_campaign=badger)
-[![Coverage Status](https://coveralls.io/repos/schubergphilis/microchassis/badge.svg?branch=master&service=github)](https://coveralls.io/github/schubergphilis/microchassis?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/schubergphilis/microchassis/badge.svg?branch=master)](https://coveralls.io/github/schubergphilis/microchassis?branch=master)
 [![npm][npm-image]][npm-url]
 [![downloads][downloads-image]][downloads-url]
 [![Known Vulnerabilities](https://snyk.io/test/github/schubergphilis/microchassis/badge.svg)](https://snyk.io/test/github/schubergphilis/microchassis)
