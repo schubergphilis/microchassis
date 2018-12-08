@@ -98,6 +98,7 @@ export class Config {
     value: {}
   }, {
     description: 'Sentry DSN',
+    env: 'SENTRY_DSN',
     dest: 'sentryDsn',
     value: undefined
   }
