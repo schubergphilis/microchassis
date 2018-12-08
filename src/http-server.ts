@@ -209,7 +209,7 @@ export class HttpServer {
     }
 
     // Check for root in config and prepend to the url
-    let httpRoot = this.config.get('httpRoot');
+    let httpRoot = this.config.get('httpRoot') as string;
     if (httpRoot) {
       // Should start with an slash
       if (httpRoot.charAt(0) !== '/') {

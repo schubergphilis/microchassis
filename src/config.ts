@@ -111,44 +111,34 @@ export class Config {
     for (let i = 0, len = this.knownOptions.length; i < len; i++) {
       const option = this.knownOptions[i];
 
-      (<any>this)[option.dest] = option.value;
+      // set default value (if any)
+      this.set(option.dest, option.value);
 
       // Check for commandline arguments
       if (option.args) {
-        const values = option.args.map((key: string): minimist.ParsedArgs | undefined => args[key]);
-        //   .filter((x): x is minimist.ParsedArgs => x)[0];
-        // const value = values[0];
-
-        for (let j = 0, lenJ = option.args.length; j < lenJ; j++) {
-          const value = args[option.args[j]];
-          if (value) {
-            argValue = value;
-            (<any>this)[option.dest] = value;
-            break;
-          }
-        }
-
-        if (argValue) {
-          (<any>this)[option.dest] = argValue;
+        const value = option.args
+          .map((key: string): minimist.ParsedArgs | undefined => args[key])
+          .find(x => x !== undefined);
+        this.set(option.dest, value);
+        if (value !== undefined) {
           break;
         }
       }
 
       // Check for environment variables
       if (option.env) {
-        const value = process.env[option.env];
-        if (value) {
-          this.set[option.dest] = value;
-        }
+        this.set(option.dest, process.env[option.env]);
       }
     };
   }
 
-  get(key: string): string | number | object | boolean | undefined {
+  get(key: string): any | undefined {
     return (<any>this)[key];
   }
 
-  set(key: string, value: string | number | boolean | object): void {
-    (<any>this)[key] = value;
+  set(key: string, value: any | undefined): void {
+    if (value !== undefined) {
+      (<any>this)[key] = value;
+    }
   }
 }
