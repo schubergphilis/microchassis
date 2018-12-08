@@ -48,10 +48,13 @@ export class HttpServer {
     // Disable sending out the default x-powered-by header from express
     this.server.disable('x-powered-by');
 
-    // Unconditionally setup Sentry
-    Sentry.init({ dsn: '__PUBLIC_DSN__' });
-    this.server.use(Sentry.Handlers.requestHandler());
-    this.server.use(Sentry.Handlers.errorHandler());
+    // Conditionally setup Sentry
+    const sentryDsn: string = this.config.get('sentryDsn');
+    if (sentryDsn !== undefined) {
+      Sentry.init({ dsn: sentryDsn });
+      this.server.use(Sentry.Handlers.requestHandler());
+      this.server.use(Sentry.Handlers.errorHandler());
+    }
 
     // Set the json body parser middleware
     this.server.use(bodyParser.json({

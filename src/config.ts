@@ -96,7 +96,12 @@ export class Config {
     description: 'Logger options',
     dest: 'loggerOptions',
     value: {}
-  }];
+  }, {
+    description: 'Sentry DSN',
+    dest: 'sentryDsn',
+    value: undefined
+  }
+  ];
 
   constructor(@inject('configoptions') configOptions?: Array<ConfigOption>) {
     // Merge config options
