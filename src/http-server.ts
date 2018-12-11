@@ -104,8 +104,12 @@ export class HttpServer {
     this.logger.info(`Registering HTTP handler: ${service.method || method} ${url}`);
     this.registeredUrls[url] = service.method;
 
-    (this.server as any)[method](url, (request: Request, response: Response) => {
-      return this.handleRequest(serviceFactory, request, response);
+    (this.server as any)[method](url, async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        await this.handleRequest(serviceFactory, request, response);
+      } catch (e) {
+        next(e)
+      }
     });
   }
 
