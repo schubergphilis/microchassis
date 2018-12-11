@@ -18,12 +18,6 @@ import { Logger } from '../src/logger';
 import { HealthManager } from '../src/health';
 import { Context } from '../src/context';
 import { HttpServer } from '../src/http-server';
-import { ValidationError } from '../src/errors';
-
-function mockRequest(options: { [key: string]: any }): nodeMocks.MockRequest<any> {
-  return nodeMocks.createRequest<any>(options);
-}
-
 const config = new Config();
 
 const mockLogger = {
@@ -407,78 +401,6 @@ describe('Http server', () => {
       const body = handlerSpy.getCall(0).args[1];
       expect(body.foo.bar).to.equal('1');
       expect(body.hello).to.equal('2')
-    });
-
-    it('It should return 500 internal server when handler promise is rejected without status code or content', (done) => {
-      const handlerSpy = sinon.stub().returns(new Promise((_, reject) => {
-        reject();
-      }));
-
-      const service = {
-        url: '/foobar',
-        method: HTTP_METHOD.GET,
-        handler: handlerSpy,
-        unauthenticated: true
-      };
-
-      httpServer.registerService(() => service);
-
-      const handler = getSpy.getCall(1).args[1];
-      const request = nodeMocks.createRequest({
-        method: HTTP_METHOD.GET,
-        url: '/foobar'
-      });
-
-      const response = {
-        status: (status: number) => {
-          expect(status).to.equal(500);
-
-          return {
-            send: (sendResponse: string) => {
-              expect(sendResponse).to.equal('Internal server error');
-              done();
-            }
-          }
-        }
-      }
-
-      handler(request, response);
-    });
-
-    it('It should return the status code and content passed when handler promise is rejected', (done) => {
-      const handlerSpy = sinon.stub().returns(new Promise((_, reject) => {
-        reject(new ValidationError('Foo is not correct'));
-      }));
-
-      const service = {
-        url: '/foobar',
-        method: HTTP_METHOD.GET,
-        handler: handlerSpy,
-        unauthenticated: true
-      };
-
-      httpServer.registerService(() => service);
-
-      const handler = getSpy.getCall(1).args[1];
-      const request = mockRequest({
-        method: HTTP_METHOD.GET,
-        url: '/foobar'
-      });
-
-      const response = {
-        status: (status: number) => {
-          expect(status).to.equal(httpStatus.BAD_REQUEST);
-
-          return {
-            send: (sendResponse: string) => {
-              expect(sendResponse).to.equal('Foo is not correct');
-              done();
-            }
-          }
-        }
-      }
-
-      handler(request, response);
     });
 
     it('Default response status code for success should be 200', (done) => {
