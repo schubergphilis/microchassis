@@ -1,6 +1,6 @@
 {
   "name": "microchassis",
-  "version": "0.7.0-pre2",
+  "version": "0.7.0-pre5",
   "description": "",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
