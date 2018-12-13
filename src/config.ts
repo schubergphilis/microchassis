@@ -96,9 +96,15 @@ export class Config {
     description: 'Logger options',
     dest: 'loggerOptions',
     value: {}
-  }];
+  }, {
+    description: 'Sentry DSN',
+    env: 'SENTRY_DSN',
+    dest: 'sentryDsn',
+    value: undefined
+  }
+  ];
 
-  constructor( @inject('configoptions') configOptions?: Array<ConfigOption>) {
+  constructor(@inject('configoptions') configOptions?: Array<ConfigOption>) {
     // Merge config options
     if (configOptions) {
       this.knownOptions = this.knownOptions.concat(configOptions);
@@ -111,35 +117,34 @@ export class Config {
     for (let i = 0, len = this.knownOptions.length; i < len; i++) {
       const option = this.knownOptions[i];
 
-      (<any>this)[option.dest] = option.value;
+      // set default value (if any)
+      this.set(option.dest, option.value);
 
       // Check for commandline arguments
       if (option.args) {
-        let argValue;
-
-        for (let j = 0, lenJ = option.args.length; j < lenJ; j++) {
-          const value = args[option.args[j]];
-          if (value) {
-            argValue = value;
-            (<any>this)[option.dest] = value;
-            break;
-          }
-        }
-
-        if (argValue) {
-          (<any>this)[option.dest] = argValue;
+        const value = option.args
+          .map((key: string): minimist.ParsedArgs | undefined => args[key])
+          .find(x => x !== undefined);
+        this.set(option.dest, value);
+        if (value !== undefined) {
           break;
         }
       }
 
       // Check for environment variables
-      if (option.env && process.env[option.env]) {
-        (<any>this)[option.dest] = process.env[option.env];
+      if (option.env) {
+        this.set(option.dest, process.env[option.env]);
       }
     };
   }
 
-  get(key: string): any  {
+  get(key: string): any | undefined {
     return (<any>this)[key];
+  }
+
+  set(key: string, value: any | undefined): void {
+    if (value !== undefined) {
+      (<any>this)[key] = value;
+    }
   }
 }

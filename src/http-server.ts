@@ -1,6 +1,6 @@
 import { injectable, inject, interfaces } from 'inversify';
 
-import { Request, Response, NextFunction, Express } from 'express';
+import { Request, Response, NextFunction, Express, ErrorRequestHandler } from 'express';
 import * as bodyParser from 'body-parser';
 import * as httpStatus from 'http-status';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -14,6 +14,7 @@ import { Logger } from './logger';
 import { Context } from './context';
 import { deepSet } from './utils';
 import { MicroChassisError } from './errors';
+import * as Sentry from '@sentry/node';
 
 export interface RegisteredServices {
   [key: string]: HttpMethod;
@@ -42,11 +43,18 @@ export class HttpServer {
   ) {
     healthManager.registerCheck('HTTP server', this.health);
 
-    // Setup express and a json body parser
     this.server = <Express>(this.express());
 
     // Disable sending out the default x-powered-by header from express
     this.server.disable('x-powered-by');
+
+    // Conditionally setup Sentry
+    const sentryDsn: string = this.config.get('sentryDsn');
+    if (sentryDsn !== undefined) {
+      Sentry.init({ dsn: sentryDsn });
+      this.server.use(Sentry.Handlers.requestHandler());
+      this.server.use(Sentry.Handlers.errorHandler());
+    }
 
     // Set the json body parser middleware
     this.server.use(bodyParser.json({
@@ -96,14 +104,17 @@ export class HttpServer {
     this.logger.info(`Registering HTTP handler: ${service.method || method} ${url}`);
     this.registeredUrls[url] = service.method;
 
-    (this.server as any)[method](url, (request: Request, response: Response) => {
-      return this.handleRequest(serviceFactory, request, response);
+    (this.server as any)[method](url, async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        await this.handleRequest(serviceFactory, request, response);
+      } catch (e) {
+        next(e)
+      }
     });
   }
 
   // Starts the http server
   public start() {
-    // Set a 30 seconds request timeout
     const connectTimeout: number = this.config.get('connectTimeout') || 30000;
     this.server.use(timeout(`${connectTimeout}ms`));
 
@@ -117,14 +128,7 @@ export class HttpServer {
     });
 
     // Error middleware
-    this.server.use((error: any, request: Request, response: Response, _: NextFunction) => {
-      this.logger.error(`Express error middleware error for ${request.url}`, error);
-      console.error(error);
-
-      response.status(httpStatus.INTERNAL_SERVER_ERROR).send({
-        message: 'Something went terribly wrong....'
-      });
-    });
+    this.server.use(errorHandler as ErrorRequestHandler);
 
     this.server.listen(this.config.get('httpPort'), () => {
       this.logger.info(`Http server starting listening on: ${this.config.get('httpPort')} `);
@@ -133,9 +137,7 @@ export class HttpServer {
   }
 
   private async handleRequest(serviceFactory: interfaces.Factory<HttpService>, request: Request, response: Response): Promise<void> {
-    // Build up context object
     const context = this.createContext(request);
-
     const startTime = new Date();
     this.logger.info(`Http request: '${request.url}' started`, context);
 
@@ -165,36 +167,25 @@ export class HttpServer {
       } else if (serviceResponse instanceof MicroChassisError) {
         throw serviceResponse;
       }
-
       status = serviceResponse.status || httpStatus.OK;
       content = serviceResponse.content;
       if (serviceResponse.headers) {
         response.set(serviceResponse.headers);
       }
-    } catch (error) {
-      if (error instanceof MicroChassisError) {
-        status = error.status || status;
-        content = error.content || content;
-      } else if (error instanceof Error) {
-        content = error.message;
-      }
-
-      this.logger.error(content);
+      response.status(status).send(content);
+    } finally {
+      const duration = new Date().getTime() - startTime.getTime();
+      const extra = {
+        url: request.url,
+        context,
+        duration,
+        status,
+        httpMethod: service.method,
+        uri: service.url,
+        transport: 'HTTP'
+      };
+      this.logger.info(`HTTP request '${request.url}' ended: ${status}, duration: ${duration} ms`, extra);
     }
-
-    response.status(status).send(content);
-
-    const duration = new Date().getTime() - startTime.getTime();
-    const extra = {
-      url: request.url,
-      context,
-      duration,
-      status,
-      httpMethod: service.method,
-      uri: service.url,
-      transport: 'HTTP'
-    };
-    this.logger.info(`HTTP request '${request.url}' ended: ${status}, duration: ${duration} ms`, extra);
   }
 
   private normalizeURL(url: string) {
@@ -204,9 +195,8 @@ export class HttpServer {
     }
 
     // Check for root in config and prepend to the url
-    if (this.config.get('httpRoot')) {
-      let httpRoot = this.config.get('httpRoot');
-
+    let httpRoot = this.config.get('httpRoot') as string;
+    if (httpRoot) {
       // Should start with an slash
       if (httpRoot.charAt(0) !== '/') {
         httpRoot = `/${httpRoot}`;
@@ -282,4 +272,10 @@ export class HttpServer {
       user: <string>user
     }
   }
+}
+
+function errorHandler(err: any, _req: Request, res: Response & { sentry: string }, _next: NextFunction): any {
+  console.error(err);
+  res.statusCode = 500;
+  res.json({ errorCode: res.sentry })
 }

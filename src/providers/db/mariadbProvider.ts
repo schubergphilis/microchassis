@@ -26,11 +26,11 @@ export class MariadbProvider extends DbProvider implements EntityProvider {
     super(healthManager);
 
     const providedOptions: Partial<MysqlConnectionOptions> = {
-      username: this.config.get('dbUser'),
-      password: this.config.get('dbPassword') || '',
-      database: this.config.get('dbName'),
-      host: this.config.get('dbHost'),
-      port: this.config.get('dbPort'),
+      username: this.config.get('dbUser') as string,
+      password: this.config.get('dbPassword') as string || '',
+      database: this.config.get('dbName') as string,
+      host: this.config.get('dbHost') as string,
+      port: this.config.get('dbPort') as number,
       entities: this.entities
     };
     const options: ConnectionOptions = deepmerge(this.connectionOptions, providedOptions);
