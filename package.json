@@ -80,7 +80,7 @@
   "dependencies": {
     "@sentry/node": "^4.4.1",
     "ajv": "~5.5.1",
-    "async": "^2.5.0",
+    "async": "^2.6.0",
     "body-parser": "^1.18.2",
     "connect-timeout": "^1.9.0",
     "deepmerge": "^1.5.2",
@@ -93,7 +93,7 @@
     "mysql": "^2.14.1",
     "reflect-metadata": "^0.1.10",
     "rxjs": "^5.4.3",
-    "ts-mockito": "^2.2.5",
+    "ts-mockito": "^2.2.7",
     "typeorm": "^0.1.1",
     "uuid": "^3.1.0"
   }
